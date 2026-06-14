@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { listNotes, getNote, saveNote } from '@/api/notes.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import { formatDate } from '@/utils/formatDate.js'
 
@@ -40,7 +41,7 @@ async function submit() {
     reset()
     await load()
   } catch (e) {
-    alert(e.message)
+    toast(e.message, 'error')
   } finally { saving.value = false }
 }
 

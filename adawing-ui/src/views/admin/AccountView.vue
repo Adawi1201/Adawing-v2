@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { listMcpKeys, generateMcpKey, revokeMcpKey } from '@/api/mcpKeys.js'
 import { formatDate } from '@/utils/formatDate.js'
+import { toast } from '@/utils/toast.js'
 
 const auth = useAuthStore()
 const passwordForm = ref({ oldPassword: '', newPassword: '', confirm: '' })
@@ -59,7 +60,7 @@ async function generate() {
     keyForm.value = { name: '', description: '' }
     await loadKeys()
   } catch (e) {
-    alert(e.message)
+    toast(e.message, 'error')
   } finally {
     generating.value = false
   }
@@ -71,7 +72,7 @@ async function copyPlainKey() {
     copied.value = true
     setTimeout(() => { copied.value = false }, 1500)
   } catch {
-    alert('Copy failed')
+    toast('Copy failed', 'warn')
   }
 }
 

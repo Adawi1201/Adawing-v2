@@ -2,6 +2,7 @@
 import { ref, onMounted, reactive } from 'vue'
 import { listAdminMessages, approveMessage, rejectMessage } from '@/api/messages.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import Pagination from '@/components/Pagination.vue'
 import { formatDate } from '@/utils/formatDate.js'
@@ -59,7 +60,7 @@ async function doApprove(msgId) {
 
 async function doReject(msgId) {
   const f = getForm(msgId)
-  if (!f.reason) { alert('Please enter a rejection reason'); return }
+  if (!f.reason) { toast('Please enter a rejection reason', 'warn'); return }
   await rejectMessage(msgId, f.reason)
   delete forms[msgId]
   await load()

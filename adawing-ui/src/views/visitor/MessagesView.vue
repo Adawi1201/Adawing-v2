@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { listMessages, submitMessage } from '@/api/messages.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import { toast } from '@/utils/toast.js'
 import { formatDate } from '@/utils/formatDate.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -27,7 +28,7 @@ async function load() {
 
 async function submit() {
   if (!form.value.nickname || !form.value.email || !form.value.content) {
-    alert('Please fill in all fields')
+    toast('Please fill in all fields', 'warn')
     return
   }
   submitting.value = true
@@ -36,7 +37,7 @@ async function submit() {
     form.value = { nickname: '', email: '', content: '' }
     page.value = 1
     await load()
-  } catch (e) { alert(e.message) }
+  } catch (e) { toast(e.message, 'error') }
   finally { submitting.value = false }
 }
 

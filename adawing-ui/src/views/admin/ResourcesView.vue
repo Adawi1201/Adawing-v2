@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { listResources, uploadResource, allocateResource, deleteResource } from '@/api/resources.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import { toast } from '@/utils/toast.js'
 import { formatDate } from '@/utils/formatDate.js'
 import Pagination from '@/components/Pagination.vue'
 
@@ -37,14 +38,14 @@ async function onFileChange(e) {
     await uploadResource(file, uploadPool.value)
     e.target.value = ''
     await load()
-  } catch (err) { alert(err.message) }
+  } catch (err) { toast(err.message, 'error') }
   finally { uploading.value = false }
 }
 
 async function doAllocate(id, e) {
   if (!e.target.value) return
   try { await allocateResource(id, e.target.value); await load() }
-  catch (err) { alert(err.message) }
+  catch (err) { toast(err.message, 'error') }
 }
 
 async function doDelete(id) {

@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getAdmin, saveArticle } from '@/api/articles.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 
 const route = useRoute()
@@ -24,7 +25,7 @@ async function loadArticle() {
       id: article.id, title: article.title || '', summary: article.summary || '',
       content: article.content || '', coverResourceId: article.coverResourceId, tagNames: []
     }
-  } catch (e) { alert(e.message) }
+  } catch (e) { toast(e.message, 'error') }
 }
 
 async function submit() {
@@ -38,7 +39,7 @@ async function submit() {
     }
     await saveArticle(data)
     router.push({ name: 'AdminArticles' })
-  } catch (e) { alert(e.message) }
+  } catch (e) { toast(e.message, 'error') }
   finally { saving.value = false }
 }
 

@@ -2,6 +2,7 @@
 import { ref, onMounted, reactive } from 'vue'
 import { listTasks, approve, reject } from '@/api/review.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import Pagination from '@/components/Pagination.vue'
 import { formatDate } from '@/utils/formatDate.js'
@@ -79,7 +80,7 @@ async function doApprove(task) {
 
 async function doReject(task) {
   const f = getForm(task.id)
-  if (isMessage(task) && !f.reason) { alert('Please enter a rejection reason'); return }
+  if (isMessage(task) && !f.reason) { toast('Please enter a rejection reason', 'warn'); return }
   await reject(task.id, { reason: f.reason || '', reviewerNote: f.note || '' })
   delete forms[task.id]
   await load()

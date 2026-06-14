@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { listTags, createTag, suggestTags, mergeTags } from '@/api/tags.js'
+import { toast } from '@/utils/toast.js'
 
 const tags = ref([])
 const loading = ref(false)
@@ -54,7 +55,7 @@ function debouncedFetchSuggestions() {
 async function doMerge() {
   if (!sourceId.value || !targetId.value) return
   if (sourceId.value === targetId.value) {
-    alert('Cannot merge a tag into itself')
+    toast('Cannot merge a tag into itself', 'warn')
     return
   }
   if (!confirm('The source tag will be deleted. Continue?')) return
@@ -65,7 +66,7 @@ async function doMerge() {
     targetId.value = ''
     await load()
   } catch (e) {
-    alert(e.message)
+    toast(e.message, 'error')
   } finally {
     merging.value = false
   }

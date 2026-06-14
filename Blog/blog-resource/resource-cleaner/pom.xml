@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>cc.adabyte</groupId>
+        <artifactId>blog-resource</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>resource-cleaner</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>cc.adabyte</groupId>
+            <artifactId>resource-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cc.adabyte</groupId>
+            <artifactId>resource-oss</artifactId>
+        </dependency>
+    </dependencies>
+</project>

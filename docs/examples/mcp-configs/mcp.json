@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "adawing": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp",
+      "headers": {
+        "X-MCP-Key": "${ADAWING_MCP_KEY}"
+      }
+    }
+  }
+}

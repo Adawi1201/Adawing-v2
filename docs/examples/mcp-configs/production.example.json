@@ -1,0 +1,23 @@
+{
+  "_comment": "生产环境 — 多 MCP Server 共存，HTTPS + 环境变量",
+
+  "mcpServers": {
+
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+
+    "adawing": {
+      "type": "http",
+      "url": "https://adawing.example.com/mcp",
+      "headers": {
+        "X-MCP-Key": "${ADAWING_MCP_KEY}"
+      }
+    }
+
+  }
+}

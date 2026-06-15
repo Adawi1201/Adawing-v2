@@ -49,7 +49,4 @@ application-local.yaml
 /.codegraph
 
 ### Deploy ###
-/deploy/.env
-/deploy/.logs/
-/deploy/.pids/
-/deploy/dist/
+/deploy/adawing-v2/

@@ -1,0 +1,65 @@
+# =============================================================================
+# AdaWing v2 — 生产配置
+# 用法: 将此文件复制到服务器 /opt/adawing/，修改占位符后启动
+# 启动: bash /opt/adawing/run.sh start
+# =============================================================================
+
+server:
+  port: 8080
+  address: 0.0.0.0
+
+spring:
+  application:
+    name: adawing-v2
+
+  # ── 数据库 ──
+  datasource:
+    url: jdbc:mysql://localhost:3306/adawing?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai
+    username: root
+    password: your-db-password-here              # ← 修改
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # ── 自动建表（首次启动后建议关闭） ──
+  sql:
+    init:
+      mode: never                                # 改为 always 可自动执行 schema.sql
+
+  # ── 文件上传大小 ──
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+  # ── 邮件 ──
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: your-email@qq.com                 # ← 修改
+    password: your-smtp-auth-code               # ← 修改
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+# ── MyBatis-Plus ──
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+# ── JWT ──
+jwt:
+  secret: change-me-to-a-random-string          # ← 修改（openssl rand -base64 48）
+
+# ── 阿里云 OSS ──
+oss:
+  endpoint: https://oss-cn-beijing.aliyuncs.com
+  access-key: your-access-key                   # ← 修改
+  secret-key: your-secret-key                   # ← 修改
+  bucket-name: your-bucket-name                 # ← 修改
+
+# ── 日志 ──
+logging:
+  level:
+    cc.adabyte: INFO

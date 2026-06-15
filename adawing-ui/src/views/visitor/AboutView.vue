@@ -27,7 +27,7 @@ onMounted(() => {
     <template v-else>
       <div class="about-header reveal">
         <div v-if="profile.avatar" class="about-avatar">
-          <img :src="resolveResourceUrl(profile.avatar)" :alt="profile.ownerName" />
+          <img :src="resourceContentUrl(profile.avatar)" :alt="profile.ownerName" />
         </div>
         <h1 class="about-name">{{ profile.ownerName || 'void' }}</h1>
         <p class="about-signature">{{ profile.signature || 'void' }}</p>

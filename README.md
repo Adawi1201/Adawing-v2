@@ -248,13 +248,9 @@ adawing/
 │       └── views/
 │           ├── visitor/           #   Home · Article · Chronicle · Notes · Messages · About
 │           └── admin/             #   Dashboard · Articles · Review · Messages · Tags · Settings
-├── docs/
-│   ├── superpowers/
-│   │   ├── specs/                 #   design specifications (6 reports)
-│   │   ├── plans/                 #   phase implementation plans (19 reports)
-│   │   └── verify/               #   integration verification reports (14 reports)
-│   └── examples/mcp-configs/      #   JSON config templates for MCP clients
-└── scripts/                       #   data migration & extraction helpers
+└── docs/
+    └── examples/mcp-configs/      #   JSON config templates for MCP clients
+
 ```
 
 ---
@@ -305,7 +301,6 @@ This project follows a strict **12-phase spec→plan→build→verify** workflow
 3. **Single-file edit discipline** — fix one file at a time, re-test, then proceed
 4. **PAUSE on uncertainty** — two or more "maybe / perhaps / assume" signals triggers a hard stop and user consultation
 
-Process documents (`specs/`, `plans/`, `previews/`, `verify/`, `reviews/`) are kept in `docs/superpowers/` and are **not committed to git**.
 
 ---
 

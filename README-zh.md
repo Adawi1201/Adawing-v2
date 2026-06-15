@@ -43,15 +43,15 @@ AdaWing 是一个**深具个人色彩但在工程上毫不妥协的博客平台*
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     blog-boot                            │
+│                     blog-boot                           │
 │            （入口 · CORS · 事件总线）                      │
 ├──────────┬──────────┬──────────┬──────────┬─────────────┤
 │ blog-zoom│ blog-    │ blog-    │ agent-   │  adawing-ui │
-│ 内容域   │ system  │ resource │ mcp      │  Vue 3 SPA  │
-│          │ 系统域   │ 资源域   │ 服务器    │             │
+│ 内容域    │ system   │ resource │ mcp      │  Vue 3 SPA  │
+│          │ 系统域    │ 资源域    │ 服务器    │             │
 ├──────────┴──────────┴──────────┴──────────┴─────────────┤
-│                    blog-common                           │
-│        （Result · PageResult · JwtUtil · Exceptions）     │
+│                    blog-common                          │
+│        （Result · PageResult · JwtUtil · Exceptions）    │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -248,13 +248,9 @@ adawing/
 │       └── views/
 │           ├── visitor/           #   首页 · 文章 · 时间线 · 动态 · 留言 · 关于
 │           └── admin/             #   看板 · 文章 · 审核 · 留言 · 标签 · 设置
-├── docs/
-│   ├── superpowers/
-│   │   ├── specs/                 #   设计规范（6 份）
-│   │   ├── plans/                 #   阶段实施计划（19 份）
-│   │   └── verify/               #   集成验证报告（14 份）
-│   └── examples/mcp-configs/      #   MCP 客户端配置模板
-└── scripts/                       #   数据迁移 & 提取工具
+└── docs/
+    └── examples/mcp-configs/      #   MCP 客户端配置模板
+
 ```
 
 ---
@@ -305,7 +301,6 @@ AdaWing 有意不做的事情：
 3. **单文件修改纪律** — 一次改一个文件、立即回归测试、通过后再继续
 4. **不确定性 PAUSE** — 连续两次「可能/也许/大概」触发硬中断，向用户提问
 
-过程文档（`specs/`、`plans/`、`previews/`、`verify/`、`reviews/`）存放于 `docs/superpowers/`，**不提交至 git**。
 
 ---
 

@@ -149,6 +149,14 @@ button {
   font-weight: 600;
   letter-spacing: 0.15em;
   color: var(--ink);
+  display: flex;
+  align-items: center;
+}
+
+.v-header .logo-img {
+  height: 28px;
+  width: auto;
+  display: block;
 }
 
 .v-header nav {

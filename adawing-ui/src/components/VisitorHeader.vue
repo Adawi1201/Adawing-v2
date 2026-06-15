@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { useSiteStore } from '@/stores/site.js'
+import { resourceContentUrl } from '@/utils/resourceUrl.js'
 import { onMounted, ref } from 'vue'
 import gsap from 'gsap'
 import { visitorLinks } from '@/constants/nav.js'
@@ -32,7 +33,10 @@ onMounted(() => {
 
 <template>
   <header class="v-header">
-    <RouterLink to="/" class="logo">{{ site.config.name || 'void' }}</RouterLink>
+    <RouterLink to="/" class="logo">
+      <img v-if="site.config.logo" :src="resourceContentUrl(site.config.logo)" :alt="site.config.name" class="logo-img" />
+      <span v-else>{{ site.config.name || 'void' }}</span>
+    </RouterLink>
     <nav ref="navRef">
       <RouterLink
         v-for="link in visitorLinks"

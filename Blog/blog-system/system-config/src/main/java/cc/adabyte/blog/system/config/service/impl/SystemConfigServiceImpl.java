@@ -1,5 +1,6 @@
 package cc.adabyte.blog.system.config.service.impl;
 
+import cc.adabyte.blog.common.event.SiteConfigSavedEvent;
 import cc.adabyte.blog.system.config.dto.LinkDto;
 import cc.adabyte.blog.system.config.dto.ProfileDto;
 import cc.adabyte.blog.system.config.dto.SeoDto;
@@ -11,11 +12,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -26,6 +30,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
 
     private final SystemConfigMapper mapper;
     private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public SiteConfigDto getSiteConfig() {
@@ -63,6 +68,34 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to serialize site config", e);
         }
+
+        Set<Long> resourceIds = collectResourceIds(dto);
+        eventPublisher.publishEvent(new SiteConfigSavedEvent(resourceIds));
+    }
+
+    private Set<Long> collectResourceIds(SiteConfigDto dto) {
+        Set<Long> ids = new HashSet<>();
+        addIfPresent(ids, dto.getLogo());
+        addIfPresent(ids, dto.getFavicon());
+        if (dto.getProfile() != null) {
+            addIfPresent(ids, dto.getProfile().getAvatar());
+        }
+        if (dto.getLinks() != null) {
+            for (LinkDto link : dto.getLinks()) {
+                addIfPresent(ids, link.getIcon());
+            }
+        }
+        return ids;
+    }
+
+    private void addIfPresent(Set<Long> ids, String resourceId) {
+        if (resourceId != null && !resourceId.isBlank()) {
+            try {
+                ids.add(Long.valueOf(resourceId));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid resource id in site config: {}", resourceId);
+            }
+        }
     }
 
     private SiteConfigDto defaultConfig() {
@@ -85,6 +118,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         profile.setOwnerName("");
         profile.setAvatar("");
         profile.setBio("");
+        profile.setSignature("");
         dto.setProfile(profile);
 
         LinkDto github = new LinkDto();

@@ -56,7 +56,7 @@ echo   [OK] pnpm
 echo.
 echo [2/4] Building backend (Maven)...
 
-cd /d "%BACKEND_DIR%"
+cd /d "%PROJECT_DIR%"
 call mvn clean package -DskipTests -q
 if errorlevel 1 (
     cd /d "%PROJECT_DIR%"

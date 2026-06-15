@@ -7,4 +7,5 @@ public class ProfileDto {
     private String ownerName;
     private String avatar;
     private String bio;
+    private String signature;
 }

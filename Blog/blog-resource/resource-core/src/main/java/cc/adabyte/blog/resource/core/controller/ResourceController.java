@@ -12,9 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.http.ContentDisposition;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RestController
@@ -39,7 +42,10 @@ public class ResourceController {
             response.setContentLengthLong(download.size());
         }
         if (download.originalName() != null) {
-            response.setHeader("Content-Disposition", "inline; filename=\"" + download.originalName() + "\"");
+            ContentDisposition cd = ContentDisposition.inline()
+                    .filename(download.originalName(), StandardCharsets.UTF_8)
+                    .build();
+            response.setHeader("Content-Disposition", cd.toString());
         }
         try (InputStream in = download.stream();
              OutputStream out = response.getOutputStream()) {

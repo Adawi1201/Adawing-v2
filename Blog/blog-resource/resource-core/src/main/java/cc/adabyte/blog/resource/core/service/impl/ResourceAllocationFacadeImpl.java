@@ -10,6 +10,7 @@ import cc.adabyte.blog.resource.core.service.ResourcePoolService;
 import cc.adabyte.blog.resource.core.service.ResourceService;
 import cc.adabyte.blog.resource.core.util.MarkdownResourceRenderer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ResourceAllocationFacadeImpl implements ResourceAllocationFacade {
@@ -64,7 +66,9 @@ public class ResourceAllocationFacadeImpl implements ResourceAllocationFacade {
     public void delete(Long resourceId) {
         Resource resource = resourceMapper.selectById(resourceId);
         if (resource == null) return;
+        log.info("[Resource] 删除请求: id={} name={} refCount={}", resourceId, resource.getOriginalName(), resource.getRefCount());
         if (resource.getRefCount() != null && resource.getRefCount() > 0) {
+            log.warn("[Resource] 删除被拒绝：资源仍被引用 id={} refCount={}", resourceId, resource.getRefCount());
             throw new BusinessException("资源已被引用，无法删除，请先解除引用");
         }
         resourceService.physicalDelete(resourceId);

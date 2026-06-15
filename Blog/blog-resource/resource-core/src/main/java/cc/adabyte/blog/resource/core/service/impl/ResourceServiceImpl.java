@@ -85,6 +85,13 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     @Transactional
     public void bind(Long resourceId, String module, Long objectId) {
+        Resource resource = resourceMapper.selectById(resourceId);
+        if (resource == null) {
+            log.warn("[Resource] bind 跳过：资源不存在 resourceId={} module={} objectId={}", resourceId, module, objectId);
+            return;
+        }
+        log.info("[Resource] bind: resourceId={} (name={}) module={} objectId={} 当前 refCount={}",
+                resourceId, resource.getOriginalName(), module, objectId, resource.getRefCount());
         ResourceReference ref = new ResourceReference();
         ref.setResourceId(resourceId);
         ref.setModule(module);
@@ -92,6 +99,7 @@ public class ResourceServiceImpl implements ResourceService {
         ref.setCreatedAt(LocalDateTime.now());
         referenceMapper.insert(ref);
         resourceMapper.incrementRefCount(resourceId);
+        log.info("[Resource] bind 完成: resourceId={} refCount 已 +1", resourceId);
     }
 
     @Override
@@ -125,8 +133,20 @@ public class ResourceServiceImpl implements ResourceService {
         Resource resource = resourceMapper.selectById(resourceId);
         if (resource == null) return;
 
-        ossTemplate.deleteByUrl(resource.getUrl());
+        log.info("[Resource] 物理删除: id={} name={} url={} refCount={}",
+                resourceId, resource.getOriginalName(), resource.getUrl(), resource.getRefCount());
+
+        // 尝试 OSS 删除，失败不阻断 DB 清理
+        try {
+            ossTemplate.deleteByUrl(resource.getUrl());
+        } catch (Exception e) {
+            log.error("[Resource] OSS 删除失败（继续清理 DB 记录）: id={} url={}", resourceId, resource.getUrl(), e);
+        }
+
+        // 清理引用记录（兜底，防止 resource_reference 残留导致前端请求不存在的资源）
+        referenceMapper.deleteByResourceId(resourceId);
 
         resourceMapper.deleteById(resourceId);
+        log.info("[Resource] 物理删除完成: id={}", resourceId);
     }
 }

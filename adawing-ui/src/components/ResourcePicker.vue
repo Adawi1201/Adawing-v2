@@ -3,8 +3,33 @@ import { ref } from 'vue'
 import { listResources } from '@/api/resources.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
 
+const USAGE_CONFIG = {
+  avatar: {
+    pool: 'AVATAR',
+    allowFallback: true,
+    title: 'Choose Avatar'
+  },
+  article: {
+    pool: 'ARTICLE',
+    allowFallback: true,
+    title: 'Choose Article Resource'
+  },
+  emoji: {
+    pool: 'EMOJI',
+    allowFallback: false,
+    title: 'Choose Emoji'
+  },
+  icon: {
+    pool: 'AVATAR',
+    allowFallback: true,
+    title: 'Choose Icon'
+  }
+}
+
 const props = defineProps({
   pool: { type: String, default: '' },
+  usage: { type: String, default: '' },
+  allowFallback: { type: Boolean, default: false },
   title: { type: String, default: 'Choose Resource' }
 })
 
@@ -16,15 +41,30 @@ const resources = ref([])
 const loading = ref(false)
 const error = ref('')
 const bubbleKey = ref(0)
+const currentTitle = ref(props.title)
+const currentPool = ref(props.pool)
+const currentAllowFallback = ref(props.allowFallback)
+const currentUsage = ref(props.usage)
 
-async function open() {
+function resolveConfig(override = {}) {
+  const usage = override.usage || props.usage || ''
+  const usageConfig = usage ? USAGE_CONFIG[usage] : null
+  currentUsage.value = usage
+  currentPool.value = override.pool || usageConfig?.pool || props.pool || ''
+  currentAllowFallback.value = override.allowFallback ?? usageConfig?.allowFallback ?? props.allowFallback ?? false
+  currentTitle.value = override.title || usageConfig?.title || props.title
+}
+
+async function open(override = {}) {
+  resolveConfig(override)
   visible.value = true
   loading.value = true
   error.value = ''
   bubbleKey.value++
   try {
     const params = { page: 1, size: 100 }
-    if (props.pool) params.pool = props.pool
+    if (currentPool.value) params.pool = currentPool.value
+    if (currentAllowFallback.value) params.allowFallback = true
     const res = await listResources(params)
     const data = res.data || res
     resources.value = data.list || []
@@ -48,7 +88,12 @@ function select(r) {
         <Transition name="rp-drop" appear>
           <div v-if="visible" class="rp-card">
             <div class="rp-header">
-              <h3>{{ title }}</h3>
+              <div class="rp-header-main">
+                <h3>{{ currentTitle }}</h3>
+                <p v-if="currentUsage" class="rp-usage-tip">
+                  usage={{ currentUsage }} / pool={{ currentPool || 'ALL' }}<span v-if="currentAllowFallback"> / misc fallback</span>
+                </p>
+              </div>
               <button class="rp-close" @click="visible = false" title="Close">&times;</button>
             </div>
 
@@ -140,9 +185,20 @@ function select(r) {
   flex-shrink: 0;
 }
 
+.rp-header-main {
+  min-width: 0;
+}
+
 .rp-header h3 {
   font-size: 13px; font-weight: 500;
   letter-spacing: 0.06em; color: var(--ink);
+}
+
+.rp-usage-tip {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
 }
 
 .rp-close {

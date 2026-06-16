@@ -6,6 +6,7 @@ import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import Pagination from '@/components/Pagination.vue'
 import { formatDate } from '@/utils/formatDate.js'
+import MarkdownContent from '@/components/MarkdownContent.vue'
 
 const messages = ref([])
 const page = ref(1)
@@ -120,7 +121,7 @@ onMounted(load)
             <!-- Full content -->
             <div class="md-section">
               <div class="md-label">Content</div>
-              <div class="md-body" v-html="msg.content || '—'" />
+              <MarkdownContent class="md-body" :source="msg.content || '—'" />
             </div>
 
             <!-- Reply / rejection note (already processed) -->
@@ -158,7 +159,7 @@ onMounted(load)
     </template>
 
     <Pagination :current="page" :total="total" :size="size" @change="changePage" />
-    <ResourcePicker ref="avatarPicker" @pick="pickAvatar" />
+    <ResourcePicker ref="avatarPicker" usage="avatar" title="Choose Avatar" @pick="pickAvatar" />
   </div>
 </template>
 

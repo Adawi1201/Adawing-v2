@@ -6,6 +6,7 @@ import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import Pagination from '@/components/Pagination.vue'
 import { formatDate } from '@/utils/formatDate.js'
+import MarkdownContent from '@/components/MarkdownContent.vue'
 
 const tasks = ref([])
 const page = ref(1)
@@ -130,7 +131,7 @@ onMounted(load)
             <!-- Content preview -->
             <div class="rd-section">
               <div class="rd-label">Content</div>
-              <div class="rd-body" v-html="task.contentBody || '—'" />
+              <MarkdownContent class="rd-body" :source="task.contentBody || '—'" />
             </div>
 
             <!-- Existing avatar -->
@@ -187,8 +188,8 @@ onMounted(load)
     </template>
 
     <Pagination :current="page" :total="total" :size="size" @change="changePage" />
-    <ResourcePicker ref="avatarPicker" @pick="pickAvatar" />
-    <ResourcePicker ref="coverPicker" @pick="pickCover" />
+    <ResourcePicker ref="avatarPicker" usage="avatar" title="Choose Avatar" @pick="pickAvatar" />
+    <ResourcePicker ref="coverPicker" usage="article" title="Choose Cover" @pick="pickCover" />
   </div>
 </template>
 

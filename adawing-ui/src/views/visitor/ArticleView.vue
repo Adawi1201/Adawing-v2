@@ -6,6 +6,7 @@ import { useWatchRevealChildren } from '@/composables/useScrollReveal.js'
 import { formatDate } from '@/utils/formatDate.js'
 import { sourceLabel } from '@/utils/source.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import MarkdownContent from '@/components/MarkdownContent.vue'
 
 const route = useRoute()
 const article = ref(null)
@@ -47,7 +48,7 @@ onMounted(load)
         <div class="article-divider"></div>
       </header>
 
-      <div class="article-body" v-html="article.content"></div>
+      <MarkdownContent class="article-body" :source="article.content" />
 
       <div v-if="article.sourceAgent" class="agent-note">
         <div class="note-label">Agent Information</div>

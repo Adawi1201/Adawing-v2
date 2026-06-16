@@ -40,11 +40,7 @@ public class ArticleController {
 
     @GetMapping("/admin/{id}")
     public Result<Article> getAdminById(@PathVariable Long id) {
-        Article article = articleService.getAdminById(id);
-        if (article != null) {
-            article.setContent(resourceFacade.renderMarkdown(article.getContent()));
-        }
-        return Result.ok(article);
+        return Result.ok(articleService.getAdminById(id));
     }
 
     @GetMapping("/stats")

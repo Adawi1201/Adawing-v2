@@ -6,6 +6,7 @@ import { toast } from '@/utils/toast.js'
 import { formatDate } from '@/utils/formatDate.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import Pagination from '@/components/Pagination.vue'
+import MarkdownContent from '@/components/MarkdownContent.vue'
 
 const messages = ref([])
 const page = ref(1)
@@ -86,7 +87,7 @@ onMounted(load)
             <span class="mc-time">{{ formatDate(msg.createTime) }}</span>
           </div>
         </div>
-        <div class="mc-body" v-html="msg.content" />
+        <MarkdownContent class="mc-body" :source="msg.content" />
         <div v-if="msg.reply" class="mc-reply">
           <span class="mc-reply-tag">Admin</span>
           <span class="mc-reply-text">{{ msg.reply }}</span>
@@ -95,7 +96,7 @@ onMounted(load)
     </TransitionGroup>
 
     <Pagination :current="page" :total="total" :size="size" @change="changePage" />
-    <ResourcePicker ref="emojiPicker" pool="EMOJI" title="Choose Emoji" @pick="insertEmoji" />
+    <ResourcePicker ref="emojiPicker" usage="emoji" title="Choose Emoji" @pick="insertEmoji" />
   </div>
 </template>
 

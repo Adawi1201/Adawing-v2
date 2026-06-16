@@ -51,12 +51,16 @@ let pendingLinkIndex = -1
 
 function openResourcePickerFor(target) {
   pickTarget = target
-  resourcePicker.value.open()
+  if (target === 'avatar') {
+    resourcePicker.value.open({ usage: 'avatar', title: 'Choose Avatar' })
+    return
+  }
+  resourcePicker.value.open({ usage: 'icon', title: target === 'logo' ? 'Choose Logo' : 'Choose Favicon' })
 }
 
 function openLinkIconPicker(index) {
   pendingLinkIndex = index
-  linkIconPicker.value.open()
+  linkIconPicker.value.open({ usage: 'icon', title: 'Choose Link Icon' })
 }
 
 function onResourcePicked(r) {

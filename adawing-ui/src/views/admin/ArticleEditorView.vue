@@ -1,8 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Vditor from 'vditor'
 import { getAdmin, saveArticle } from '@/api/articles.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import { resourceReferenceImage, restoreResourceReferences } from '@/utils/resourceRef.js'
 import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 
@@ -15,6 +17,57 @@ const form = ref({ id: null, title: '', summary: '', content: '', coverResourceI
 const tagInput = ref('')
 const coverPicker = ref(null)
 const contentPicker = ref(null)
+const editorRef = ref(null)
+let vditor = null
+
+function syncContentFromEditor() {
+  if (vditor) {
+    form.value.content = vditor.getValue()
+  }
+}
+
+function initEditor() {
+  if (!editorRef.value) return
+  vditor = new Vditor(editorRef.value, {
+    mode: 'ir',
+    minHeight: 520,
+    cache: { enable: false },
+    placeholder: 'Start writing Markdown...',
+    toolbar: [
+      'headings',
+      'bold',
+      'italic',
+      'strike',
+      '|',
+      'list',
+      'ordered-list',
+      'check',
+      'outdent',
+      'indent',
+      '|',
+      'quote',
+      'line',
+      'code',
+      'inline-code',
+      'table',
+      'link',
+      '|',
+      'undo',
+      'redo',
+      '|',
+      'edit-mode',
+      'both',
+      'preview',
+      'fullscreen'
+    ],
+    input() {
+      syncContentFromEditor()
+    },
+    after() {
+      vditor.setValue(form.value.content || '')
+    }
+  })
+}
 
 async function loadArticle() {
   if (isNew) return
@@ -23,14 +76,17 @@ async function loadArticle() {
     const article = res.data || res
     form.value = {
       id: article.id, title: article.title || '', summary: article.summary || '',
-      content: article.content || '', coverResourceId: article.coverResourceId, tagNames: []
+      content: restoreResourceReferences(article.content || ''),
+      coverResourceId: article.coverResourceId, tagNames: []
     }
+    if (vditor) vditor.setValue(form.value.content || '')
   } catch (e) { toast(e.message, 'error') }
 }
 
 async function submit() {
   saving.value = true
   try {
+    syncContentFromEditor()
     const data = {
       id: form.value.id, title: form.value.title, summary: form.value.summary,
       content: form.value.content,
@@ -46,12 +102,28 @@ async function submit() {
 function removeCover() { form.value.coverResourceId = null }
 
 function insertContentRef(r) {
-  form.value.content += `\n![](${resourceContentUrl(r.id)})\n`
+  const markdown = `\n${resourceReferenceImage(r.id)}\n`
+  if (vditor) {
+    vditor.insertValue(markdown)
+    syncContentFromEditor()
+    return
+  }
+  form.value.content += markdown
 }
 
 function goBack() { router.push({ name: 'AdminArticles' }) }
 
-onMounted(() => { loadArticle() })
+onMounted(async () => {
+  initEditor()
+  await loadArticle()
+})
+
+onBeforeUnmount(() => {
+  if (vditor) {
+    vditor.destroy()
+    vditor = null
+  }
+})
 </script>
 
 <template>
@@ -87,17 +159,11 @@ onMounted(() => { loadArticle() })
             <span>Body <span style="font-weight:400;font-size:11px;color:var(--ink-faint)">— Markdown</span></span>
             <button class="btn-ori btn-ori-xs" @click="contentPicker.open()">Insert Image</button>
           </div>
-          <textarea
-            v-model="form.content"
-            class="ae-textarea"
-            rows="20"
-            placeholder="Start writing Markdown..."
-            spellcheck="false"
-          ></textarea>
+          <div ref="editorRef" class="ae-vditor"></div>
           <div class="ae-body-footer">
             <span>{{ (form.content || '').length }} chars</span>
             <span style="color:var(--ink-faint)">—</span>
-            <span>Markdown</span>
+            <span>Vditor IR</span>
           </div>
         </div>
 
@@ -105,8 +171,8 @@ onMounted(() => { loadArticle() })
       </div>
     </div>
 
-    <ResourcePicker ref="coverPicker" @pick="r => form.coverResourceId = r.id" />
-    <ResourcePicker ref="contentPicker" @pick="r => insertContentRef(r)" />
+    <ResourcePicker ref="coverPicker" usage="article" title="Choose Cover" @pick="r => form.coverResourceId = r.id" />
+    <ResourcePicker ref="contentPicker" usage="article" title="Insert Article Image" @pick="r => insertContentRef(r)" />
   </div>
 </template>
 
@@ -144,13 +210,22 @@ onMounted(() => { loadArticle() })
   border-bottom: 1px solid var(--line);
   font-size: 12px; font-weight: 500; color: var(--ink);
 }
-.ae-textarea {
-  width: 100%; padding: 16px 18px; border: none; outline: none;
-  background: var(--bg); color: var(--ink);
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
-  font-size: 14px; line-height: 1.8; resize: vertical;
+.ae-vditor :deep(.vditor) {
+  border: none;
 }
-.ae-textarea::placeholder { color: var(--ink-faint); }
+
+.ae-vditor :deep(.vditor-toolbar) {
+  border-bottom: 1px solid var(--line);
+}
+
+.ae-vditor :deep(.vditor-content) {
+  background: var(--bg);
+}
+
+.ae-vditor :deep(.vditor-ir pre.vditor-reset),
+.ae-vditor :deep(.vditor-ir) {
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+}
 .ae-body-footer {
   display: flex; gap: 8px; align-items: center;
   padding: 6px 14px; background: var(--bg-warm);

@@ -1,10 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { listNotes, getNote, saveNote } from '@/api/notes.js'
-import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import { resourceReferenceImage, restoreResourceReferences } from '@/utils/resourceRef.js'
 import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import { formatDate } from '@/utils/formatDate.js'
+import MarkdownContent from '@/components/MarkdownContent.vue'
 
 const TYPE_OPTIONS = ['PERSONAL', 'TECH']
 const type = ref('PERSONAL')
@@ -26,7 +27,7 @@ async function load() {
 async function edit(id) {
   const res = await getNote(id)
   const data = res.data || res
-  form.value = { id: data.id, title: data.title, content: data.content, type: data.type }
+  form.value = { id: data.id, title: data.title, content: restoreResourceReferences(data.content), type: data.type }
   type.value = data.type
 }
 
@@ -46,7 +47,7 @@ async function submit() {
 }
 
 function insertEmoji(r) {
-  form.value.content = (form.value.content || '') + '\n![](' + resourceContentUrl(r.id) + ')\n'
+  form.value.content = (form.value.content || '') + '\n' + resourceReferenceImage(r.id) + '\n'
 }
 
 onMounted(load)
@@ -87,13 +88,13 @@ onMounted(load)
     <div v-else class="moment-list-ori">
       <div v-for="note in notes" :key="note.id" class="moment-item-ori" @click="edit(note.id)">
         <div class="moment-title-ori">{{ note.title || '(no title)' }}</div>
-        <div class="moment-content-ori" v-html="note.content" />
+        <MarkdownContent class="moment-content-ori" :source="note.content" />
         <div class="moment-meta-ori">{{ formatDate(note.createTime) }}</div>
       </div>
       <div v-if="notes.length === 0" class="empty-ori">No moments yet.</div>
     </div>
 
-    <ResourcePicker ref="emojiPicker" pool="EMOJI" @pick="insertEmoji" />
+    <ResourcePicker ref="emojiPicker" usage="emoji" @pick="insertEmoji" />
   </div>
 </template>
 

@@ -19,3 +19,7 @@ export function approve(id, data) {
 export function reject(id, data) {
   return request.post(`/review/${id}/reject`, data || {})
 }
+
+export function ignoreTask(id) {
+  return request.delete(`/review/tasks/${id}`)
+}

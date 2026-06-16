@@ -106,4 +106,14 @@ public class MessageServiceImpl implements MessageService {
             mailService.sendRejectionNotification(msg.getEmail(), msg.getNickname(), reason);
         }
     }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        Message msg = messageMapper.selectById(id);
+        if (msg == null) return;
+        resourceFacade.unbindMessageAvatar(id);
+        reviewService.discardPendingByContent("message", id);
+        messageMapper.deleteById(id);
+    }
 }

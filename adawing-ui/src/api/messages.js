@@ -21,3 +21,7 @@ export function approveMessage(id, reply, avatarResourceId) {
 export function rejectMessage(id, reason) {
   return request.post(`/messages/${id}/reject`, reason || '')
 }
+
+export function deleteMessage(id) {
+  return request.delete(`/messages/${id}`)
+}

@@ -2,6 +2,7 @@ package cc.adabyte.blog.system.review.service.impl;
 
 import cc.adabyte.blog.common.constants.ReviewStatus;
 import cc.adabyte.blog.common.exception.BusinessException;
+import cc.adabyte.blog.common.gateway.ReviewContentDeletionGateway;
 import cc.adabyte.blog.common.gateway.ReviewContentResolver;
 import cc.adabyte.blog.common.model.SubmitReviewRequest;
 import cc.adabyte.blog.common.result.PageResult;
@@ -10,6 +11,7 @@ import cc.adabyte.blog.system.review.dto.ReviewTaskVO;
 import cc.adabyte.blog.system.review.entity.ReviewTask;
 import cc.adabyte.blog.system.review.mapper.ReviewTaskMapper;
 import cc.adabyte.blog.system.review.service.ReviewService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewTaskMapper reviewTaskMapper;
     private final List<ReviewStrategy> strategies;
     private final ReviewContentResolver contentResolver;
+    private final ReviewContentDeletionGateway deletionGateway;
 
     @Override
     @Transactional
@@ -113,6 +116,18 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
+    public void ignorePending(Long taskId) {
+        ReviewTask task = reviewTaskMapper.selectById(taskId);
+        if (task == null) return;
+        if (task.getStatus() != ReviewStatus.PENDING) {
+            throw new BusinessException("仅待审核任务支持忽略删除");
+        }
+        reviewTaskMapper.deleteById(taskId);
+        deletionGateway.delete(task.getContentType(), task.getContentId());
+    }
+
+    @Override
     public Optional<ReviewTask> findByContent(String contentType, Long contentId) {
         return Optional.ofNullable(reviewTaskMapper.selectByContent(contentType, contentId));
     }
@@ -138,6 +153,15 @@ public class ReviewServiceImpl implements ReviewService {
             task.setReviewTime(LocalDateTime.now());
             reviewTaskMapper.updateById(task);
         });
+    }
+
+    @Override
+    @Transactional
+    public void discardPendingByContent(String contentType, Long contentId) {
+        reviewTaskMapper.delete(new LambdaQueryWrapper<ReviewTask>()
+                .eq(ReviewTask::getContentType, contentType)
+                .eq(ReviewTask::getContentId, contentId)
+                .eq(ReviewTask::getStatus, ReviewStatus.PENDING));
     }
 
     private ReviewStrategy resolveStrategy(String contentType) {

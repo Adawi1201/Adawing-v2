@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
-import { listTasks, approve, reject } from '@/api/review.js'
+import { listTasks, approve, reject, ignoreTask } from '@/api/review.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
 import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
@@ -87,6 +87,15 @@ async function doReject(task) {
   await load()
 }
 
+async function doIgnore(task) {
+  const label = isArticle(task) ? 'article' : 'message'
+  if (!confirm(`Ignore this pending ${label} review and delete the underlying content?`)) return
+  await ignoreTask(task.id)
+  delete forms[task.id]
+  if (expanded.value === task.id) expanded.value = null
+  await load()
+}
+
 function changePage(p) { page.value = p; load() }
 function applyFilter() { page.value = 1; load() }
 
@@ -154,6 +163,7 @@ onMounted(load)
                 </div>
                 <button class="btn-ori btn-ori-sm" @click="doApprove(task)">Approve</button>
                 <button class="btn-ori btn-ori-sm btn-ori-danger" @click="doReject(task)">Reject</button>
+                <button class="btn-ori btn-ori-sm btn-ori-danger" @click="doIgnore(task)">Ignore</button>
               </div>
 
               <!-- Message: avatar + reply + approve / reject reason + reject -->
@@ -170,6 +180,7 @@ onMounted(load)
                 <button class="btn-ori btn-ori-sm" @click="doApprove(task)">Approve</button>
                 <input v-model="getForm(task.id).reason" class="input-ori action-input" placeholder="Rejection reason" />
                 <button class="btn-ori btn-ori-sm btn-ori-danger" @click="doReject(task)">Reject</button>
+                <button class="btn-ori btn-ori-sm btn-ori-danger" @click="doIgnore(task)">Ignore</button>
               </div>
             </div>
             <div v-else class="rd-resolved">

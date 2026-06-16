@@ -103,8 +103,8 @@ public class ArticleController {
     }
 
     @DeleteMapping("/{id}")
-    public Result<Void> deleteDraft(@PathVariable Long id) {
-        articleService.deleteDraft(id);
+    public Result<Void> delete(@PathVariable Long id) {
+        articleService.delete(id);
         return Result.ok();
     }
 }

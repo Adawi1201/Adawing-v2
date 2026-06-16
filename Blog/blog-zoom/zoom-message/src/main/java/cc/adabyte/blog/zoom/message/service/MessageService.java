@@ -9,4 +9,5 @@ public interface MessageService {
     void submit(Message message);
     void approve(Long id, String reply, Long avatarResourceId);
     void reject(Long id, String reason);
+    void delete(Long id);
 }

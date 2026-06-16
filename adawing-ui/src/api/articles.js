@@ -40,6 +40,6 @@ export function submitForReview(id) {
   return request.post(`/articles/${id}/review`)
 }
 
-export function deleteDraft(id) {
+export function deleteArticle(id) {
   return request.delete(`/articles/${id}`)
 }

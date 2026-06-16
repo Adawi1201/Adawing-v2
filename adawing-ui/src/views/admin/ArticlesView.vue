@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { listAdmin, publish, hide, submitForReview, deleteDraft } from '@/api/articles.js'
+import { listAdmin, publish, hide, submitForReview, deleteArticle } from '@/api/articles.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
 import Pagination from '@/components/Pagination.vue'
 import { formatDate } from '@/utils/formatDate.js'
@@ -40,9 +40,22 @@ async function doPublish(id) { await publish(id); await load() }
 async function doHide(id) { await hide(id); await load() }
 async function doReview(id) { await submitForReview(id); await load() }
 
-async function doDelete(id) {
-  if (!confirm('Delete this draft?')) return
-  await deleteDraft(id)
+function deleteMessageForStatus(status) {
+  if (status === CS_PENDING) {
+    return 'Delete this pending article and clear its pending review task?'
+  }
+  if (status === CS_PUBLISHED) {
+    return 'Delete this published article permanently? It will not return to draft.'
+  }
+  if (status === CS_HIDDEN) {
+    return 'Delete this hidden article permanently?'
+  }
+  return 'Delete this article permanently?'
+}
+
+async function doDelete(article) {
+  if (!confirm(deleteMessageForStatus(article.status))) return
+  await deleteArticle(article.id)
   await load()
 }
 
@@ -79,17 +92,20 @@ onMounted(load)
           <template v-if="a.status === CS_DRAFT || a.status === CS_REJECTED">
             <button class="btn-ori btn-ori-xs" @click="goEdit(a.id)">Edit</button>
             <button class="btn-ori btn-ori-xs" @click="doPublish(a.id)">Publish</button>
-            <button class="btn-ori btn-ori-xs btn-ori-danger" @click="doDelete(a.id)">Del</button>
+            <button class="btn-ori btn-ori-xs btn-ori-danger" @click="doDelete(a)">Del</button>
           </template>
           <template v-else-if="a.status === CS_PENDING">
             <button class="btn-ori btn-ori-xs" @click="goEdit(a.id)">Edit</button>
+            <button class="btn-ori btn-ori-xs btn-ori-danger" @click="doDelete(a)">Del</button>
           </template>
           <template v-else-if="a.status === CS_PUBLISHED">
             <button class="btn-ori btn-ori-xs" @click="goEdit(a.id)">Edit</button>
             <button class="btn-ori btn-ori-xs" @click="doHide(a.id)">Hide</button>
+            <button class="btn-ori btn-ori-xs btn-ori-danger" @click="doDelete(a)">Del</button>
           </template>
           <template v-else-if="a.status === CS_HIDDEN">
             <button class="btn-ori btn-ori-xs" @click="doPublish(a.id)">Publish</button>
+            <button class="btn-ori btn-ori-xs btn-ori-danger" @click="doDelete(a)">Del</button>
           </template>
         </div>
       </div>

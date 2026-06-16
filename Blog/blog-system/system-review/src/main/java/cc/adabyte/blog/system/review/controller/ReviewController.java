@@ -46,4 +46,10 @@ public class ReviewController {
         reviewService.reject(id, request.getReason(), request.getReviewerNote());
         return Result.ok();
     }
+
+    @DeleteMapping("/tasks/{id}")
+    public Result<Void> ignorePending(@PathVariable Long id) {
+        reviewService.ignorePending(id);
+        return Result.ok();
+    }
 }

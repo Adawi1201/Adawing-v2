@@ -181,12 +181,14 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    public void deleteDraft(Long id) {
+    public void delete(Long id) {
         Article article = articleMapper.selectById(id);
-        if (article != null && article.getStatus() == ContentStatus.DRAFT) {
-            articleMapper.deleteById(id);
-            eventPublisher.publishEvent(new ArticleDeletedEvent(id));
+        if (article == null) {
+            return;
         }
+        articleTagMapper.deleteByArticleId(id);
+        articleMapper.deleteById(id);
+        eventPublisher.publishEvent(new ArticleDeletedEvent(id));
     }
 
     @Override

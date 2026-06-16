@@ -57,4 +57,10 @@ public class MessageController {
         messageService.reject(id, reason);
         return Result.ok();
     }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> delete(@PathVariable Long id) {
+        messageService.delete(id);
+        return Result.ok();
+    }
 }

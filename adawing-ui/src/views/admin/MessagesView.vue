@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
-import { listAdminMessages, approveMessage, rejectMessage } from '@/api/messages.js'
+import { listAdminMessages, approveMessage, rejectMessage, deleteMessage } from '@/api/messages.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
 import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
@@ -15,6 +15,9 @@ const size = 10
 const loading = ref(false)
 const filter = ref('')
 const expanded = ref(null)
+const MS_PENDING = 1
+const MS_APPROVED = 2
+const MS_REJECTED = 3
 
 const forms = reactive({})
 const avatarPicker = ref(null)
@@ -26,7 +29,7 @@ function getForm(msgId) {
 }
 
 function statusText(s) {
-  const map = { 0: 'Pending', 1: 'Approved', 2: 'Rejected' }
+  const map = { [MS_PENDING]: 'Pending', [MS_APPROVED]: 'Approved', [MS_REJECTED]: 'Rejected' }
   return map[s] || s
 }
 
@@ -64,6 +67,17 @@ async function doReject(msgId) {
   if (!f.reason) { toast('Please enter a rejection reason', 'warn'); return }
   await rejectMessage(msgId, f.reason)
   delete forms[msgId]
+  await load()
+}
+
+async function doDelete(msg) {
+  const prompt = msg.status === MS_PENDING
+    ? 'Delete this pending message and clear its pending review task?'
+    : 'Delete this message permanently?'
+  if (!confirm(prompt)) return
+  await deleteMessage(msg.id)
+  delete forms[msg.id]
+  if (expanded.value === msg.id) expanded.value = null
   await load()
 }
 
@@ -108,11 +122,12 @@ onMounted(load)
             </div>
             <div class="ms-preview" v-text="stripHtml(msg.content)" />
           </div>
-          <div class="ms-status">
-            <span class="ms-badge" :class="'s-' + msg.status">{{ statusText(msg.status) }}</span>
-            <span class="ms-date">{{ formatDate(msg.createTime) }}</span>
-            <svg class="ms-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
+        <div class="ms-status">
+          <span class="ms-badge" :class="'s-' + msg.status">{{ statusText(msg.status) }}</span>
+          <span class="ms-date">{{ formatDate(msg.createTime) }}</span>
+          <button class="btn-ori btn-ori-xs btn-ori-danger" @click.stop="doDelete(msg)">Del</button>
+          <svg class="ms-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
         </div>
 
         <!-- Detail panel -->
@@ -125,8 +140,8 @@ onMounted(load)
             </div>
 
             <!-- Reply / rejection note (already processed) -->
-            <div v-if="msg.status !== 0" class="md-resolved">
-              <template v-if="msg.status === 1">
+            <div v-if="msg.status !== MS_PENDING" class="md-resolved">
+              <template v-if="msg.status === MS_APPROVED">
                 <span class="resolved-icon approved">&#10003;</span>
                 {{ msg.reply || 'Approved' }}
               </template>
@@ -137,7 +152,7 @@ onMounted(load)
             </div>
 
             <!-- Actions (only for pending) -->
-            <div v-if="msg.status === 0" class="md-actions">
+            <div v-if="msg.status === MS_PENDING" class="md-actions">
               <div class="md-action-row">
                 <div
                   @click="pendingMsgId = msg.id; avatarPicker.open()"
@@ -151,6 +166,7 @@ onMounted(load)
                 <button class="btn-ori btn-ori-sm" @click="doApprove(msg.id)">Approve</button>
                 <input v-model="getForm(msg.id).reason" class="input-ori action-input" placeholder="Reason" />
                 <button class="btn-ori btn-ori-sm btn-ori-danger" @click="doReject(msg.id)">Reject</button>
+                <button class="btn-ori btn-ori-sm btn-ori-danger" @click="doDelete(msg)">Delete</button>
               </div>
             </div>
           </div>
@@ -212,9 +228,9 @@ onMounted(load)
 .ms-badge {
   font-size: 11px; font-weight: 600; padding: 2px 10px; letter-spacing: 0.05em;
 }
-.s-0 { background: rgba(245,158,11,0.1); color: #b45309; }
-.s-1 { background: rgba(16,185,129,0.1); color: #065f46; }
-.s-2 { background: rgba(100,116,139,0.1); color: #475569; }
+.s-1 { background: rgba(245,158,11,0.1); color: #b45309; }
+.s-2 { background: rgba(16,185,129,0.1); color: #065f46; }
+.s-3 { background: rgba(100,116,139,0.1); color: #475569; }
 
 .ms-date { font-size: 11px; color: var(--ink-faint); }
 

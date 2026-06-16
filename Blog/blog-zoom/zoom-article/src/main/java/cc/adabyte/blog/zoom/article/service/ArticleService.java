@@ -23,7 +23,7 @@ public interface ArticleService {
     void reject(Long id, String reason, String reviewerNote);
     void hide(Long id);
     void updateCover(Long id, Long coverResourceId);
-    void deleteDraft(Long id);
+    void delete(Long id);
     Long getTotalViewCount();
     void syncViewCountsToDb();
 }

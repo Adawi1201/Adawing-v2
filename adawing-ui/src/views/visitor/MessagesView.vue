@@ -43,7 +43,7 @@ async function submit() {
 }
 
 function insertEmoji(r) {
-  form.value.content = (form.value.content || '') + `resource://${r.id}`
+  form.value.content = (form.value.content || '') + `![emoji](resource://${r.id})`
 }
 
 function changePage(p) { page.value = p; load() }
@@ -62,6 +62,12 @@ onMounted(load)
         <input v-model="form.email" type="email" class="input-ori" placeholder="Email" autocomplete="off" />
       </div>
       <textarea v-model="form.content" class="input-ori" rows="4" placeholder="Your message..."></textarea>
+
+      <div v-if="form.content" class="msg-preview">
+        <div class="msg-preview-label">Preview</div>
+        <MarkdownContent :source="form.content" />
+      </div>
+
       <div class="form-actions">
         <button class="btn-ori btn-ori-sm" @click="emojiPicker.open()">Emoji</button>
         <div class="spacer" />
@@ -96,7 +102,13 @@ onMounted(load)
     </TransitionGroup>
 
     <Pagination :current="page" :total="total" :size="size" @change="changePage" />
-    <ResourcePicker ref="emojiPicker" usage="emoji" title="Choose Emoji" @pick="insertEmoji" />
+    <ResourcePicker
+      ref="emojiPicker"
+      usage="emoji"
+      title="Choose Emoji"
+      empty-text="No emoji resources available yet."
+      @pick="insertEmoji"
+    />
   </div>
 </template>
 
@@ -175,4 +187,27 @@ onMounted(load)
 .msg-fade-leave-active { transition: opacity 0.25s ease; }
 .msg-fade-enter-from { opacity: 0; transform: translateY(16px); }
 .msg-fade-leave-to { opacity: 0; }
+
+/* ── preview ── */
+.msg-preview {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px dashed var(--line);
+  background: var(--bg-warm);
+}
+
+.msg-preview-label {
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.msg-preview :deep(img) {
+  max-width: 32px;
+  max-height: 32px;
+  vertical-align: middle;
+  margin: 0 2px;
+}
 </style>

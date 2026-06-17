@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Select;
 
 public interface ReviewTaskMapper extends BaseMapper<ReviewTask> {
 
-    @Select("SELECT * FROM review_task WHERE #{status} IS NULL OR status = #{status} ORDER BY submit_time DESC")
+    @Select("SELECT * FROM review_task WHERE #{status} IS NULL OR status = #{status} ORDER BY CASE WHEN status = 0 THEN 0 ELSE 1 END, submit_time DESC")
     IPage<ReviewTask> selectByStatus(Page<ReviewTask> page, @Param("status") Integer status);
 
     @Select("SELECT COUNT(*) FROM review_task WHERE status = 0")

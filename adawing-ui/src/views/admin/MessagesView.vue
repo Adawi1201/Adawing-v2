@@ -13,7 +13,7 @@ const page = ref(1)
 const total = ref(0)
 const size = 10
 const loading = ref(false)
-const filter = ref('')
+const filter = ref('1')
 const expanded = ref(null)
 const MS_PENDING = 1
 const MS_APPROVED = 2
@@ -100,7 +100,10 @@ onMounted(load)
     <div class="admin-header-ori">
       <h1>Messages</h1>
       <select v-model="filter" class="input-ori" style="width: 160px; padding: 8px 0;" @change="applyFilter">
-        <option value="">All</option><option value="0">Pending</option><option value="1">Approved</option><option value="2">Rejected</option>
+        <option value="">All</option>
+        <option value="1">Pending</option>
+        <option value="2">Approved</option>
+        <option value="3">Rejected</option>
       </select>
     </div>
 

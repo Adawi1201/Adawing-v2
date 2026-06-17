@@ -30,7 +30,8 @@ const props = defineProps({
   pool: { type: String, default: '' },
   usage: { type: String, default: '' },
   allowFallback: { type: Boolean, default: false },
-  title: { type: String, default: 'Choose Resource' }
+  title: { type: String, default: 'Choose Resource' },
+  emptyText: { type: String, default: '' }
 })
 
 const emit = defineEmits(['pick'])
@@ -112,7 +113,7 @@ function select(r) {
 
               <Transition name="rp-bubble-slide">
                 <div v-if="!error && resources.length === 0" :key="'empty-'+bubbleKey" class="rp-bubble rp-bubble-empty">
-                  <span class="rp-bubble-msg">No resources yet. Upload files on the Resources page first.</span>
+                  <span class="rp-bubble-msg">{{ props.emptyText || 'No resources yet. Upload files on the Resources page first.' }}</span>
                 </div>
               </Transition>
 

@@ -10,8 +10,8 @@
   --accent-hover: #9A5F28;
   --accent-faint: rgba(184, 115, 51, 0.1);
   --line: rgba(0, 0, 0, 0.22);
-  --font-display: 'Cormorant Garamond', 'Noto Serif SC', 'Noto Serif JP', 'Songti SC', 'SimSun', serif;
-  --font-body: 'Zen Kaku Gothic New', 'Noto Sans SC', 'Noto Serif JP', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Cormorant Garamond', 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+  --font-body: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
 }
 
 [data-theme="dark"] {

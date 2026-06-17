@@ -10,8 +10,8 @@
   --accent-hover: #9A5F28;
   --accent-faint: rgba(184, 115, 51, 0.1);
   --line: rgba(0, 0, 0, 0.22);
-  --font-display: 'Cormorant Garamond', 'Noto Serif JP', serif;
-  --font-body: 'Zen Kaku Gothic New', 'Noto Serif JP', sans-serif;
+  --font-display: 'Cormorant Garamond', 'Noto Serif SC', 'Noto Serif JP', 'Songti SC', 'SimSun', serif;
+  --font-body: 'Zen Kaku Gothic New', 'Noto Sans SC', 'Noto Serif JP', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 [data-theme="dark"] {
@@ -58,6 +58,45 @@ body {
   -webkit-font-smoothing: antialiased;
   transition: background 0.3s ease, color 0.3s ease;
   overflow-x: hidden;
+  text-align: justify;
+  text-justify: inter-ideograph;
+}
+
+/* Elements that should never be justified */
+.btn-ori,
+.input-ori,
+select.input-ori,
+textarea.input-ori,
+.v-header nav a,
+.admin-sidebar-ori nav a,
+.pagination-ori,
+.loading-ori,
+.empty-ori,
+.table-ori th,
+.table-ori td,
+.ms-badge,
+.rs-badge,
+.rp-header,
+.rp-grid,
+.form-actions,
+.moment-actions,
+.msg-summary,
+.ms-main,
+.ms-preview,
+.review-summary,
+.rs-meta,
+.rs-title,
+.md-action-row,
+.rd-action-row {
+  text-align: left;
+}
+
+.footer-content,
+.about-header,
+.login-card-ori h1,
+.loading-ori,
+.empty-ori {
+  text-align: center;
 }
 
 #app {

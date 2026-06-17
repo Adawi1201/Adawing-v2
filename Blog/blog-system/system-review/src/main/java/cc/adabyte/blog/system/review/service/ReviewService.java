@@ -17,5 +17,5 @@ public interface ReviewService {
     Optional<ReviewTask> findByContent(String contentType, Long contentId);
     void resolveAndApprove(String contentType, Long contentId, String reviewerNote);
     void resolveAndReject(String contentType, Long contentId, String reason, String reviewerNote);
-    void discardPendingByContent(String contentType, Long contentId);
+    void deleteByContent(String contentType, Long contentId);
 }

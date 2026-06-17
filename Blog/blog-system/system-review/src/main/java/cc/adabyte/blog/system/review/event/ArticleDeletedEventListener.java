@@ -14,6 +14,6 @@ public class ArticleDeletedEventListener {
 
     @EventListener
     public void onArticleDeleted(ArticleDeletedEvent event) {
-        reviewService.discardPendingByContent("article", event.articleId());
+        reviewService.deleteByContent("article", event.articleId());
     }
 }

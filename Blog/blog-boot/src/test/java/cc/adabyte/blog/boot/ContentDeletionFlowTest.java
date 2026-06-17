@@ -66,20 +66,31 @@ class ContentDeletionFlowTest {
     }
 
     @Test
-    void deleteArticleKeepsHandledReviewTask() {
+    void deleteArticleRemovesHandledReviewTask() {
         Long articleId = createArticle(ContentStatus.PUBLISHED);
         Long taskId = createReviewTask("article", articleId, ReviewStatus.APPROVED);
 
         articleService.delete(articleId);
 
         assertThat(articleMapper.selectById(articleId)).isNull();
-        assertThat(reviewTaskMapper.selectById(taskId)).isNotNull();
+        assertThat(reviewTaskMapper.selectById(taskId)).isNull();
     }
 
     @Test
     void deleteMessageRemovesPendingReviewTask() {
         Long messageId = createMessage(ContentStatus.PENDING_REVIEW);
         Long taskId = createReviewTask("message", messageId, ReviewStatus.PENDING);
+
+        messageService.delete(messageId);
+
+        assertThat(messageMapper.selectById(messageId)).isNull();
+        assertThat(reviewTaskMapper.selectById(taskId)).isNull();
+    }
+
+    @Test
+    void deleteMessageRemovesHandledReviewTask() {
+        Long messageId = createMessage(ContentStatus.PUBLISHED);
+        Long taskId = createReviewTask("message", messageId, ReviewStatus.APPROVED);
 
         messageService.delete(messageId);
 

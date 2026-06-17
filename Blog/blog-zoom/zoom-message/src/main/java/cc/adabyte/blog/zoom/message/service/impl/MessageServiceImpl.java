@@ -113,7 +113,7 @@ public class MessageServiceImpl implements MessageService {
         Message msg = messageMapper.selectById(id);
         if (msg == null) return;
         resourceFacade.unbindMessageAvatar(id);
-        reviewService.discardPendingByContent("message", id);
+        reviewService.deleteByContent("message", id);
         messageMapper.deleteById(id);
     }
 }

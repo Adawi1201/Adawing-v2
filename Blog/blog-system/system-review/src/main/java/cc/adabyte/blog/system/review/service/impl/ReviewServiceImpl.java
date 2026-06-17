@@ -157,11 +157,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void discardPendingByContent(String contentType, Long contentId) {
+    public void deleteByContent(String contentType, Long contentId) {
         reviewTaskMapper.delete(new LambdaQueryWrapper<ReviewTask>()
                 .eq(ReviewTask::getContentType, contentType)
-                .eq(ReviewTask::getContentId, contentId)
-                .eq(ReviewTask::getStatus, ReviewStatus.PENDING));
+                .eq(ReviewTask::getContentId, contentId));
     }
 
     private ReviewStrategy resolveStrategy(String contentType) {

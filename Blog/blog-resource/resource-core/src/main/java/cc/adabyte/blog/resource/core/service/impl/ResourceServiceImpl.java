@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import cc.adabyte.blog.resource.core.util.FileValidator;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -34,9 +36,7 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     @Transactional
     public Resource upload(MultipartFile file, ResourcePool pool) {
-        if (file == null || file.isEmpty()) {
-            throw new BusinessException("上传文件不能为空");
-        }
+        FileValidator.validate(file);
         if (pool == null) {
             pool = ResourcePool.MISC;
         }

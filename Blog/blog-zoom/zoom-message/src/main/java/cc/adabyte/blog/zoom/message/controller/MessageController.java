@@ -3,6 +3,7 @@ package cc.adabyte.blog.zoom.message.controller;
 import cc.adabyte.blog.common.result.PageResult;
 import cc.adabyte.blog.common.result.Result;
 import cc.adabyte.blog.zoom.message.dto.MessageSubmitRequest;
+import cc.adabyte.blog.zoom.message.dto.MessageVo;
 import cc.adabyte.blog.zoom.message.entity.Message;
 import cc.adabyte.blog.zoom.message.service.MessageService;
 import jakarta.validation.Valid;
@@ -17,7 +18,7 @@ public class MessageController {
     private final MessageService messageService;
 
     @GetMapping
-    public Result<PageResult<Message>> list(
+    public Result<PageResult<MessageVo>> list(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         return Result.ok(messageService.list(page, size));

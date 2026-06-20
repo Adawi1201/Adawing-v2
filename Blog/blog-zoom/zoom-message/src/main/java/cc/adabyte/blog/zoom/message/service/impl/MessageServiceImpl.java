@@ -4,6 +4,7 @@ import cc.adabyte.blog.common.model.SubmitReviewRequest;
 import cc.adabyte.blog.common.result.PageResult;
 import cc.adabyte.blog.resource.core.service.ResourceAllocationFacade;
 import cc.adabyte.blog.system.review.service.ReviewService;
+import cc.adabyte.blog.zoom.message.dto.MessageVo;
 import cc.adabyte.blog.zoom.message.entity.Message;
 import cc.adabyte.blog.zoom.message.mapper.MessageMapper;
 import cc.adabyte.blog.zoom.message.service.MailService;
@@ -26,11 +27,14 @@ public class MessageServiceImpl implements MessageService {
     private final ReviewService reviewService;
 
     @Override
-    public PageResult<Message> list(int page, int size) {
+    public PageResult<MessageVo> list(int page, int size) {
         Page<Message> mpPage = new Page<>(page, size);
         var result = messageMapper.selectByStatus(mpPage, ContentStatus.PUBLISHED.getValue());
-        result.getRecords().forEach(this::renderMessage);
-        return PageResult.of(result.getTotal(), result.getRecords(), result.getCurrent(), result.getSize());
+        var records = result.getRecords().stream()
+                .peek(this::renderMessage)
+                .map(this::toVo)
+                .toList();
+        return PageResult.of(result.getTotal(), records, result.getCurrent(), result.getSize());
     }
 
     @Override
@@ -39,6 +43,24 @@ public class MessageServiceImpl implements MessageService {
         var result = messageMapper.selectAdmin(mpPage, status);
         result.getRecords().forEach(this::renderMessage);
         return PageResult.of(result.getTotal(), result.getRecords(), result.getCurrent(), result.getSize());
+    }
+
+    private MessageVo toVo(Message message) {
+        if (message == null) return null;
+        MessageVo vo = new MessageVo();
+        vo.setId(message.getId());
+        vo.setNickname(message.getNickname());
+        vo.setAvatarResourceId(message.getAvatarResourceId());
+        vo.setContent(message.getContent());
+        vo.setStatus(message.getStatus());
+        vo.setReply(message.getReply());
+        vo.setLikeCount(message.getLikeCount());
+        vo.setRefType(message.getRefType());
+        vo.setRefId(message.getRefId());
+        vo.setRefTitle(message.getRefTitle());
+        vo.setCreateTime(message.getCreateTime());
+        vo.setUpdateTime(message.getUpdateTime());
+        return vo;
     }
 
     private void renderMessage(Message message) {

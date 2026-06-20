@@ -1,5 +1,6 @@
 package cc.adabyte.blog.system.auth.entity;
 
+import cc.adabyte.blog.system.auth.enums.UserRole;
 import cc.adabyte.blog.system.auth.enums.UserStatus;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -19,6 +20,7 @@ public class SysUser {
     private String email;
     private Long avatarResourceId;
     private UserStatus status;
+    private UserRole role;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

@@ -3,6 +3,7 @@ package cc.adabyte.blog.system.auth.filter;
 import cc.adabyte.blog.common.constants.AuthConstants;
 import cc.adabyte.blog.common.util.JwtUtil;
 import cc.adabyte.blog.system.auth.entity.SysUser;
+import cc.adabyte.blog.system.auth.enums.UserRole;
 import cc.adabyte.blog.system.auth.enums.UserStatus;
 import cc.adabyte.blog.system.auth.mapper.SysUserMapper;
 import io.jsonwebtoken.JwtException;
@@ -85,6 +86,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             request.setAttribute(CURRENT_USERNAME_ATTR, username);
+            request.setAttribute(AuthConstants.CURRENT_ROLE_ATTRIBUTE, user.getRole());
             filterChain.doFilter(request, response);
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("无效的 JWT 令牌: {}", e.getMessage());

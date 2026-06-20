@@ -1,6 +1,7 @@
 package cc.adabyte.blog.boot.seed;
 
 import cc.adabyte.blog.system.auth.entity.SysUser;
+import cc.adabyte.blog.system.auth.enums.UserRole;
 import cc.adabyte.blog.system.auth.enums.UserStatus;
 import cc.adabyte.blog.system.auth.mapper.SysUserMapper;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class DataSeedRunner implements CommandLineRunner {
         user.setNickname("Test Admin");
         user.setEmail("admin@adawing.cc");
         user.setStatus(UserStatus.ACTIVE);
+        user.setRole(UserRole.ADMIN);
         user.setCreateTime(LocalDateTime.now());
         user.setUpdateTime(LocalDateTime.now());
         sysUserMapper.insert(user);

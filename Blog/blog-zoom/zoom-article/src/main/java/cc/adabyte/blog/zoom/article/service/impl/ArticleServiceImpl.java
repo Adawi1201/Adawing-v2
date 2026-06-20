@@ -2,6 +2,7 @@ package cc.adabyte.blog.zoom.article.service.impl;
 
 import cc.adabyte.blog.common.event.ArticleDeletedEvent;
 import cc.adabyte.blog.common.event.ArticlePublishedEvent;
+import cc.adabyte.blog.common.exception.BusinessException;
 import cc.adabyte.blog.common.result.PageResult;
 import cc.adabyte.blog.resource.core.service.ResourceAllocationFacade;
 import cc.adabyte.blog.zoom.article.entity.Article;
@@ -121,12 +122,19 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void publish(Long id) {
-        updateStatusIfPresent(id, ContentStatus.PUBLISHED);
         Article article = articleMapper.selectById(id);
-        if (article != null) {
-            eventPublisher.publishEvent(new ArticlePublishedEvent(
-                    article.getId(), article.getTitle(), article.getSummary(), article.getUpdateTime()));
+        if (article == null) {
+            return;
         }
+        if (article.getSource() == ArticleSource.AI_GENERATED
+                && article.getStatus() != ContentStatus.PENDING_REVIEW) {
+            throw new BusinessException("Agent 生成文章必须先提交审核并通过后方可发布");
+        }
+        article.setStatus(ContentStatus.PUBLISHED);
+        article.setUpdateTime(LocalDateTime.now());
+        articleMapper.updateById(article);
+        eventPublisher.publishEvent(new ArticlePublishedEvent(
+                article.getId(), article.getTitle(), article.getSummary(), article.getUpdateTime()));
     }
 
     @Override

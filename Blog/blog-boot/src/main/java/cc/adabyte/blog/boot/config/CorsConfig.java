@@ -1,21 +1,39 @@
 package cc.adabyte.blog.boot.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.Arrays;
+
 @Configuration
 public class CorsConfig {
+
+    /**
+     * 允许跨域的来源列表，逗号分隔。
+     * 生产环境应通过环境变量限制为实际域名，禁止使用 *。
+     */
+    @Value("${app.cors.allowed-origins:http://localhost:5173,http://localhost:4173}")
+    private String allowedOrigins;
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+                String[] origins = Arrays.stream(allowedOrigins.split(","))
+                        .map(String::trim)
+                        .filter(StringUtils::hasText)
+                        .toArray(String[]::new);
+
                 registry.addMapping("/api/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins(origins)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
+                        .allowCredentials(true)
                         .maxAge(3600);
             }
         };

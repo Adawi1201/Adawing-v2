@@ -1,5 +1,6 @@
 package cc.adabyte.blog.system.auth.filter;
 
+import cc.adabyte.blog.common.constants.AuthConstants;
 import cc.adabyte.blog.common.util.JwtUtil;
 import cc.adabyte.blog.system.auth.entity.SysUser;
 import cc.adabyte.blog.system.auth.enums.UserStatus;
@@ -23,8 +24,8 @@ import java.util.regex.Pattern;
 /**
  * JWT 认证过滤器。
  *
- * <p>拦截所有 /api/v2/** 请求（除显式配置的公开端点外），校验请求头中的 Bearer Token，
- * 并确认用户处于启用状态。校验通过后在 request attribute 中写入当前用户名，供后续业务使用。
+ * <p>拦截所有 /api/v2/** 请求。公开端点允许匿名访问；受保护端点必须提供有效 Bearer Token。
+ * 若公开端点也携带了 Token，则同样会进行校验并将用户名写入 request attribute，供后续业务做细粒度授权。
  */
 @Slf4j
 @Component
@@ -32,7 +33,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    public static final String CURRENT_USERNAME_ATTR = "currentUsername";
+    public static final String CURRENT_USERNAME_ATTR = AuthConstants.CURRENT_USERNAME_ATTRIBUTE;
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
@@ -54,13 +55,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         String uri = request.getRequestURI();
 
-        if ("OPTIONS".equalsIgnoreCase(method) || isPublicEndpoint(method, uri)) {
+        if ("OPTIONS".equalsIgnoreCase(method)) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        boolean isPublic = isPublicEndpoint(method, uri);
         String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+            if (isPublic) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             log.warn("未提供认证令牌: {} {}", method, uri);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Unauthorized");
@@ -110,7 +117,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if ("POST".equals(method) && "/api/v2/messages".equals(uri)) {
                     yield true;
                 }
-                // 资源下载在 P0-005 修复前保持公开，修复后将重新评估
+                // 资源下载允许匿名访问公开资源，非公开资源由 ResourceController 二次校验管理员身份
                 if ("GET".equals(method) && RESOURCE_DOWNLOAD_PATTERN.matcher(uri).matches()) {
                     yield true;
                 }

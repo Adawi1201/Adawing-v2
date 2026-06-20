@@ -6,6 +6,10 @@ public record ResourceDownload(
         InputStream stream,
         String mimeType,
         Long size,
-        String originalName
+        String originalName,
+        boolean publicAccess
 ) {
+    public ResourceDownload(InputStream stream, String mimeType, Long size, String originalName) {
+        this(stream, mimeType, size, originalName, false);
+    }
 }

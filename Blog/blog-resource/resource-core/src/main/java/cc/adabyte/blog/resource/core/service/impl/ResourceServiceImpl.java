@@ -78,8 +78,10 @@ public class ResourceServiceImpl implements ResourceService {
         if (resource == null) {
             throw new BusinessException("资源不存在");
         }
+        boolean publicAccess = resource.getRefCount() != null && resource.getRefCount() > 0
+                && resource.getStatus() == ResourceStatus.ACTIVE;
         InputStream stream = ossTemplate.download(resource.getUrl());
-        return new ResourceDownload(stream, resource.getMimeType(), resource.getSize(), resource.getOriginalName());
+        return new ResourceDownload(stream, resource.getMimeType(), resource.getSize(), resource.getOriginalName(), publicAccess);
     }
 
     @Override

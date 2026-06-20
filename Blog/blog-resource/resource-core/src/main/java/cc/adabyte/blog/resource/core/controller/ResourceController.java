@@ -1,18 +1,19 @@
 package cc.adabyte.blog.resource.core.controller;
 
+import cc.adabyte.blog.common.constants.AuthConstants;
 import cc.adabyte.blog.common.constants.ResourcePool;
 import cc.adabyte.blog.common.exception.BusinessException;
 import cc.adabyte.blog.common.result.Result;
 import cc.adabyte.blog.resource.core.entity.Resource;
 import cc.adabyte.blog.resource.core.service.ResourceDownload;
 import cc.adabyte.blog.resource.core.service.ResourceService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ContentDisposition;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import org.springframework.http.ContentDisposition;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,8 +36,17 @@ public class ResourceController {
     }
 
     @GetMapping("/{resourceId}/content")
-    public void download(@PathVariable Long resourceId, HttpServletResponse response) {
+    public void download(@PathVariable Long resourceId,
+                         HttpServletRequest request,
+                         HttpServletResponse response) {
         ResourceDownload download = resourceService.download(resourceId);
+        if (!download.publicAccess()) {
+            String currentUsername = (String) request.getAttribute(AuthConstants.CURRENT_USERNAME_ATTRIBUTE);
+            if (currentUsername == null) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+        }
         response.setContentType(download.mimeType() != null ? download.mimeType() : "application/octet-stream");
         if (download.size() != null) {
             response.setContentLengthLong(download.size());

@@ -6,7 +6,7 @@ import cc.adabyte.blog.resource.core.service.ResourceService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -26,7 +26,7 @@ class ResourceDownloadAuthorizationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @MockBean
+    @MockitoBean
     private ResourceService resourceService;
 
     @Test

@@ -54,7 +54,7 @@ class ArticleServiceImplPublishTest {
     }
 
     @Test
-    void aiGeneratedDraftCannotBePublishedDirectly() {
+    void aiGeneratedArticleCannotBePublishedManually() {
         Article article = new Article();
         article.setId(2L);
         article.setSource(ArticleSource.AI_GENERATED);
@@ -62,21 +62,36 @@ class ArticleServiceImplPublishTest {
         when(articleMapper.selectById(2L)).thenReturn(article);
 
         BusinessException ex = assertThrows(BusinessException.class, () -> articleService.publish(2L));
-        assertEquals("Agent 生成文章必须先提交审核并通过后方可发布", ex.getMessage());
+        assertEquals("Agent 生成文章由审核通过后自动发布，不支持手动发布", ex.getMessage());
 
         verify(articleMapper, never()).updateById(any(Article.class));
         verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
-    void aiGeneratedPendingReviewArticleCanBePublished() {
+    void aiGeneratedPendingReviewArticleCannotBePublishedManually() {
         Article article = new Article();
         article.setId(3L);
         article.setSource(ArticleSource.AI_GENERATED);
         article.setStatus(ContentStatus.PENDING_REVIEW);
         when(articleMapper.selectById(3L)).thenReturn(article);
 
-        articleService.publish(3L);
+        BusinessException ex = assertThrows(BusinessException.class, () -> articleService.publish(3L));
+        assertEquals("Agent 生成文章由审核通过后自动发布，不支持手动发布", ex.getMessage());
+
+        verify(articleMapper, never()).updateById(any(Article.class));
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    void aiGeneratedArticleCanBePublishedAfterReviewApproval() {
+        Article article = new Article();
+        article.setId(4L);
+        article.setSource(ArticleSource.AI_GENERATED);
+        article.setStatus(ContentStatus.PENDING_REVIEW);
+        when(articleMapper.selectById(4L)).thenReturn(article);
+
+        articleService.publishApproved(4L);
 
         assertEquals(ContentStatus.PUBLISHED, article.getStatus());
         verify(articleMapper).updateById(any(Article.class));

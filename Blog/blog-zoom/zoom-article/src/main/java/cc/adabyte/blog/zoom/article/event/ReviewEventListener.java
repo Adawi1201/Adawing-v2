@@ -25,7 +25,7 @@ public class ReviewEventListener {
                 articleService.updateCover(event.contentId(), event.coverResourceId());
                 log.info("[Article] 已设置封面: articleId={}, resourceId={}", event.contentId(), event.coverResourceId());
             }
-            articleService.publish(event.contentId());
+            articleService.publishApproved(event.contentId());
         } catch (Exception e) {
             log.error("[Article] 审核通过后发布文章失败: articleId={}", event.contentId(), e);
         }

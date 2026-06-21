@@ -19,6 +19,7 @@ public interface ArticleService {
     long countBySource(ArticleSource source);
     void saveOrUpdate(Article article, List<String> tagNames);
     void publish(Long id);
+    void publishApproved(Long id);
     void submitForReview(Long id);
     void reject(Long id, String reason, String reviewerNote);
     void hide(Long id);

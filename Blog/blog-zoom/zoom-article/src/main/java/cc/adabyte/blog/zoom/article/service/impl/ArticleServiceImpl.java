@@ -126,10 +126,23 @@ public class ArticleServiceImpl implements ArticleService {
         if (article == null) {
             return;
         }
-        if (article.getSource() == ArticleSource.AI_GENERATED
-                && article.getStatus() != ContentStatus.PENDING_REVIEW) {
-            throw new BusinessException("Agent 生成文章必须先提交审核并通过后方可发布");
+        if (article.getSource() == ArticleSource.AI_GENERATED) {
+            throw new BusinessException("Agent 生成文章由审核通过后自动发布，不支持手动发布");
         }
+        doPublish(article);
+    }
+
+    @Override
+    @Transactional
+    public void publishApproved(Long id) {
+        Article article = articleMapper.selectById(id);
+        if (article == null) {
+            return;
+        }
+        doPublish(article);
+    }
+
+    private void doPublish(Article article) {
         article.setStatus(ContentStatus.PUBLISHED);
         article.setUpdateTime(LocalDateTime.now());
         articleMapper.updateById(article);

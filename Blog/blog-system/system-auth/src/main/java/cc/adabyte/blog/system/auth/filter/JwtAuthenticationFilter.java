@@ -108,7 +108,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                  "/api/v2/notes",
                  "/api/v2/tags",
                  "/api/v2/tags/suggest",
-                 "/api/v2/config/site" -> "GET".equals(method);
+                 "/api/v2/config/site",
+                 "/api/v2/system/config/dashboard" -> "GET".equals(method);
             default -> {
                 if ("GET".equals(method) && ARTICLE_DETAIL_PATTERN.matcher(uri).matches()) {
                     yield true;

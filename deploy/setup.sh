@@ -363,7 +363,7 @@ User=$APP_USER
 Group=$APP_USER
 WorkingDirectory=$APP_HOME
 EnvironmentFile=-$APP_HOME/.env
-ExecStart=/usr/bin/java -jar $APP_HOME/adawing-backend.jar --spring.config.location=$APP_HOME/application-prod.yaml
+ExecStart=/usr/bin/java -jar $APP_HOME/adawing-backend.jar --spring.config.name=application-prod --spring.config.location=/opt/adawing/
 ExecStop=/bin/kill -15 \$MAINPID
 Restart=on-failure
 RestartSec=10

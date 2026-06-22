@@ -51,7 +51,8 @@ do_start() {
 
     echo -n "Starting AdaWing..."
     nohup java -jar "$JAR" \
-        --spring.config.location="$CFG" \
+        --spring.config.name=application-prod \
+        --spring.config.location=/opt/adawing/ \
         >> "$LOG_DIR/app.log" 2>&1 &
     local pid=$!
     echo "$pid" > "$PID_FILE"

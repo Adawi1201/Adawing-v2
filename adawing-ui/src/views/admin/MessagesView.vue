@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { listAdminMessages, approveMessage, rejectMessage, deleteMessage } from '@/api/messages.js'
-import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import AuthImage from '@/components/AuthImage.vue'
 import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -115,7 +115,7 @@ onMounted(load)
         <!-- Summary row -->
         <div class="msg-summary" @click="toggleDetail(msg)">
           <div class="ms-avatar">
-            <img v-if="msg.avatarResourceId" :src="resourceContentUrl(msg.avatarResourceId)" />
+            <AuthImage v-if="msg.avatarResourceId" :src="msg.avatarResourceId" />
             <span v-else class="ms-avatar-placeholder">{{ (msg.nickname || '?')[0].toUpperCase() }}</span>
           </div>
           <div class="ms-main">
@@ -162,7 +162,7 @@ onMounted(load)
                   class="avatar-btn"
                   :title="getForm(msg.id).avatarResourceId ? 'Avatar ID: ' + getForm(msg.id).avatarResourceId : 'Choose avatar'"
                 >
-                  <img v-if="getForm(msg.id).avatarResourceId" :src="resourceContentUrl(getForm(msg.id).avatarResourceId)" class="avatar-btn-img" />
+                  <AuthImage v-if="getForm(msg.id).avatarResourceId" :src="getForm(msg.id).avatarResourceId" class="avatar-btn-img" />
                   <span v-else>+</span>
                 </div>
                 <input v-model="getForm(msg.id).reply" class="input-ori action-input" placeholder="Reply" />

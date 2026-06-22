@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { listResources } from '@/api/resources.js'
-import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import AuthImage from '@/components/AuthImage.vue'
 
 const USAGE_CONFIG = {
   avatar: {
@@ -125,9 +125,9 @@ function select(r) {
                   @click="select(r)"
                 >
                   <div class="rp-thumb">
-                    <img
+                    <AuthImage
                       v-if="r.mimeType && r.mimeType.startsWith('image/')"
-                      :src="resourceContentUrl(r.id)"
+                      :src="r.id"
                       :alt="r.originalName"
                     />
                     <template v-else>

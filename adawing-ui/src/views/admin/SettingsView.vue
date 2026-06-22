@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { getSiteConfig, saveSiteConfig } from '@/api/config.js'
-import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import AuthImage from '@/components/AuthImage.vue'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 
 const config = ref({
@@ -137,7 +137,7 @@ onMounted(load)
           <label>Logo</label>
           <div class="s-resource-field">
             <div class="s-resource-thumb s-thumb-logo" @click="openResourcePickerFor('logo')">
-              <img v-if="config.logo" :src="resourceContentUrl(config.logo)" class="s-resource-img" @error="clearResource('logo')" />
+              <AuthImage v-if="config.logo" :src="config.logo" class="s-resource-img" @error="clearResource('logo')" />
               <span v-else class="s-resource-plus">+</span>
             </div>
             <div class="s-resource-body">
@@ -155,7 +155,7 @@ onMounted(load)
           <label>Favicon</label>
           <div class="s-resource-field">
             <div class="s-resource-thumb" @click="openResourcePickerFor('favicon')">
-              <img v-if="config.favicon" :src="resourceContentUrl(config.favicon)" class="s-resource-img" @error="clearResource('favicon')" />
+              <AuthImage v-if="config.favicon" :src="config.favicon" class="s-resource-img" @error="clearResource('favicon')" />
               <span v-else class="s-resource-plus">+</span>
             </div>
             <div class="s-resource-body">
@@ -198,7 +198,7 @@ onMounted(load)
           <label>Avatar</label>
           <div class="s-resource-field">
             <div class="s-resource-thumb s-thumb-avatar" @click="openResourcePickerFor('avatar')">
-              <img v-if="config.profile.avatar" :src="resourceContentUrl(config.profile.avatar)" class="s-resource-img" @error="clearResource('avatar')" />
+              <AuthImage v-if="config.profile.avatar" :src="config.profile.avatar" class="s-resource-img" @error="clearResource('avatar')" />
               <span v-else class="s-resource-plus">+</span>
             </div>
             <div class="s-resource-body">
@@ -231,7 +231,7 @@ onMounted(load)
             <option value="friend">Friend</option>
           </select>
           <div class="link-icon-field" @click="openLinkIconPicker(index)">
-            <img v-if="link.icon" :src="resourceContentUrl(link.icon)" class="link-icon-img" />
+            <AuthImage v-if="link.icon" :src="link.icon" class="link-icon-img" />
             <span v-else class="link-icon-placeholder">icon</span>
           </div>
           <div class="link-actions">

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { listAdmin, publish, hide, submitForReview, deleteArticle } from '@/api/articles.js'
-import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import AuthImage from '@/components/AuthImage.vue'
 import Pagination from '@/components/Pagination.vue'
 import { formatDate } from '@/utils/formatDate.js'
 
@@ -77,7 +77,7 @@ onMounted(load)
 
       <div v-for="a in articles" :key="a.id" class="art-row" @click="goEdit(a.id)">
         <div class="art-cover">
-          <img v-if="a.coverResourceId" :src="resourceContentUrl(a.coverResourceId)" />
+          <AuthImage v-if="a.coverResourceId" :src="a.coverResourceId" />
           <span v-else class="art-cover-empty">—</span>
         </div>
         <div class="art-main">

@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Vditor from 'vditor'
 import { getAdmin, saveArticle } from '@/api/articles.js'
-import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import AuthImage from '@/components/AuthImage.vue'
 import { resourceReferenceImage, restoreResourceReferences } from '@/utils/resourceRef.js'
 import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
@@ -143,7 +143,7 @@ onBeforeUnmount(() => {
 
         <div class="ae-cover-row">
           <div class="ae-cover-thumb" @click="coverPicker.open()">
-            <img v-if="form.coverResourceId" :src="resourceContentUrl(form.coverResourceId)" />
+            <AuthImage v-if="form.coverResourceId" :src="form.coverResourceId" />
             <span v-else>+</span>
           </div>
           <div class="ae-cover-info">

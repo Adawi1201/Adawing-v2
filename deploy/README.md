@@ -53,11 +53,12 @@ deploy/adawing-v2/
 ## 三、上传至服务器
 
 ```bash
-# 压缩（用 7-Zip / WinRAR 或 tar）
-tar -czf adawing-v2.tar.gz deploy/adawing-v2/
+# 压缩（在项目根目录执行）
+cd deploy
+tar -czf adawing-v2.tar.gz adawing-v2/
 
 # 上传
-scp deploy/adawing-v2.tar.gz root@<服务器IP>:/opt/
+scp adawing-v2.tar.gz root@<服务器IP>:/opt/
 
 # SSH 登录
 ssh root@<服务器IP>
@@ -189,7 +190,7 @@ sudo ufw enable
 | 入口 | URL |
 |------|-----|
 | **博客首页** | `https://your-domain.com` |
-| **管理后台** | `https://your-domain.com/v2/ren/admin/login` |
+| **管理后台** | `https://your-domain.com/yusal/admin/login` |
 | **MCP 端点** | `https://your-domain.com/mcp` |
 
 默认管理员：`admin / admin123`。登录后立即改密码。
@@ -225,19 +226,17 @@ sudo ufw enable
 不需要重新跑 setup.sh，只需替换 jar + 前端 + 重启。
 
 ```bash
-# 本地重新构建
+# 本地重新构建 + 压缩上传（在项目根目录执行）
 deploy\build.bat
-
-# 压缩上传
-tar -czf adawing-v2.tar.gz deploy/adawing-v2/
+cd deploy && tar -czf adawing-v2.tar.gz adawing-v2/
 scp adawing-v2.tar.gz root@<服务器IP>:/opt/
 
 # 服务器
 cd /opt && tar xzf adawing-v2.tar.gz
 
-# 替换 jar
-sudo cp deploy/adawing-v2/adawing-backend.jar /opt/adawing/
-sudo cp -r deploy/adawing-v2/frontend/* /opt/adawing/frontend/
+# 替换 jar + 前端
+sudo cp /opt/adawing-v2/adawing-backend.jar /opt/adawing/
+sudo cp -r /opt/adawing-v2/frontend/* /opt/adawing/frontend/
 sudo chown -R adawing:adawing /opt/adawing
 
 # 重启

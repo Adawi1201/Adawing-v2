@@ -7,20 +7,20 @@ const { isActive } = useRouteActive()
 const auth = useAuthStore()
 
 const menus = [
-  { name: 'Dashboard', label: 'Dashboard', path: '/v2/ren/admin' },
-  { name: 'AdminArticles', label: 'Articles', path: '/v2/ren/admin/articles' },
-  { name: 'AdminReview', label: 'Review', path: '/v2/ren/admin/review' },
-  { name: 'AdminMessages', label: 'Messages', path: '/v2/ren/admin/messages' },
-  { name: 'AdminMoments', label: 'Moments', path: '/v2/ren/admin/moments' },
-  { name: 'AdminTags', label: 'Tags', path: '/v2/ren/admin/tags' },
-  { name: 'AdminResources', label: 'Resources', path: '/v2/ren/admin/resources' },
-  { name: 'AdminSettings', label: 'Settings', path: '/v2/ren/admin/settings' },
-  { name: 'AdminAccount', label: 'Account', path: '/v2/ren/admin/account' }
+  { name: 'Dashboard', label: 'Dashboard', path: '/yusal/admin' },
+  { name: 'AdminArticles', label: 'Articles', path: '/yusal/admin/articles' },
+  { name: 'AdminReview', label: 'Review', path: '/yusal/admin/review' },
+  { name: 'AdminMessages', label: 'Messages', path: '/yusal/admin/messages' },
+  { name: 'AdminMoments', label: 'Moments', path: '/yusal/admin/moments' },
+  { name: 'AdminTags', label: 'Tags', path: '/yusal/admin/tags' },
+  { name: 'AdminResources', label: 'Resources', path: '/yusal/admin/resources' },
+  { name: 'AdminSettings', label: 'Settings', path: '/yusal/admin/settings' },
+  { name: 'AdminAccount', label: 'Account', path: '/yusal/admin/account' }
 ]
 
 function logout() {
   auth.logout()
-  window.location.href = '/v2/ren/admin/login'
+  window.location.href = '/yusal/admin/login'
 }
 </script>
 

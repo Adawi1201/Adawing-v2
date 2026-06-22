@@ -75,7 +75,7 @@ do_start() {
             echo -e "${GREEN}[ OK ]${NC} AdaWing started (pid=$pid)"
             echo ""
             echo "  Public:   http://$(hostname -I 2>/dev/null | awk '{print $1}' || echo 'localhost')"
-            echo "  Admin:    http://localhost:8080/v2/ren/admin/login"
+            echo "  Admin:    http://localhost:8080/yusal/admin/login"
             echo "  MCP:      http://localhost:8080/mcp"
             echo "  Logs:     tail -f $LOG_DIR/app.log"
             return 0

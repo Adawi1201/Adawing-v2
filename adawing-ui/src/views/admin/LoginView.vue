@@ -21,7 +21,7 @@ async function login() {
   error.value = ''
   try {
     await auth.login(username.value, password.value)
-    const redirect = route.query.redirect || '/v2/ren/admin'
+    const redirect = route.query.redirect || '/yusal/admin'
     router.replace(redirect)
   } catch (e) {
     error.value = e.message || 'Sign in failed'

@@ -16,12 +16,12 @@ const router = createRouter({
       ]
     },
     {
-      path: '/v2/ren/admin/login',
+      path: '/yusal/admin/login',
       name: 'AdminLogin',
       component: () => import('@/views/admin/LoginView.vue')
     },
     {
-      path: '/v2/ren/admin',
+      path: '/yusal/admin',
       component: () => import('@/layouts/AdminLayout.vue'),
       meta: { requiresAuth: true },
       children: [

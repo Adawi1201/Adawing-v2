@@ -415,7 +415,7 @@ EOF
   Pass:       $DB_REMOTE_PASS
 
   ── Admin Login ──
-  URL:        http://<server IP>/v2/ren/admin/login
+  URL:        http://<server IP>/yusal/admin/login
   User:       admin
   Pass:       admin123
 

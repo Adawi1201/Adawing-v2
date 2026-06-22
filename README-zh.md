@@ -221,8 +221,8 @@ Vite 自动代理 `/api/v2` → `http://localhost:8080`。
 | 入口 | URL |
 |------|-----|
 | **博客首页** | `http://localhost:5173/` |
-| **管理端登录** | `http://localhost:5173/v2/ren/admin/login` |
-| **管理后台** | `http://localhost:5173/v2/ren/admin` |
+| **管理端登录** | `http://localhost:5173/yusal/admin/login` |
+| **管理后台** | `http://localhost:5173/yusal/admin` |
 | **MCP 端点** | `http://localhost:8080/mcp`（POST） |
 
 ---

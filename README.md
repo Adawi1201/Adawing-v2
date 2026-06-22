@@ -221,8 +221,8 @@ Vite proxies `/api/v2` → `http://localhost:8080` automatically.
 | Entry | URL |
 |-------|-----|
 | **Blog Home** | `http://localhost:5173/` |
-| **Admin Login** | `http://localhost:5173/v2/ren/admin/login` |
-| **Admin Dashboard** | `http://localhost:5173/v2/ren/admin` |
+| **Admin Login** | `http://localhost:5173/yusal/admin/login` |
+| **Admin Dashboard** | `http://localhost:5173/yusal/admin` |
 | **MCP Endpoint** | `http://localhost:8080/mcp` (POST) |
 
 ---

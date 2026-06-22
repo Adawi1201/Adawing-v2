@@ -37,7 +37,7 @@ public class ReviewController {
 
     @PostMapping("/{id}/approve")
     public Result<Void> approve(@PathVariable Long id, @RequestBody ReviewActionRequest request) {
-        reviewService.approve(id, request.getReviewerNote(), request.getCoverResourceId());
+        reviewService.approve(id, request.getReviewerNote(), request.getCoverResourceId(), request.getAvatarResourceId());
         return Result.ok();
     }
 

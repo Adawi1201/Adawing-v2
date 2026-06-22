@@ -19,9 +19,9 @@ public class ReviewEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onContentApproved(ContentApprovedEvent event) {
         if (!"message".equals(event.contentType())) return;
-        log.info("[Message] 审核通过: messageId={}", event.contentId());
+        log.info("[Message] 审核通过: messageId={}, avatarResourceId={}", event.contentId(), event.avatarResourceId());
         try {
-            messageService.approve(event.contentId(), event.reviewerNote(), null);
+            messageService.approve(event.contentId(), event.reviewerNote(), event.avatarResourceId());
         } catch (Exception e) {
             log.error("[Message] 审核通过后更新留言失败: messageId={}", event.contentId(), e);
         }

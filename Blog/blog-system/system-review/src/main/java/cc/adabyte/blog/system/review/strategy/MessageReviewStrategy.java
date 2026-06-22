@@ -19,8 +19,8 @@ public class MessageReviewStrategy implements ReviewStrategy {
     }
 
     @Override
-    public void onApprove(Long contentId, String reviewerNote, Long coverResourceId) {
-        eventPublisher.publishEvent(new ContentApprovedEvent(contentId, "message", reviewerNote, null));
+    public void onApprove(Long contentId, String reviewerNote, Long coverResourceId, Long avatarResourceId) {
+        eventPublisher.publishEvent(new ContentApprovedEvent(contentId, "message", reviewerNote, null, avatarResourceId));
     }
 
     @Override

@@ -90,7 +90,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void approve(Long taskId, String reviewerNote, Long coverResourceId) {
+    public void approve(Long taskId, String reviewerNote, Long coverResourceId, Long avatarResourceId) {
         ReviewTask task = reviewTaskMapper.selectById(taskId);
         if (task == null) return;
         ReviewStrategy strategy = resolveStrategy(task.getContentType());
@@ -98,7 +98,7 @@ public class ReviewServiceImpl implements ReviewService {
         task.setReviewerNote(reviewerNote);
         task.setReviewTime(LocalDateTime.now());
         reviewTaskMapper.updateById(task);
-        strategy.onApprove(task.getContentId(), reviewerNote, coverResourceId);
+        strategy.onApprove(task.getContentId(), reviewerNote, coverResourceId, avatarResourceId);
     }
 
     @Override

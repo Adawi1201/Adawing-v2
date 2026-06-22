@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { listTasks, approve, reject, ignoreTask } from '@/api/review.js'
-import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import AuthImage from '@/components/AuthImage.vue'
 import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import Pagination from '@/components/Pagination.vue'
@@ -73,6 +73,9 @@ async function doApprove(task) {
   const body = { reviewerNote: f.note || '' }
   if (isArticle(task) && f.coverResourceId) {
     body.coverResourceId = f.coverResourceId
+  }
+  if (isMessage(task) && f.avatarResourceId) {
+    body.avatarResourceId = f.avatarResourceId
   }
   await approve(task.id, body)
   delete forms[task.id]
@@ -146,7 +149,7 @@ onMounted(load)
             <!-- Existing avatar -->
             <div v-if="task.avatarResourceId" class="rd-section">
               <div class="rd-label">Current Avatar</div>
-              <img :src="resourceContentUrl(task.avatarResourceId)" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; border: 1px solid var(--line);" />
+              <AuthImage :src="task.avatarResourceId" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; border: 1px solid var(--line);" />
             </div>
 
             <!-- Actions (only for pending) -->
@@ -158,7 +161,7 @@ onMounted(load)
                   class="cover-btn"
                   :title="getForm(task.id).coverResourceId ? 'Cover ID: ' + getForm(task.id).coverResourceId : 'Pick cover from resources'"
                 >
-                  <img v-if="getForm(task.id).coverResourceId" :src="resourceContentUrl(getForm(task.id).coverResourceId)" class="cover-btn-img" />
+                  <AuthImage v-if="getForm(task.id).coverResourceId" :src="getForm(task.id).coverResourceId" class="cover-btn-img" />
                   <span v-else>Cover</span>
                 </div>
                 <button class="btn-ori btn-ori-sm" @click="doApprove(task)">Approve</button>
@@ -173,7 +176,7 @@ onMounted(load)
                   class="avatar-btn"
                   :title="getForm(task.id).avatarResourceId ? 'Avatar ID: ' + getForm(task.id).avatarResourceId : 'Choose avatar'"
                 >
-                  <img v-if="getForm(task.id).avatarResourceId" :src="resourceContentUrl(getForm(task.id).avatarResourceId)" class="avatar-btn-img" />
+                  <AuthImage v-if="getForm(task.id).avatarResourceId" :src="getForm(task.id).avatarResourceId" class="avatar-btn-img" />
                   <span v-else>+</span>
                 </div>
                 <input v-model="getForm(task.id).note" class="input-ori action-input" placeholder="Reply to user" />

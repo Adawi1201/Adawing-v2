@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface ReviewService {
     ReviewTask submit(SubmitReviewRequest request);
-    void approve(Long taskId, String reviewerNote, Long coverResourceId);
+    void approve(Long taskId, String reviewerNote, Long coverResourceId, Long avatarResourceId);
     void reject(Long taskId, String reason, String reviewerNote);
     void ignorePending(Long taskId);
     PageResult<ReviewTaskVO> listTasks(Integer status, int page, int size);

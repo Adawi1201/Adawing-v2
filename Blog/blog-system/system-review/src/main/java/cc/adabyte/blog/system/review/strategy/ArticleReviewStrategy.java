@@ -19,8 +19,8 @@ public class ArticleReviewStrategy implements ReviewStrategy {
     }
 
     @Override
-    public void onApprove(Long contentId, String reviewerNote, Long coverResourceId) {
-        eventPublisher.publishEvent(new ContentApprovedEvent(contentId, "article", reviewerNote, coverResourceId));
+    public void onApprove(Long contentId, String reviewerNote, Long coverResourceId, Long avatarResourceId) {
+        eventPublisher.publishEvent(new ContentApprovedEvent(contentId, "article", reviewerNote, coverResourceId, null));
     }
 
     @Override

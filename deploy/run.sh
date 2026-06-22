@@ -7,8 +7,16 @@
 APP_HOME="$(cd "$(dirname "$0")" && pwd)"
 JAR="$APP_HOME/adawing-backend.jar"
 CFG="$APP_HOME/application-prod.yaml"
+ENV_FILE="$APP_HOME/.env"
 PID_FILE="$APP_HOME/.pid"
 LOG_DIR="$APP_HOME/logs"
+
+# Load optional environment overrides
+if [[ -f "$ENV_FILE" ]]; then
+    set -a
+    source "$ENV_FILE"
+    set +a
+fi
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'

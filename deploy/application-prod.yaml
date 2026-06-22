@@ -48,6 +48,12 @@ mybatis-plus:
     db-config:
       id-type: auto
 
+# ── 跨域来源 ──
+# 必须配置为前端实际访问域名，多个用逗号分隔
+app:
+  cors:
+    allowed-origins: https://wing.adabyte.top      # ← 修改为你的域名
+
 # ── JWT ──
 jwt:
   secret: change-me-to-a-random-string          # ← 修改（openssl rand -base64 48）

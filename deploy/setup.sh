@@ -251,6 +251,9 @@ function deploy_files() {
   sed -i "s|your-secret-key|${OSS_SK:-your-secret-key}|"            "$cfg"
   sed -i "s|your-bucket-name|${OSS_BUCKET:-your-bucket-name}|"      "$cfg"
   sed -i "s|change-me-to-a-random-string|$JWT_SECRET|"  "$cfg"
+  if [[ -n "$DOMAIN" ]]; then
+    sed -i "s|https://wing.adabyte.top|https://$DOMAIN|" "$cfg"
+  fi
 
   # If env vars not set, leave placeholders — user edits manually later
   # But warn about unmapped ones
@@ -359,6 +362,7 @@ Type=simple
 User=$APP_USER
 Group=$APP_USER
 WorkingDirectory=$APP_HOME
+EnvironmentFile=-$APP_HOME/.env
 ExecStart=/usr/bin/java -jar $APP_HOME/adawing-backend.jar --spring.config.location=$APP_HOME/application-prod.yaml
 ExecStop=/bin/kill -15 \$MAINPID
 Restart=on-failure

@@ -14,9 +14,10 @@ public class CorsConfig {
 
     /**
      * 允许跨域的来源列表，逗号分隔。
-     * 生产环境应通过环境变量限制为实际域名，禁止使用 *。
+     * 优先级：环境变量 CORS_ALLOWED_ORIGINS > 配置文件 app.cors.allowed-origins > 本地开发默认值。
+     * 生产环境必须配置为实际域名，禁止使用 *。
      */
-    @Value("${app.cors.allowed-origins:http://localhost:5173,http://localhost:4173}")
+    @Value("${CORS_ALLOWED_ORIGINS:${app.cors.allowed-origins:http://localhost:5173,http://localhost:4173}}")
     private String allowedOrigins;
 
     @Bean

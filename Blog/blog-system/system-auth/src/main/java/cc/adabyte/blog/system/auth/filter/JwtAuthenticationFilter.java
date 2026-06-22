@@ -81,6 +81,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SysUser user = sysUserMapper.selectByUsername(username);
             if (user == null || user.getStatus() != UserStatus.ACTIVE) {
                 log.warn("用户不存在或已被禁用: {}", username);
+                if (isPublic) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Unauthorized");
                 return;
@@ -90,6 +94,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("无效的 JWT 令牌: {}", e.getMessage());
+            if (isPublic) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Unauthorized");
         }

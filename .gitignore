@@ -43,7 +43,8 @@ application-local.yaml
 /.claude
 /docs/superpowers
 /docs/superpowers-dev
-/CLAUDE.md
+CLAUDE.md
+AGENTS.md
 
 ### CodeGraph ###
 /.codegraph

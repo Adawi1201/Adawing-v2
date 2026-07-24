@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { listNotes } from '@/api/notes.js'
 import { useScrollReveal } from '@/composables/useScrollReveal.js'
+import MarkdownContent from '@/components/MarkdownContent.vue'
 import Pagination from '@/components/Pagination.vue'
 
 const notes = ref([])
@@ -51,7 +52,7 @@ onMounted(load)
         <span class="note-time">{{ formatDateTime(note.createTime) }}</span>
       </div>
       <h3 v-if="note.title" class="note-title">{{ note.title }}</h3>
-      <p class="note-content" v-html="note.content" />
+      <MarkdownContent class="note-content" :source="note.content" />
     </div>
     <div v-if="!loading && notes.length === 0" class="empty-ori">No notes yet.</div>
 

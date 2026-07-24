@@ -15,6 +15,7 @@ async function renderMarkdown() {
   Vditor.preview(rootRef.value, props.source || '', {
     mode: 'light',
     hljs: { style: 'github' },
+    math: { engine: 'KaTeX', inlineDigit: true },
     markdown: {
       toc: true,
       mark: true

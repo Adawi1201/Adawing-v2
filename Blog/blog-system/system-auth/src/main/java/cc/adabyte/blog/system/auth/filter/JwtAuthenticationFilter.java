@@ -61,6 +61,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // MCP 端点由 McpAuthInterceptor 通过 X-MCP-Key 独立鉴权，不走 JWT
+        if (uri.startsWith("/mcp")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         boolean isPublic = isPublicEndpoint(method, uri);
         String authHeader = request.getHeader(AUTHORIZATION_HEADER);
 

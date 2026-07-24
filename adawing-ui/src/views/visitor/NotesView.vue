@@ -16,7 +16,7 @@ useScrollReveal(containerRef, '.reveal', { stagger: 0.04 })
 import { formatDateTime } from '@/utils/formatDate.js'
 
 function typeLabel(type) {
-  return type === 'TECH' ? 'TECH' : 'PERSONAL'
+  return (type === 'TECH' || type === 1) ? 'TECH' : 'PERSONAL'
 }
 
 async function load() {

@@ -38,6 +38,12 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    @Transactional
+    public void delete(Long id) {
+        noteMapper.deleteById(id);
+    }
+
+    @Override
     public Note getById(Long id) {
         return noteMapper.selectById(id);
     }

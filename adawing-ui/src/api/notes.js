@@ -11,3 +11,7 @@ export function getNote(id) {
 export function saveNote(data) {
   return request.post('/notes', data)
 }
+
+export function deleteNote(id) {
+  return request.delete(`/notes/${id}`)
+}

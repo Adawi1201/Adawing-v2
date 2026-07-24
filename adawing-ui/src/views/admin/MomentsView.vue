@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { listNotes, getNote, saveNote } from '@/api/notes.js'
-import { resourceReferenceImage, restoreResourceReferences } from '@/utils/resourceRef.js'
+import { listNotes, saveNote, deleteNote } from '@/api/notes.js'
+import { resourceReferenceImage } from '@/utils/resourceRef.js'
 import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import { formatDate } from '@/utils/formatDate.js'
@@ -11,7 +11,7 @@ const TYPE_OPTIONS = ['PERSONAL', 'TECH']
 const type = ref('PERSONAL')
 const notes = ref([])
 const loading = ref(false)
-const form = ref({ id: null, title: '', content: '', type: 'PERSONAL' })
+const form = ref({ title: '', content: '' })
 const saving = ref(false)
 const emojiPicker = ref(null)
 
@@ -24,26 +24,29 @@ async function load() {
   } finally { loading.value = false }
 }
 
-async function edit(id) {
-  const res = await getNote(id)
-  const data = res.data || res
-  form.value = { id: data.id, title: data.title, content: restoreResourceReferences(data.content), type: data.type }
-  type.value = data.type
-}
-
 function reset() {
-  form.value = { id: null, title: '', content: '', type: type.value }
+  form.value = { title: '', content: '' }
 }
 
 async function submit() {
   saving.value = true
   try {
-    await saveNote({ ...form.value, type: type.value })
+    await saveNote({ title: form.value.title, content: form.value.content, type: type.value })
     reset()
     await load()
   } catch (e) {
     toast(e.message, 'error')
   } finally { saving.value = false }
+}
+
+async function remove(id) {
+  if (!window.confirm('Delete this moment?')) return
+  try {
+    await deleteNote(id)
+    await load()
+  } catch (e) {
+    toast(e.message, 'error')
+  }
 }
 
 function insertEmoji(r) {
@@ -71,23 +74,25 @@ onMounted(load)
     </div>
 
     <section class="moment-form-ori">
-      <h2>{{ form.id ? 'Edit' : 'New' }} Moment</h2>
+      <h2>New {{ type }} Moment</h2>
       <input v-model="form.title" class="input-ori" placeholder="Title (optional)" />
       <textarea v-model="form.content" class="input-ori moment-textarea" rows="6" placeholder="Write a moment... Markdown supported." spellcheck="false" />
       <div class="moment-actions">
         <button class="btn-ori btn-ori-xs" @click="emojiPicker.open()">Insert Emoji</button>
         <div style="flex: 1;" />
         <button class="btn-ori btn-ori-sm btn-ori-primary" :disabled="saving" @click="submit">
-          {{ saving ? 'Saving...' : 'Save' }}
+          {{ saving ? 'Saving...' : 'Publish' }}
         </button>
-        <button v-if="form.id" class="btn-ori btn-ori-sm" @click="reset">Cancel</button>
       </div>
     </section>
 
     <div v-if="loading" class="loading-ori">Loading...</div>
     <div v-else class="moment-list-ori">
-      <div v-for="note in notes" :key="note.id" class="moment-item-ori" @click="edit(note.id)">
-        <div class="moment-title-ori">{{ note.title || '(no title)' }}</div>
+      <div v-for="note in notes" :key="note.id" class="moment-item-ori">
+        <div class="moment-item-head">
+          <div class="moment-title-ori">{{ note.title || '(no title)' }}</div>
+          <button class="btn-ori btn-ori-xs" @click="remove(note.id)">Delete</button>
+        </div>
         <MarkdownContent class="moment-content-ori" :source="note.content" />
         <div class="moment-meta-ori">{{ formatDate(note.createTime) }}</div>
       </div>
@@ -139,22 +144,18 @@ onMounted(load)
 .moment-item-ori {
   padding: 32px 0;
   border-top: 1px solid var(--line);
-  cursor: pointer;
-  transition: padding-left 0.4s;
 }
 
-.moment-item-ori:hover {
-  padding-left: 16px;
-}
-
-.moment-item-ori:hover .moment-title-ori {
-  color: var(--accent);
+.moment-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .moment-title-ori {
   font-weight: 500;
-  margin-bottom: 12px;
-  transition: color 0.4s;
 }
 
 .moment-content-ori {

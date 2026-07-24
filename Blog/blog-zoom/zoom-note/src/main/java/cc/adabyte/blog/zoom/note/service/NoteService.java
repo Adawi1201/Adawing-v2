@@ -7,5 +7,6 @@ import cc.adabyte.blog.zoom.shared.enums.NoteType;
 public interface NoteService {
     PageResult<Note> listByType(NoteType type, int page, int size);
     void save(Note note);
+    void delete(Long id);
     Note getById(Long id);
 }

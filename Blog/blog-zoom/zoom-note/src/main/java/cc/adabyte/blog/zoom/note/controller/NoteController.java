@@ -38,7 +38,14 @@ public class NoteController {
 
     @PostMapping
     public Result<Void> save(@RequestBody Note note) {
+        note.setId(null);
         noteService.save(note);
+        return Result.ok();
+    }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> delete(@PathVariable Long id) {
+        noteService.delete(id);
         return Result.ok();
     }
 

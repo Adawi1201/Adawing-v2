@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -47,19 +46,17 @@ public class ResourceController {
                 return;
             }
         }
+        byte[] content = download.content();
         response.setContentType(download.mimeType() != null ? download.mimeType() : "application/octet-stream");
-        if (download.size() != null) {
-            response.setContentLengthLong(download.size());
-        }
+        response.setContentLengthLong(content.length);
         if (download.originalName() != null) {
             ContentDisposition cd = ContentDisposition.inline()
                     .filename(download.originalName(), StandardCharsets.UTF_8)
                     .build();
             response.setHeader("Content-Disposition", cd.toString());
         }
-        try (InputStream in = download.stream();
-             OutputStream out = response.getOutputStream()) {
-            in.transferTo(out);
+        try (OutputStream out = response.getOutputStream()) {
+            out.write(content);
         } catch (IOException e) {
             log.error("资源下载失败: resourceId={}", resourceId, e);
             throw new BusinessException("资源下载失败");

@@ -65,6 +65,15 @@ oss:
   secret-key: your-secret-key                   # ← 修改
   bucket-name: your-bucket-name                 # ← 修改
 
+# ── 资源内容缓存（Caffeine，进程内内存缓存） ──
+resource:
+  cache:
+    enabled: true
+    max-size: 500          # 最大缓存条数
+    expire-minutes: 30     # 访问后过期时间（分钟）
+    max-bytes: 2097152     # 单条缓存字节上限（2MB），超过不缓存
+
+
 # ── 日志 ──
 logging:
   level:

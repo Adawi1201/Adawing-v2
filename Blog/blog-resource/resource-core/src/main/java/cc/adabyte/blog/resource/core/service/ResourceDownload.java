@@ -1,15 +1,13 @@
 package cc.adabyte.blog.resource.core.service;
 
-import java.io.InputStream;
-
 public record ResourceDownload(
-        InputStream stream,
+        byte[] content,
         String mimeType,
         Long size,
         String originalName,
         boolean publicAccess
 ) {
-    public ResourceDownload(InputStream stream, String mimeType, Long size, String originalName) {
-        this(stream, mimeType, size, originalName, false);
+    public ResourceDownload(byte[] content, String mimeType, Long size, String originalName) {
+        this(content, mimeType, size, originalName, false);
     }
 }

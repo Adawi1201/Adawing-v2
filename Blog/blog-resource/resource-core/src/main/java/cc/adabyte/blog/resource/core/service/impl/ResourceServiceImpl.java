@@ -7,6 +7,8 @@ import cc.adabyte.blog.resource.core.entity.Resource;
 import cc.adabyte.blog.resource.core.entity.ResourceReference;
 import cc.adabyte.blog.resource.core.mapper.ResourceMapper;
 import cc.adabyte.blog.resource.core.mapper.ResourceReferenceMapper;
+import cc.adabyte.blog.resource.core.cache.ResourceContentCache;
+import cc.adabyte.blog.resource.core.service.CachedResource;
 import cc.adabyte.blog.resource.core.service.ResourceDownload;
 import cc.adabyte.blog.resource.core.service.ResourceService;
 import cc.adabyte.blog.resource.oss.OssTemplate;
@@ -32,6 +34,7 @@ public class ResourceServiceImpl implements ResourceService {
     private final ResourceMapper resourceMapper;
     private final ResourceReferenceMapper referenceMapper;
     private final OssTemplate ossTemplate;
+    private final ResourceContentCache contentCache;
 
     @Override
     @Transactional
@@ -74,14 +77,33 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public ResourceDownload download(Long resourceId) {
+        CachedResource cached = contentCache.getIfPresent(resourceId);
+        if (cached != null) {
+            return new ResourceDownload(cached.content(), cached.mimeType(), cached.size(),
+                    cached.originalName(), cached.publicAccess());
+        }
+
         Resource resource = resourceMapper.selectById(resourceId);
         if (resource == null) {
             throw new BusinessException("资源不存在");
         }
         boolean publicAccess = resource.getRefCount() != null && resource.getRefCount() > 0
                 && resource.getStatus() == ResourceStatus.ACTIVE;
-        InputStream stream = ossTemplate.download(resource.getUrl());
-        return new ResourceDownload(stream, resource.getMimeType(), resource.getSize(), resource.getOriginalName(), publicAccess);
+
+        byte[] content;
+        try (InputStream stream = ossTemplate.download(resource.getUrl())) {
+            content = stream.readAllBytes();
+        } catch (IOException e) {
+            log.error("资源读取失败: resourceId={}", resourceId, e);
+            throw new BusinessException("资源读取失败");
+        }
+
+        CachedResource toCache = new CachedResource(content, resource.getMimeType(),
+                resource.getSize(), resource.getOriginalName(), publicAccess);
+        contentCache.put(resourceId, toCache);
+
+        return new ResourceDownload(content, resource.getMimeType(), resource.getSize(),
+                resource.getOriginalName(), publicAccess);
     }
 
     @Override
@@ -149,6 +171,7 @@ public class ResourceServiceImpl implements ResourceService {
         referenceMapper.deleteByResourceId(resourceId);
 
         resourceMapper.deleteById(resourceId);
+        contentCache.invalidate(resourceId);
         log.info("[Resource] 物理删除完成: id={}", resourceId);
     }
 }

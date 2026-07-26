@@ -198,19 +198,24 @@ class McpEndToEndTest {
 
     @Test
     @Order(8)
-    @DisplayName("tools/list — 返回 4 个已注册 Tool")
+    @DisplayName("tools/list — 返回 8 个已注册 Tool")
     void toolsList() throws Exception {
         MvcResult result = mcpCall("tools/list", null);
         JsonNode r = parseResult(result);
 
         assertTrue(r.has("tools"));
-        assertEquals(4, r.get("tools").size());
+        assertEquals(8, r.get("tools").size());
 
         var names = r.get("tools").findValuesAsText("name");
         assertTrue(names.contains("get_content_rules"));
         assertTrue(names.contains("create_article_draft"));
         assertTrue(names.contains("search_articles"));
         assertTrue(names.contains("get_article"));
+        // v2.1 note MCP tools
+        assertTrue(names.contains("create_note_draft"));
+        assertTrue(names.contains("get_note"));
+        assertTrue(names.contains("search_notes"));
+        assertTrue(names.contains("get_note_rules"));
     }
 
     @Test
@@ -306,6 +311,58 @@ class McpEndToEndTest {
         assertTrue(data.get("items").size() > 0, "应至少搜索到一篇匹配文章");
         var ids = data.get("items").findValuesAsText("id");
         assertTrue(ids.contains(String.valueOf(createdDraftId)));
+    }
+
+    // ---- note MCP (v2.1) ----
+
+    private static Long createdNoteId;
+
+    @Test
+    @Order(20)
+    @DisplayName("tools/call get_note_rules — 返回 note 字段规则（含 type 枚举）")
+    void getNoteRules() throws Exception {
+        MvcResult result = mcpCall("tools/call", Map.of(
+                "name", "get_note_rules",
+                "arguments", Map.of()
+        ));
+        JsonNode data = objectMapper.readTree(parseResult(result).get("content").get(0).get("text").asText());
+        assertTrue(data.has("type"), "应有 type 字段规则");
+        java.util.List<String> types = new java.util.ArrayList<>();
+        data.get("type").get("enum").forEach(n -> types.add(n.asText()));
+        assertTrue(types.contains("PERSONAL") && types.contains("TECH"), "type 枚举应含 PERSONAL/TECH: " + types);
+    }
+
+    @Test
+    @Order(21)
+    @DisplayName("tools/call create_note_draft — 创建 note 草稿并返回 ID")
+    void createNoteDraft() throws Exception {
+        MvcResult result = mcpCall("tools/call", Map.of(
+                "name", "create_note_draft",
+                "arguments", Map.of(
+                        "title", "端到端测试动态",
+                        "content", "# 动态\n这是 AI 生成的测试动态。",
+                        "type", "TECH",
+                        "sourceAgent", "opencode"
+                )
+        ));
+        JsonNode data = objectMapper.readTree(parseResult(result).get("content").get(0).get("text").asText());
+        assertTrue(data.has("draftId"), "应返回 draftId");
+        createdNoteId = data.get("draftId").asLong();
+        assertTrue(createdNoteId > 0, "draftId 应为正数");
+    }
+
+    @Test
+    @Order(22)
+    @DisplayName("tools/call get_note — 草稿未发布，get_note 应查不到（仅 PUBLISHED）")
+    void getNoteDraftNotVisible() throws Exception {
+        assertNotNull(createdNoteId, "依赖创建草稿测试");
+        MvcResult result = mcpCall("tools/call", Map.of(
+                "name", "get_note",
+                "arguments", Map.of("id", createdNoteId)
+        ));
+        JsonNode data = objectMapper.readTree(parseResult(result).get("content").get(0).get("text").asText());
+        // note 草稿处于 PENDING_REVIEW，get_note 仅返回 PUBLISHED，故应报未找到
+        assertTrue(data.has("error"), "待审核 note 不应被 get_note 返回: " + data);
     }
 
     // ---- error handling ----

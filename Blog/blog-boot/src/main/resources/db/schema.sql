@@ -91,7 +91,8 @@ CREATE TABLE IF NOT EXISTS note (
     content TEXT NOT NULL COMMENT '内容（Markdown）',
     type TINYINT NOT NULL DEFAULT 0 COMMENT '0个人动态 1科技动态',
     source_id BIGINT COMMENT '来源ID（关联文章ID）',
-    status TINYINT NOT NULL DEFAULT 2 COMMENT '2已发布',
+    source_agent VARCHAR(64) COMMENT 'Agent来源，原创为NULL',
+    status TINYINT NOT NULL DEFAULT 2 COMMENT '0草稿 1待审核 2已发布',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_note_type_time (type, create_time)

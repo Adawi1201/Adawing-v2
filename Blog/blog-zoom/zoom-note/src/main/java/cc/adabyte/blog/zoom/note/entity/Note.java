@@ -18,6 +18,7 @@ public class Note {
     private String content;
     private NoteType type;
     private Long sourceId;
+    private String sourceAgent;
     private ContentStatus status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

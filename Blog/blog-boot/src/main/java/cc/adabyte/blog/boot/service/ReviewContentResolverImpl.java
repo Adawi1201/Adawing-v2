@@ -5,6 +5,8 @@ import cc.adabyte.blog.zoom.article.entity.Article;
 import cc.adabyte.blog.zoom.article.mapper.ArticleMapper;
 import cc.adabyte.blog.zoom.message.entity.Message;
 import cc.adabyte.blog.zoom.message.mapper.MessageMapper;
+import cc.adabyte.blog.zoom.note.entity.Note;
+import cc.adabyte.blog.zoom.note.mapper.NoteMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +16,7 @@ public class ReviewContentResolverImpl implements ReviewContentResolver {
 
     private final MessageMapper messageMapper;
     private final ArticleMapper articleMapper;
+    private final NoteMapper noteMapper;
 
     @Override
     public Result resolve(String contentType, Long contentId) {
@@ -23,7 +26,23 @@ public class ReviewContentResolverImpl implements ReviewContentResolver {
         if ("article".equals(contentType)) {
             return resolveArticle(contentId);
         }
+        if ("note".equals(contentType)) {
+            return resolveNote(contentId);
+        }
         return null;
+    }
+
+    private Result resolveNote(Long id) {
+        Note note = noteMapper.selectAdminById(id);
+        if (note == null) return null;
+        return new Result(
+                note.getTitle(),
+                note.getContent(),
+                note.getSourceAgent() != null ? note.getSourceAgent() : "agent",
+                null,
+                null,
+                note.getStatus() != null ? note.getStatus().getValue() : null
+        );
     }
 
     private Result resolveMessage(Long id) {

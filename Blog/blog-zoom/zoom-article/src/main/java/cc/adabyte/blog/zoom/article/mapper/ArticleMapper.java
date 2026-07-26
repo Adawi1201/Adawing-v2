@@ -49,6 +49,9 @@ public interface ArticleMapper extends BaseMapper<Article> {
     @Update("UPDATE article SET view_count = view_count + 1 WHERE id = #{id}")
     int incrementViewCount(@Param("id") Long id);
 
+    @Update("UPDATE article SET view_count = view_count + #{delta} WHERE id = #{id}")
+    int incrementViewCountBy(@Param("id") Long id, @Param("delta") long delta);
+
     @Select("SELECT SUM(view_count) FROM article")
     Long selectTotalViewCount();
 

@@ -73,6 +73,10 @@ resource:
     expire-minutes: 30     # 访问后过期时间（分钟）
     max-bytes: 2097152     # 单条缓存字节上限（2MB），超过不缓存
 
+# ── 文章浏览量刷库 ──
+article:
+  view-count:
+    sync-cron: "0 */5 * * * ?"   # 内存增量批量刷回 DB 的周期（默认每 5 分钟）
 
 # ── 日志 ──
 logging:

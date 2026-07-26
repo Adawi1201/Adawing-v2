@@ -42,7 +42,7 @@ onMounted(load)
     <div v-if="loading" class="loading-ori">Loading...</div>
     <template v-else-if="article">
       <header class="article-header">
-        <div class="article-date">{{ formatDate(article.createTime) }} / {{ sourceTag() }}</div>
+        <div class="article-date">{{ formatDate(article.createTime) }} / {{ sourceTag() }} · 阅读 {{ (article.viewCount ?? 0).toLocaleString() }}</div>
         <img v-if="article.coverResourceId" :src="resourceContentUrl(article.coverResourceId)" class="article-cover" />
         <h1>{{ article.title }}</h1>
         <div class="article-divider"></div>

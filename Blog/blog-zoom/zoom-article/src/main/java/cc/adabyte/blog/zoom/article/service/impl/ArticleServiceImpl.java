@@ -10,6 +10,7 @@ import cc.adabyte.blog.zoom.article.entity.ArticleTag;
 import cc.adabyte.blog.zoom.article.mapper.ArticleMapper;
 import cc.adabyte.blog.zoom.article.mapper.ArticleTagMapper;
 import cc.adabyte.blog.zoom.article.service.ArticleService;
+import cc.adabyte.blog.zoom.article.service.ViewCountBuffer;
 import cc.adabyte.blog.zoom.shared.enums.ArticleSource;
 import cc.adabyte.blog.zoom.shared.enums.ContentStatus;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -35,6 +36,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleTagMapper articleTagMapper;
     private final ResourceAllocationFacade resourceFacade;
     private final ApplicationEventPublisher eventPublisher;
+    private final ViewCountBuffer viewCountBuffer;
 
     @Override
     public PageResult<Article> listPublished(int page, int size) {
@@ -45,7 +47,15 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Article getPublishedById(Long id) {
-        return articleMapper.selectPublishedById(id, ContentStatus.PUBLISHED.getValue());
+        Article article = articleMapper.selectPublishedById(id, ContentStatus.PUBLISHED.getValue());
+        if (article == null) {
+            return null;
+        }
+        // 内存累加，不直接写库；由定时任务批量刷回
+        viewCountBuffer.increment(id);
+        // 返回值 = DB 基数 + 未刷回增量，保证展示实时
+        article.setViewCount(article.getViewCount() + (int) viewCountBuffer.peek(id));
+        return article;
     }
 
     @Override
@@ -220,6 +230,11 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void syncViewCountsToDb() {
-        throw new UnsupportedOperationException("待缓存层就绪后实现");
+        Map<Long, Long> deltas = viewCountBuffer.drain();
+        if (deltas.isEmpty()) {
+            return;
+        }
+        deltas.forEach(articleMapper::incrementViewCountBy);
+        log.info("[ViewCount] 已刷回 {} 篇文章的浏览量增量", deltas.size());
     }
 }

@@ -39,7 +39,7 @@ public class GetContentRulesTool implements McpTool {
                 "summary", Map.of("maxLength", 512, "required", false),
                 "content", Map.of("format", "markdown", "required", true),
                 "tags", Map.of("maxCount", 5, "allowCreate", false),
-                "sourceAgent", Map.of("required", true, "enum", new String[]{"codex", "claude-code", "openclaw"})
+                "sourceAgent", Map.of("required", true, "enum", new String[]{"codex", "claude-code", "openclaw", "opencode"})
         );
     }
 }

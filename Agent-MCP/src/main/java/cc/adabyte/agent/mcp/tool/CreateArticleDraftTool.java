@@ -34,7 +34,7 @@ public class CreateArticleDraftTool implements McpTool {
                         "title", Map.of("type", "string", "maxLength", 256),
                         "content", Map.of("type", "string"),
                         "summary", Map.of("type", "string", "maxLength", 512),
-                        "sourceAgent", Map.of("type", "string", "enum", new String[]{"codex", "claude-code", "openclaw"})
+                        "sourceAgent", Map.of("type", "string", "enum", new String[]{"codex", "claude-code", "openclaw", "opencode"})
                 ),
                 "required", List.of("title", "content", "sourceAgent")
         ));

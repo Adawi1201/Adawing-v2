@@ -230,6 +230,14 @@ class McpEndToEndTest {
         assertTrue(rulesData.has("content"), "应有 content 字段规则");
         assertTrue(rulesData.has("summary"), "应有 summary 字段规则");
         assertTrue(rulesData.get("title").get("required").asBoolean());
+
+        // sourceAgent 枚举应包含 opencode（v2.1 新增支持）
+        assertTrue(rulesData.has("sourceAgent"), "应有 sourceAgent 字段规则");
+        java.util.List<String> agents = new java.util.ArrayList<>();
+        rulesData.get("sourceAgent").get("enum").forEach(n -> agents.add(n.asText()));
+        assertTrue(agents.contains("opencode"), "sourceAgent 枚举应包含 opencode: " + agents);
+        assertTrue(agents.contains("codex") && agents.contains("claude-code") && agents.contains("openclaw"),
+                "不应丢失已有 agent 枚举值: " + agents);
     }
 
     private static Long createdDraftId;

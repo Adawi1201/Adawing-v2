@@ -1,8 +1,10 @@
 package cc.adabyte.agent.mcp.protocol;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonRpcResponse {
     private String jsonrpc = "2.0";
     private Object id;

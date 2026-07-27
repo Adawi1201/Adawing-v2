@@ -189,6 +189,26 @@ class McpEndToEndTest {
     }
 
     @Test
+    @Order(6)
+    @DisplayName("JSON-RPC 响应序列化 — null 的 result/error 字段不输出（MCP SDK Zod 严格校验要求）")
+    void responseOmitsNullFields() throws Exception {
+        MvcResult okResult = mcpCall("ping", null);
+        String okBody = okResult.getResponse().getContentAsString();
+        assertFalse(okBody.contains("\"error\""), "成功响应不应包含 error 字段: " + okBody);
+
+        MvcResult errResult = mockMvc.perform(post("/mcp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-MCP-Key", "test-key")
+                        .header(SESSION_HEADER, sessionId)
+                        .content(rpc("resources/read", Map.of("uri", "adawing://unknown"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.error.code").value(-32602))
+                .andReturn();
+        String errBody = errResult.getResponse().getContentAsString();
+        assertFalse(errBody.contains("\"result\""), "错误响应不应包含 result 字段: " + errBody);
+    }
+
+    @Test
     @Order(7)
     @DisplayName("prompts/list — 返回空列表")
     void promptsList() throws Exception {

@@ -31,7 +31,7 @@ AdaWing 是一个**深具个人色彩但在工程上毫不妥协的博客平台*
 它特别在哪里：
 
 - **你来写。** 全功能 Markdown 编辑器（Vditor），标签管理（Levenshtein 去重），阅读量统计，访客端/管理端双布局设计。
-- **AI Agent 也能写。** AdaWing 内置一个 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 服务器，Claude Code / OpenClaw / Codex 等编程 Agent 可以直接向审核队列推送文章草稿。服务器动态下发内容规则——Agent 必须像人类一样通过编辑审核才能正式发布。
+- **AI Agent 也能写。** AdaWing 内置一个 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 服务器，Claude Code / OpenClaw / Codex 等编程 Agent 可以直接向审核队列推送文章与动态草稿。服务器动态下发内容规则——Agent 必须像人类一样通过编辑审核才能正式发布。
 - **一切经由审核。** 策略模式驱动的统一审核中心，文章和留言走审批流。AI 生成内容永不自动发布。
 - **资源是一等公民。** 上传文件按池分类（`AVATAR` / `ARTICLE` / `EMOJI`），引用计数追踪，孤儿资源定时垃圾回收。
 
@@ -126,16 +126,22 @@ AdaWing 同时也是 **AI 编程 Agent 的内容目的地**。MCP 服务器监�
 
 ### 为什么重要
 
-大多数个人博客是人写人看的封闭系统。AdaWing 将 AI Agent 视为**内容贡献者**——它们可以自主调研、起草、提交文章，但最终的编辑决定权始终属于人类。
+大多数个人博客是人写人看的封闭系统。AdaWing 将 AI Agent 视为**内容贡献者**——它们可以自主调研、起草、提交文章与动态，但最终的编辑决定权始终属于人类。
 
 ### 提供的工具
 
+两种内容类型——长文 **article** 与短内容 **note（动态）**——各自拥有规则 / 搜索 / 读取 / 建草稿工具。
+
 | 工具 | 用途 |
 |------|------|
-| `get_content_rules` | 动态获取内容规范（标题长度、标签约束、风格偏好） |
-| `create_article_draft` | 提交待审核草稿（标题 + Markdown 正文 + 标签） |
+| `get_content_rules` | 动态获取文章规范（标题长度、标签约束、风格偏好） |
+| `create_article_draft` | 提交文章待审核草稿（标题 + Markdown 正文 + 标签） |
 | `search_articles` | 按关键词搜索已有文章（避免重复提交） |
 | `get_article` | 按 ID 获取文章全文 |
+| `get_note_rules` | 动态获取动态（note）规范（类型 + 字段约束） |
+| `create_note_draft` | 提交动态待审核草稿（Markdown 正文 + 类型 `PERSONAL` / `TECH`） |
+| `search_notes` | 按关键词搜索已发布动态 |
+| `get_note` | 按 ID 获取动态全文 |
 
 ### 支持的 AI 客户端
 
@@ -145,7 +151,7 @@ AdaWing 同时也是 **AI 编程 Agent 的内容目的地**。MCP 服务器监�
 | **OpenClaw** | Streamable-HTTP | OpenClaw MCP 注册中心注册 |
 | **Codex** | Streamable-HTTP | Codex MCP 服务器列表添加 |
 
-三者共用同一套 `X-MCP-Key` Header 认证，暴露完全相同的 4 个 Tool。
+三者共用同一套 `X-MCP-Key` Header 认证，暴露完全相同的 8 个 Tool。
 
 ### Claude Code 配置示例
 
@@ -164,6 +170,8 @@ AdaWing 同时也是 **AI 编程 Agent 的内容目的地**。MCP 服务器监�
 ```
 
 更多模板见 `docs/examples/mcp-configs/`（Claude Code / OpenClaw / Codex）。
+
+**Agent Skill。** `docs/examples/mcp-configs/skills/adawing-content/` 提供一份可移植的 skill，向接入的 Agent 讲清 Tool 契约、内容字段规则，以及最关键的一点——AI 草稿永不自动发布。把它和 MCP 配置一起放进 Agent 的 skills 目录即可。
 
 ---
 
@@ -249,7 +257,7 @@ adawing/
 │           ├── visitor/           #   首页 · 文章 · 时间线 · 动态 · 留言 · 关于
 │           └── admin/             #   看板 · 文章 · 审核 · 留言 · 标签 · 设置
 └── docs/
-    └── examples/mcp-configs/      #   MCP 客户端配置模板
+    └── examples/mcp-configs/      #   MCP 客户端配置模板 + Agent Skill
 
 ```
 

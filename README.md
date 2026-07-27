@@ -31,7 +31,7 @@ AdaWing is a **deeply personal yet technically ambitious blogging platform**, bu
 What makes it different:
 
 - **You write.** A full-featured Markdown editor with Vditor, tag management with Levenshtein dedup, view-count statistics, and a dual layout (visitor-facing vs. admin) design system.
-- **AI agents write too.** AdaWing exposes a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that lets coding agents like Claude Code / OpenClaw / Codex publish draft articles directly into the review queue. The server defines content rules dynamically — agents must earn publication the same way humans do: through editorial review.
+- **AI agents write too.** AdaWing exposes a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that lets coding agents like Claude Code / OpenClaw / Codex push draft articles and notes directly into the review queue. The server defines content rules dynamically — agents must earn publication the same way humans do: through editorial review.
 - **Everything passes through review.** A strategy-pattern review center routes articles and messages through approval workflows. AI-generated content is never auto-published.
 - **Resources are first-class citizens.** Uploads are pooled (`AVATAR` / `ARTICLE` / `EMOJI`), tracked by reference count, and orphaned files are garbage-collected on schedule.
 
@@ -126,16 +126,23 @@ AdaWing is also a **content destination for AI coding agents**. The MCP server l
 
 ### Why this matters
 
-Most personal blogs are human-write-only silos. AdaWing treats AI agents as **content contributors** — they research, draft, and submit articles programmatically, but the editorial decision always remains human.
+Most personal blogs are human-write-only silos. AdaWing treats AI agents as **content contributors** — they research, draft, and submit articles and notes programmatically, but the editorial decision always remains human.
 
 ### Tools exposed
 
+Two content types — long-form **articles** and short-form **notes** (动态) —
+each with its own rules / search / read / draft tools.
+
 | Tool | Purpose |
 |------|---------|
-| `get_content_rules` | Fetch dynamic content guidelines (title length, tag constraints, style preferences) |
-| `create_article_draft` | Submit a draft for review with title + markdown body + tags |
-| `search_articles` | Keyword-search the existing corpus (prevent duplicate submissions) |
+| `get_content_rules` | Fetch dynamic article guidelines (title length, tag constraints, style preferences) |
+| `create_article_draft` | Submit an article draft for review with title + markdown body + tags |
+| `search_articles` | Keyword-search the existing articles (prevent duplicate submissions) |
 | `get_article` | Retrieve full article content by ID |
+| `get_note_rules` | Fetch dynamic note guidelines (type + field constraints) |
+| `create_note_draft` | Submit a note draft for review with markdown body + type (`PERSONAL` / `TECH`) |
+| `search_notes` | Keyword-search published notes |
+| `get_note` | Retrieve full note content by ID |
 
 ### Supported AI Clients
 
@@ -145,7 +152,7 @@ Most personal blogs are human-write-only silos. AdaWing treats AI agents as **co
 | **OpenClaw** | Streamable-HTTP | Register via OpenClaw MCP registry |
 | **Codex** | Streamable-HTTP | Add to Codex MCP server list |
 
-All three use the same `X-MCP-Key` header authentication and expose the same 4 tools.
+All three use the same `X-MCP-Key` header authentication and expose the same 8 tools.
 
 ### Connect it to Claude Code
 
@@ -164,6 +171,8 @@ All three use the same `X-MCP-Key` header authentication and expose the same 4 t
 ```
 
 See `docs/examples/mcp-configs/` for Claude Code / OpenClaw / Codex connection templates.
+
+**Agent skill.** `docs/examples/mcp-configs/skills/adawing-content/` ships a portable skill that teaches the connecting agent the tool contracts, content-field rules, and — crucially — that AI drafts are never auto-published. Drop it into the agent's skills directory alongside the MCP config.
 
 ---
 
@@ -249,7 +258,7 @@ adawing/
 │           ├── visitor/           #   Home · Article · Chronicle · Notes · Messages · About
 │           └── admin/             #   Dashboard · Articles · Review · Messages · Tags · Settings
 └── docs/
-    └── examples/mcp-configs/      #   JSON config templates for MCP clients
+    └── examples/mcp-configs/      #   MCP client config templates + agent skill
 
 ```
 

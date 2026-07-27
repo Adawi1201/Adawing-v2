@@ -51,3 +51,4 @@ AGENTS.md
 
 ### Deploy ###
 /deploy/adawing-v2/
+/deploy/*.tar.gz

@@ -88,6 +88,9 @@ cp "$DEPLOY_DIR/run.sh" "$DIST_DIR/" 2>/dev/null || true
 cp "$DEPLOY_DIR/nginx.conf" "$DIST_DIR/" 2>/dev/null || true
 chmod +x "$DIST_DIR/setup.sh" "$DIST_DIR/run.sh" 2>/dev/null || true
 
+# Strip macOS metadata files that Finder scatters around
+find "$DIST_DIR" -name ".DS_Store" -type f -delete 2>/dev/null || true
+
 echo "  Checking collected files:"
 find "$DIST_DIR" -type f | sed "s|$DIST_DIR/|    |"
 echo
@@ -102,7 +105,7 @@ echo
 echo "  Output: deploy/adawing-v2/"
 echo
 echo "  Next step:"
-echo "    1. tar -czf adawing-v2.tar.gz adawing-v2/"
+echo "    1. COPYFILE_DISABLE=1 tar -czf adawing-v2.tar.gz adawing-v2/"
 echo "    2. scp adawing-v2.tar.gz root@YOUR_IP:/opt/"
 echo "    3. ssh root@YOUR_IP"
 echo "       cd /opt && tar xzf adawing-v2.tar.gz"

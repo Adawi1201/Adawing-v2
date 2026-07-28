@@ -43,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Pattern ARTICLE_DETAIL_PATTERN = Pattern.compile("^/api/v2/articles/\\d+$");
     private static final Pattern NOTE_DETAIL_PATTERN = Pattern.compile("^/api/v2/notes/\\d+$");
     private static final Pattern RESOURCE_DOWNLOAD_PATTERN = Pattern.compile("^/api/v2/resource/\\d+/content$");
+    private static final Pattern MESSAGE_LIKE_PATTERN = Pattern.compile("^/api/v2/messages/\\d+/like$");
 
     private final SysUserMapper sysUserMapper;
 
@@ -132,6 +133,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     yield true;
                 }
                 if ("POST".equals(method) && "/api/v2/messages".equals(uri)) {
+                    yield true;
+                }
+                // 访客点赞已发布留言（Service 层校验状态）
+                if ("POST".equals(method) && MESSAGE_LIKE_PATTERN.matcher(uri).matches()) {
                     yield true;
                 }
                 // 资源下载允许匿名访问公开资源，非公开资源由 ResourceController 二次校验管理员身份

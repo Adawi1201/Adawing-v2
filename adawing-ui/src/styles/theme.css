@@ -479,6 +479,28 @@ button {
   line-height: 1.9;
 }
 
+/* Refer-to-article entry (jumps to the message board pre-filled with a quote) */
+.article-refer {
+  margin: 48px 0 20px;
+  text-align: center;
+}
+.article-refer .refer-cta {
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+  padding: 10px 20px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+  transition: background 0.2s, color 0.2s;
+}
+.article-refer .refer-cta:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
 /* ===== ABOUT / PROFILE ===== */
 .about-ori {
   max-width: 780px;

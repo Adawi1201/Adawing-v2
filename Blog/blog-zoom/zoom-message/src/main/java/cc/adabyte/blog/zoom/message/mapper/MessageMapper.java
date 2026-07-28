@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 public interface MessageMapper extends BaseMapper<Message> {
 
@@ -17,4 +18,7 @@ public interface MessageMapper extends BaseMapper<Message> {
 
     @Select("SELECT * FROM message ORDER BY create_time DESC")
     IPage<Message> selectPage(Page<Message> page);
+
+    @Update("UPDATE message SET like_count = like_count + #{delta} WHERE id = #{id}")
+    void incrementLikeCount(@Param("id") Long id, @Param("delta") long delta);
 }

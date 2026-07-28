@@ -7,8 +7,9 @@ import lombok.Getter;
 
 @Getter
 public enum MessageRefType {
-    ARTICLE(0),
-    NOTE(1);
+    NONE(0),
+    ARTICLE(1),
+    NOTE(2);
 
     @EnumValue
     @JsonValue

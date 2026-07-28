@@ -8,13 +8,18 @@ import cc.adabyte.blog.zoom.message.dto.MessageVo;
 import cc.adabyte.blog.zoom.message.entity.Message;
 import cc.adabyte.blog.zoom.message.mapper.MessageMapper;
 import cc.adabyte.blog.zoom.message.service.MailService;
+import cc.adabyte.blog.zoom.message.service.MessageLikeBuffer;
 import cc.adabyte.blog.zoom.message.service.MessageService;
+import cc.adabyte.blog.common.exception.BusinessException;
 import cc.adabyte.blog.zoom.shared.enums.ContentStatus;
+import cc.adabyte.blog.zoom.shared.enums.MessageRefType;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -25,6 +30,7 @@ public class MessageServiceImpl implements MessageService {
     private final ResourceAllocationFacade resourceFacade;
     private final MailService mailService;
     private final ReviewService reviewService;
+    private final MessageLikeBuffer likeBuffer;
 
     @Override
     public PageResult<MessageVo> list(int page, int size) {
@@ -78,6 +84,8 @@ public class MessageServiceImpl implements MessageService {
         if (message.getLikeCount() == null) {
             message.setLikeCount(0);
         }
+        // 带引用对象时标记为文章引用；否则无引用
+        message.setRefType(message.getRefId() != null ? MessageRefType.ARTICLE : MessageRefType.NONE);
         messageMapper.insert(message);
 
         SubmitReviewRequest reviewRequest = new SubmitReviewRequest();
@@ -137,5 +145,28 @@ public class MessageServiceImpl implements MessageService {
         resourceFacade.unbindMessageAvatar(id);
         reviewService.deleteByContent("message", id);
         messageMapper.deleteById(id);
+    }
+
+    @Override
+    public long like(Long id) {
+        Message msg = messageMapper.selectById(id);
+        if (msg == null) {
+            throw new BusinessException("留言不存在");
+        }
+        if (msg.getStatus() != ContentStatus.PUBLISHED) {
+            throw new BusinessException("该留言暂不可点赞");
+        }
+        likeBuffer.increment(id);
+        long base = msg.getLikeCount() == null ? 0L : msg.getLikeCount();
+        return base + likeBuffer.peek(id);
+    }
+
+    @Override
+    @Transactional
+    public void syncLikeCountsToDb() {
+        Map<Long, Long> deltas = likeBuffer.drain();
+        if (deltas.isEmpty()) return;
+        deltas.forEach(messageMapper::incrementLikeCount);
+        log.info("[MessageLike] 已刷回点赞增量: {} 条留言", deltas.size());
     }
 }

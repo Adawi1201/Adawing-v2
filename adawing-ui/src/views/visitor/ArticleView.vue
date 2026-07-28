@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getPublished } from '@/api/articles.js'
 import { useWatchRevealChildren } from '@/composables/useScrollReveal.js'
 import { formatDate } from '@/utils/formatDate.js'
@@ -9,7 +9,16 @@ import { resourceContentUrl } from '@/utils/resourceUrl.js'
 import MarkdownContent from '@/components/MarkdownContent.vue'
 
 const route = useRoute()
+const router = useRouter()
 const article = ref(null)
+
+function referThisArticle() {
+  if (!article.value) return
+  router.push({
+    name: 'Messages',
+    query: { refId: article.value.id, refTitle: article.value.title }
+  })
+}
 const loading = ref(false)
 const containerRef = ref(null)
 
@@ -53,6 +62,10 @@ onMounted(load)
       <div v-if="article.sourceAgent" class="agent-note">
         <div class="note-label">Agent Information</div>
         <p>Co-created with {{ article.sourceAgent }} and reviewed before publishing.</p>
+      </div>
+
+      <div class="article-refer">
+        <button class="refer-cta" @click="referThisArticle">✎ Write feelings refer to this article</button>
       </div>
     </template>
     <div v-else class="empty-ori">Article not found</div>

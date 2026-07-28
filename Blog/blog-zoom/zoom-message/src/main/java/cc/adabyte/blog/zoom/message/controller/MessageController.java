@@ -59,6 +59,11 @@ public class MessageController {
         return Result.ok();
     }
 
+    @PostMapping("/{id}/like")
+    public Result<Long> like(@PathVariable Long id) {
+        return Result.ok(messageService.like(id));
+    }
+
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         messageService.delete(id);

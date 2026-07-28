@@ -25,3 +25,7 @@ export function rejectMessage(id, reason) {
 export function deleteMessage(id) {
   return request.delete(`/messages/${id}`)
 }
+
+export function likeMessage(id) {
+  return request.post(`/messages/${id}/like`)
+}

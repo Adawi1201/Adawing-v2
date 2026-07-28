@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 import Vditor from 'vditor'
@@ -75,6 +75,13 @@ function initEditor() {
     }
   })
 }
+
+// Vditor 只在创建时读一次 theme，主题切换后需显式同步编辑器 UI 与预览主题
+watch(isDark, (dark) => {
+  if (vditor) {
+    vditor.setTheme(dark ? 'dark' : 'classic', dark ? 'dark' : 'light')
+  }
+})
 
 async function loadArticle() {
   if (isNew) return

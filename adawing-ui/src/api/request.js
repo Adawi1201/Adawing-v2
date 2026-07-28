@@ -22,14 +22,14 @@ request.interceptors.response.use(
   (response) => {
     const data = response.data
     if (data && data.code !== undefined && data.code !== 200) {
-      const err = new Error(data.message || 'Request failed')
-      toast(data.message || 'Request failed', 'error')
+      const err = new Error(data.msg || 'Request failed')
+      toast(data.msg || 'Request failed', 'error')
       return Promise.reject(err)
     }
     return data
   },
   (error) => {
-    const message = error.response?.data?.message || error.message || 'Network error'
+    const message = error.response?.data?.msg || error.message || 'Network error'
     toast(message, 'error')
     return Promise.reject(new Error(message))
   }

@@ -120,6 +120,11 @@ public class ResourceAllocationFacadeImpl implements ResourceAllocationFacade {
         return renderer.render(markdown);
     }
 
+    @Override
+    public String renderMarkdownRaw(String markdown) {
+        return renderer.renderWithoutSanitize(markdown);
+    }
+
     private List<Long> extractResourceIds(String content) {
         List<Long> ids = new ArrayList<>();
         if (content == null || content.isBlank()) {

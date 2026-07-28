@@ -19,4 +19,10 @@ public interface ResourceAllocationFacade {
     void bindMessageAvatar(Long messageId, Long avatarResourceId);
     void unbindMessageAvatar(Long messageId);
     String renderMarkdown(String markdown);
+
+    /**
+     * 仅替换资源占位符、不做 HTML 消毒的 Markdown 渲染。
+     * 用于由前端 Vditor 渲染的文章正文，保留 LaTeX 等语法中的 {@code < > &} 不被转义。
+     */
+    String renderMarkdownRaw(String markdown);
 }

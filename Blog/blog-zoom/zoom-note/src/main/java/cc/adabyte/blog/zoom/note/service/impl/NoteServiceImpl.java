@@ -1,5 +1,6 @@
 package cc.adabyte.blog.zoom.note.service.impl;
 
+import cc.adabyte.blog.common.event.NoteDeletedEvent;
 import cc.adabyte.blog.common.result.PageResult;
 import cc.adabyte.blog.zoom.note.entity.Note;
 import cc.adabyte.blog.zoom.note.mapper.NoteMapper;
@@ -9,6 +10,7 @@ import cc.adabyte.blog.zoom.shared.enums.NoteType;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import java.util.List;
 public class NoteServiceImpl implements NoteService {
 
     private final NoteMapper noteMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public PageResult<Note> listByType(NoteType type, int page, int size) {
@@ -50,6 +53,8 @@ public class NoteServiceImpl implements NoteService {
     @Transactional
     public void delete(Long id) {
         noteMapper.deleteById(id);
+        // 通知 system-review 清理关联的审核任务，避免删除后残留孤儿任务
+        eventPublisher.publishEvent(new NoteDeletedEvent(id));
     }
 
     @Override

@@ -221,7 +221,7 @@ sudo ufw enable
 
 ---
 
-## 九、迭代更新
+## 十、迭代更新
 
 不需要重新跑 setup.sh，只需替换 jar + 前端 + 重启。
 
@@ -245,7 +245,7 @@ sudo systemctl restart adawing
 
 ---
 
-## 十、常用运维命令
+## 十一、常用运维命令
 
 ```bash
 # 查看服务状态
@@ -284,7 +284,7 @@ sudo certbot certificates
 
 ---
 
-## 十一、目录结构（服务器）
+## 十二、目录结构（服务器）
 
 ```
 /opt/adawing/
@@ -305,7 +305,7 @@ sudo certbot certificates
 
 ---
 
-## 十二、回滚
+## 十三、回滚
 
 ```bash
 sudo systemctl stop adawing

@@ -501,6 +501,40 @@ button {
   color: #fff;
 }
 
+/* Tag pills (article footer + tag list page) */
+.article-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0 8px;
+}
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--tc, var(--accent));
+  color: var(--tc, var(--accent));
+  background: transparent;
+  transition: background 0.18s, color 0.18s;
+}
+.tag-pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--tc, var(--accent));
+}
+.tag-pill:hover {
+  background: var(--tc, var(--accent));
+  color: #fff;
+}
+.tag-pill:hover::before { background: #fff; }
+
 /* ===== ABOUT / PROFILE ===== */
 .about-ori {
   max-width: 780px;

@@ -86,6 +86,8 @@ async function loadArticle() {
       content: restoreResourceReferences(article.content || ''),
       coverResourceId: article.coverResourceId, tagNames: []
     }
+    // 回显已有标签到逗号分隔输入框
+    tagInput.value = (article.tags || []).map(t => t.name).join(', ')
     if (vditor) vditor.setValue(form.value.content || '')
   } catch (e) { toast(e.message, 'error') }
 }

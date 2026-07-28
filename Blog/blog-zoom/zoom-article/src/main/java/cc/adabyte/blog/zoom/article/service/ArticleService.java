@@ -12,6 +12,9 @@ public interface ArticleService {
     PageResult<Article> listPublished(int page, int size);
     Article getPublishedById(Long id);
     PageResult<Article> listByTag(String tagName, int page, int size);
+    java.util.List<cc.adabyte.blog.zoom.article.dto.TagWithCount> listTagsWithCount();
+    void mergeTags(Long sourceTagId, Long targetTagId);
+    void deleteTag(Long tagId);
     Map<String, List<Article>> listArchive();
     PageResult<Article> listAll(int page, int size);
     Article getAdminById(Long id);

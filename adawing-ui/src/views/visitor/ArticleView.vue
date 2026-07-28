@@ -6,6 +6,7 @@ import { useWatchRevealChildren } from '@/composables/useScrollReveal.js'
 import { formatDate } from '@/utils/formatDate.js'
 import { sourceLabel } from '@/utils/source.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
+import { tagColor } from '@/utils/tagColor.js'
 import MarkdownContent from '@/components/MarkdownContent.vue'
 
 const route = useRoute()
@@ -18,6 +19,10 @@ function referThisArticle() {
     name: 'Messages',
     query: { refId: article.value.id, refTitle: article.value.title }
   })
+}
+
+function goToTag(name) {
+  router.push({ name: 'TagArticles', params: { name } })
 }
 const loading = ref(false)
 const containerRef = ref(null)
@@ -66,6 +71,16 @@ onMounted(load)
 
       <div class="article-refer">
         <button class="refer-cta" @click="referThisArticle">✎ Write feelings refer to this article</button>
+      </div>
+
+      <div v-if="article.tags && article.tags.length" class="article-tags">
+        <span
+          v-for="t in article.tags"
+          :key="t.id"
+          class="tag-pill"
+          :style="{ '--tc': tagColor(t.color) }"
+          @click="goToTag(t.name)"
+        >{{ t.name }}</span>
       </div>
     </template>
     <div v-else class="empty-ori">Article not found</div>

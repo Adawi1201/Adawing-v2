@@ -1,5 +1,6 @@
 package cc.adabyte.blog.zoom.article.entity;
 
+import cc.adabyte.blog.zoom.article.dto.ArticleTagView;
 import cc.adabyte.blog.zoom.shared.enums.ArticleSource;
 import cc.adabyte.blog.zoom.shared.enums.ContentStatus;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -9,6 +10,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @TableName("article")
@@ -31,4 +33,8 @@ public class Article {
     private String reviewerNote;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+
+    /** 非表字段：文章关联的标签（展示用）。 */
+    @TableField(exist = false)
+    private List<ArticleTagView> tags;
 }

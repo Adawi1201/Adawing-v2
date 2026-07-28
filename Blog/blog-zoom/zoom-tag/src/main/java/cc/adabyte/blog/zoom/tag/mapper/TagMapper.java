@@ -10,4 +10,7 @@ import java.util.List;
 public interface TagMapper extends BaseMapper<Tag> {
     @Select("SELECT * FROM tag WHERE name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
     List<Tag> selectSimilar(@Param("name") String name);
+
+    @Select("SELECT * FROM tag WHERE name = #{name} LIMIT 1")
+    Tag selectByName(@Param("name") String name);
 }

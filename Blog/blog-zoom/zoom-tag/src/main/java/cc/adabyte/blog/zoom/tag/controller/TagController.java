@@ -17,7 +17,7 @@ public class TagController {
 
     @GetMapping
     public Result<List<Tag>> list() {
-        return Result.ok(tagService.listWithArticleCount());
+        return Result.ok(tagService.list());
     }
 
     @PostMapping
@@ -28,11 +28,5 @@ public class TagController {
     @GetMapping("/suggest")
     public Result<List<Tag>> suggestSimilar(@RequestParam String name) {
         return Result.ok(tagService.suggestSimilar(name));
-    }
-
-    @PostMapping("/{sourceId}/merge/{targetId}")
-    public Result<Void> merge(@PathVariable Long sourceId, @PathVariable Long targetId) {
-        tagService.merge(sourceId, targetId);
-        return Result.ok();
     }
 }

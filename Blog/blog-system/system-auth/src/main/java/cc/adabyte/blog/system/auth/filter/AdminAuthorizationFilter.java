@@ -52,7 +52,9 @@ public class AdminAuthorizationFilter extends OncePerRequestFilter {
             new AdminPattern("/api/v2/admin/resources/**", null),
             new AdminPattern("/api/v2/config/site", Set.of("PUT")),
             new AdminPattern("/api/v2/tags", Set.of("POST")),
-            new AdminPattern("/api/v2/tags/*/merge/*", Set.of("POST"))
+            new AdminPattern("/api/v2/article-tags", Set.of("GET")),
+            new AdminPattern("/api/v2/article-tags/*/merge/*", Set.of("POST")),
+            new AdminPattern("/api/v2/article-tags/*", Set.of("DELETE"))
     );
 
     @Override

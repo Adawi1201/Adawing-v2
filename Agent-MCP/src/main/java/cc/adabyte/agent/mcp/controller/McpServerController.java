@@ -15,17 +15,24 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -42,6 +49,49 @@ public class McpServerController {
     private final McpToolRegistry toolRegistry;
     private final ObjectMapper objectMapper;
     private final McpSessionStore sessionStore;
+
+    private static final long SSE_HEARTBEAT_SECONDS = 25;
+    private final ScheduledExecutorService sseHeartbeatExecutor =
+            Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "mcp-sse-heartbeat");
+                t.setDaemon(true);
+                return t;
+            });
+
+    /**
+     * Streamable HTTP 的可选 GET 流。本服务不做服务端主动推送，
+     * 流仅保持挂起并周期发送心跳注释，供严格要求 GET 返回 200 的客户端（如 opencode）建立连接。
+     * 未携带会话 Header 时允许匿名挂起；携带但未知时返回 404。
+     */
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<SseEmitter> stream(HttpServletRequest request) {
+        String sessionId = request.getHeader(MCP_SESSION_ID_HEADER);
+        if (sessionId != null && !sessionId.isBlank() && sessionStore.touchSession(sessionId).isEmpty()) {
+            log.warn("[MCP] SSE stream rejected: unknown sessionId={}", sessionId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        SseEmitter emitter = new SseEmitter(0L);
+        ScheduledFuture<?> heartbeat = sseHeartbeatExecutor.scheduleAtFixedRate(() -> {
+            try {
+                emitter.send(SseEmitter.event().comment("ping"));
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
+        }, SSE_HEARTBEAT_SECONDS, SSE_HEARTBEAT_SECONDS, TimeUnit.SECONDS);
+
+        emitter.onCompletion(() -> heartbeat.cancel(false));
+        emitter.onTimeout(() -> heartbeat.cancel(false));
+        emitter.onError(e -> heartbeat.cancel(false));
+
+        try {
+            emitter.send(SseEmitter.event().comment("connected"));
+        } catch (Exception e) {
+            emitter.completeWithError(e);
+        }
+        log.info("[MCP] SSE stream opened sessionId={}", sessionId);
+        return ResponseEntity.ok(emitter);
+    }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.OK)

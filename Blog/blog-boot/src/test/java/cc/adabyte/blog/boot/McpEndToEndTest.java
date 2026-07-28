@@ -24,6 +24,7 @@ import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -465,5 +466,30 @@ class McpEndToEndTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error.code").value(-32602))
                 .andExpect(jsonPath("$.error.message").value(containsString("Unknown tool")));
+    }
+
+    @Test
+    @Order(23)
+    @DisplayName("GET /mcp — 建立 SSE 流并立即收到 connected 注释（opencode 等客户端要求 GET 返回 200）")
+    void sseStream() throws Exception {
+        MvcResult result = mockMvc.perform(get("/mcp")
+                        .header("X-MCP-Key", "test-key")
+                        .header(SESSION_HEADER, sessionId)
+                        .accept(MediaType.TEXT_EVENT_STREAM))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+        String body = result.getResponse().getContentAsString();
+        assertTrue(body.contains(":connected"), "SSE 流应包含 connected 注释: " + body);
+    }
+
+    @Test
+    @Order(24)
+    @DisplayName("GET /mcp — 未知会话返回 404")
+    void sseStreamUnknownSession() throws Exception {
+        mockMvc.perform(get("/mcp")
+                        .header("X-MCP-Key", "test-key")
+                        .header(SESSION_HEADER, "nonexistent-session-id")
+                        .accept(MediaType.TEXT_EVENT_STREAM))
+                .andExpect(status().isNotFound());
     }
 }

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 import Vditor from 'vditor'
 import { getAdmin, saveArticle } from '@/api/articles.js'
@@ -7,6 +8,8 @@ import AuthImage from '@/components/AuthImage.vue'
 import { resourceReferenceImage, restoreResourceReferences } from '@/utils/resourceRef.js'
 import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
+import { useThemeStore } from '@/stores/theme.js'
+import { VDITOR_CDN, buildEditorPreview } from '@/utils/vditorOptions.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,6 +21,7 @@ const tagInput = ref('')
 const coverPicker = ref(null)
 const contentPicker = ref(null)
 const editorRef = ref(null)
+const { isDark } = storeToRefs(useThemeStore())
 let vditor = null
 
 function syncContentFromEditor() {
@@ -32,6 +36,9 @@ function initEditor() {
     mode: 'ir',
     minHeight: 520,
     cache: { enable: false },
+    cdn: VDITOR_CDN,
+    theme: isDark.value ? 'dark' : 'classic',
+    preview: buildEditorPreview(isDark.value),
     placeholder: 'Start writing Markdown...',
     toolbar: [
       'headings',

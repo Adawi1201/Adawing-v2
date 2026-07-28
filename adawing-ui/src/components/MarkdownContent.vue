@@ -1,29 +1,25 @@
 <script setup>
 import { nextTick, onMounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import Vditor from 'vditor'
+import { useThemeStore } from '@/stores/theme.js'
+import { buildPreviewOptions } from '@/utils/vditorOptions.js'
 
 const props = defineProps({
   source: { type: String, default: '' }
 })
 
 const rootRef = ref(null)
+const { isDark } = storeToRefs(useThemeStore())
 
 async function renderMarkdown() {
   await nextTick()
   if (!rootRef.value) return
   rootRef.value.innerHTML = ''
-  Vditor.preview(rootRef.value, props.source || '', {
-    mode: 'light',
-    hljs: { style: 'github' },
-    math: { engine: 'KaTeX', inlineDigit: true },
-    markdown: {
-      toc: true,
-      mark: true
-    }
-  })
+  Vditor.preview(rootRef.value, props.source || '', buildPreviewOptions(isDark.value))
 }
 
-watch(() => props.source, () => {
+watch([() => props.source, isDark], () => {
   renderMarkdown()
 }, { immediate: true })
 

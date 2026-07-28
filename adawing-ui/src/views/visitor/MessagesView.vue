@@ -341,7 +341,7 @@ onUnmounted(() => {
   --fold-edge: rgba(0, 0, 0, 0.16);
   --like: #c2185b;
 }
-:global([data-theme="dark"]) .messages-ori {
+:global([data-theme="dark"] .messages-ori) {
   --board: #1e1e1e;
   --board-edge: rgba(255, 255, 255, 0.10);
   --paper: #242424;

@@ -82,6 +82,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <!-- mybatis-plus-boot-starter 推迟到 Mapper 阶段 -->
+        <!-- 3.5.9+ 起 PaginationInnerInterceptor 拆到独立的 jsqlparser 包，装配层注册全局分页拦截器需显式引入 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>

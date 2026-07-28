@@ -87,8 +87,12 @@ public class ResourceServiceImpl implements ResourceService {
         if (resource == null) {
             throw new BusinessException("资源不存在");
         }
-        boolean publicAccess = resource.getRefCount() != null && resource.getRefCount() > 0
-                && resource.getStatus() == ResourceStatus.ACTIVE;
+        // 公开条件：ACTIVE 且（所在池默认公开，或已被引用）。
+        // AVATAR / EMOJI 等天然公开的资源不经引用计数，故不能只看 ref_count。
+        boolean referenced = resource.getRefCount() != null && resource.getRefCount() > 0;
+        boolean poolPublic = resource.getPool() != null && resource.getPool().isPublicByDefault();
+        boolean publicAccess = resource.getStatus() == ResourceStatus.ACTIVE
+                && (poolPublic || referenced);
 
         byte[] content;
         try (InputStream stream = ossTemplate.download(resource.getUrl())) {

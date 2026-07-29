@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)">
-    <img alt="AdaWing" src="https://img.shields.io/badge/AdaWing-v2.0-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwyIDIybDEwLTQgMTAgNHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
+    <img alt="AdaWing" src="https://img.shields.io/badge/AdaWing-v2.1-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwyIDIybDEwLTQgMTAgNHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
   </picture>
 </p>
 
@@ -31,7 +31,7 @@ AdaWing 是一个**深具个人色彩但在工程上毫不妥协的博客平台*
 它特别在哪里：
 
 - **你来写。** 全功能 Markdown 编辑器（Vditor），标签管理（Levenshtein 去重），阅读量统计，访客端/管理端双布局设计。
-- **AI Agent 也能写。** AdaWing 内置一个 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 服务器，Claude Code / OpenClaw / Codex 等编程 Agent 可以直接向审核队列推送文章与动态草稿。服务器动态下发内容规则——Agent 必须像人类一样通过编辑审核才能正式发布。
+- **AI Agent 也能写。** AdaWing 内置一个 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 服务器，Claude Code / OpenClaw / Codex / OpenCode 等编程 Agent 可以直接向审核队列推送文章与动态草稿。服务器动态下发内容规则——Agent 必须像人类一样通过编辑审核才能正式发布。
 - **一切经由审核。** 策略模式驱动的统一审核中心，文章和留言走审批流。AI 生成内容永不自动发布。
 - **资源是一等公民。** 上传文件按池分类（`AVATAR` / `ARTICLE` / `EMOJI`），引用计数追踪，孤儿资源定时垃圾回收。
 
@@ -80,24 +80,27 @@ blog-boot ──┬── blog-common           （compile scope，无 Spring Bo
 - 仅管理端可创建，前端禁止 `allow-create`
 - 新建标签时 Levenshtein 编辑距离去重
 - 支持标签合并及文章重分配
+- 标签落地页：访客可按标签浏览文章（`/tags/:name`）
 - 按关联文章数排序
 
 ### 📋 统一审核中心
-- 策略模式分发：`ArticleReviewStrategy` / `MessageReviewStrategy`
+- 策略模式分发：`ArticleReviewStrategy` / `MessageReviewStrategy` / `NoteReviewStrategy`
 - 原创文章免审直发；Agent 生成内容 + 访客留言 **必须通过审核**
 - 审核结果通过 Spring Event 通知内容模块，零直接跨模块调用
 
 ### 💬 留言板
+- 置顶信件墙布局，支持文章援引留言
 - 昵称 + 邮箱 + 随机头像 + 内容
 - XSS 过滤（`script`、`iframe`、`javascript:`、`onXXX=`）
 - 管理员回复通过 SMTP 发送 HTML 邮件通知访客
-- 点赞限流（Caffeine 2 秒锁）
+- 点赞数 Caffeine 内存累加批量刷库，按访客限流
 
 ### 🗂 资源管理
 - 池化分类：`AVATAR` · `ARTICLE` · `EMOJI` · `MISC`
 - 通过 `resource_reference` 关联表实现引用计数
 - 每日凌晨 3:00 定时清理 7 天前标记的孤儿资源
 - 阿里云 OSS 后端 + 代理下载端点（解决跨域和 ACL 问题）
+- 热点资源内容 Caffeine 内存缓存（YAML 可配置）
 
 ### 🔐 认证
 - 管理端：JWT（BCrypt 密码，7 天有效期）
@@ -117,12 +120,13 @@ blog-boot ──┬── blog-common           （compile scope，无 Spring Bo
 - **GSAP 滚动动画** — 错位渐现、打字机 Hero 文字
 - **阅读进度条** + **悬浮导航**
 - **双布局完全隔离** — 访客端和管理端零样式渗透
+- **统一 Markdown 渲染** — 共享 Vditor 配置，全站支持 KaTeX 数学公式
 
 ---
 
 ## ✦ MCP Server（Agent 集成）
 
-AdaWing 同时也是 **AI 编程 Agent 的内容目的地**。MCP 服务器监听 `POST /mcp`，采用 JSON-RPC over Streamable-HTTP 协议。
+AdaWing 同时也是 **AI 编程 Agent 的内容目的地**。MCP 服务器监听 `/mcp`，采用 JSON-RPC over Streamable-HTTP 协议——`POST` 处理请求，`GET` 提供严格客户端所需的 SSE 流。
 
 ### 为什么重要
 
@@ -150,8 +154,9 @@ AdaWing 同时也是 **AI 编程 Agent 的内容目的地**。MCP 服务器监�
 | **Claude Code** | Streamable-HTTP | `claude mcp add adawing https://<host>/mcp` |
 | **OpenClaw** | Streamable-HTTP | OpenClaw MCP 注册中心注册 |
 | **Codex** | Streamable-HTTP | Codex MCP 服务器列表添加 |
+| **OpenCode** | Streamable-HTTP + SSE | OpenCode MCP 配置添加 |
 
-三者共用同一套 `X-MCP-Key` Header 认证，暴露完全相同的 8 个 Tool。
+各客户端共用同一套 `X-MCP-Key` Header 认证，暴露完全相同的 8 个 Tool。
 
 ### Claude Code 配置示例
 
@@ -275,8 +280,8 @@ article  ──< resource_reference >── resource   引用计数关联
 note     ──< resource_reference >── resource
 message  ──< resource_reference >── resource
 
-review_task   （article | message）审核状态机
-              策略：ArticleReviewStrategy / MessageReviewStrategy
+review_task   （article | note）审核状态机
+              策略：ArticleReviewStrategy / MessageReviewStrategy / NoteReviewStrategy
               事件：ContentApprovedEvent / ContentRejectedEvent
 ```
 

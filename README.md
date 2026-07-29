@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)">
-    <img alt="AdaWing" src="https://img.shields.io/badge/AdaWing-v2.0-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwyIDIybDEwLTQgMTAgNHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
+    <img alt="AdaWing" src="https://img.shields.io/badge/AdaWing-v2.1-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwyIDIybDEwLTQgMTAgNHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
   </picture>
 </p>
 
@@ -31,7 +31,7 @@ AdaWing is a **deeply personal yet technically ambitious blogging platform**, bu
 What makes it different:
 
 - **You write.** A full-featured Markdown editor with Vditor, tag management with Levenshtein dedup, view-count statistics, and a dual layout (visitor-facing vs. admin) design system.
-- **AI agents write too.** AdaWing exposes a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that lets coding agents like Claude Code / OpenClaw / Codex push draft articles and notes directly into the review queue. The server defines content rules dynamically — agents must earn publication the same way humans do: through editorial review.
+- **AI agents write too.** AdaWing exposes a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that lets coding agents like Claude Code / OpenClaw / Codex / OpenCode push draft articles and notes directly into the review queue. The server defines content rules dynamically — agents must earn publication the same way humans do: through editorial review.
 - **Everything passes through review.** A strategy-pattern review center routes articles and messages through approval workflows. AI-generated content is never auto-published.
 - **Resources are first-class citizens.** Uploads are pooled (`AVATAR` / `ARTICLE` / `EMOJI`), tracked by reference count, and orphaned files are garbage-collected on schedule.
 
@@ -80,24 +80,27 @@ blog-boot ──┬── blog-common           (compile scope, no Spring Boot s
 - Admin-only creation; frontend forbids `allow-create`
 - Levenshtein-distance deduplication on new tag creation
 - Tag merge support with full reassignment
+- Landable tag pages — visitors browse articles by tag (`/tags/:name`)
 - Sorted by article count
 
 ### 📋 Unified Review Center
-- Strategy-pattern dispatch: `ArticleReviewStrategy` / `MessageReviewStrategy`
+- Strategy-pattern dispatch: `ArticleReviewStrategy` / `MessageReviewStrategy` / `NoteReviewStrategy`
 - Original articles bypass review; agent-generated content + visitor messages **must** clear review
 - Review results fire Spring Events — zero direct cross-module calls
 
 ### 💬 Message Board
+- Pinned-letter wall layout with article-quote references
 - Nickname + email + random avatar + content
 - XSS filtering (`script`, `iframe`, `javascript:`, `onXXX=`)
 - Admin reply with SMTP HTML email notification (QQ SMTP)
-- Like throttle (Caffeine 2-second lock)
+- Like counts Caffeine-buffered and batch-flushed to MySQL; per-visitor throttle
 
 ### 🗂 Resource Management
 - Pool-based classification: `AVATAR` · `ARTICLE` · `EMOJI` · `MISC`
 - Reference counting via `resource_reference` junction table
 - Scheduled orphan cleanup (daily 3:00 AM, 7-day grace period)
 - Alibaba Cloud OSS backend with proxy download endpoint (solves CORS + ACL issues)
+- Caffeine in-memory cache for hot resource content (configurable via YAML)
 
 ### 🔐 Auth
 - Admin: JWT (BCrypt-password, 7-day token)
@@ -117,12 +120,13 @@ blog-boot ──┬── blog-common           (compile scope, no Spring Boot s
 - **GSAP scroll animations** — staggered reveal, typewriter hero text
 - **Reading progress** bar + **floating nav** breadcrumb
 - **Dual layout isolation** — visitor layout and admin layout share zero styles
+- **Unified Markdown rendering** — shared Vditor options with KaTeX math across visitor and admin
 
 ---
 
 ## ✦ The MCP Server (Agent Integration)
 
-AdaWing is also a **content destination for AI coding agents**. The MCP server listens on `POST /mcp` and speaks JSON-RPC (Streamable-HTTP transport).
+AdaWing is also a **content destination for AI coding agents**. The MCP server listens on `/mcp` and speaks JSON-RPC (Streamable-HTTP transport) — `POST` for requests, `GET` for the SSE stream required by strict clients.
 
 ### Why this matters
 
@@ -151,8 +155,9 @@ each with its own rules / search / read / draft tools.
 | **Claude Code** | Streamable-HTTP | `claude mcp add adawing https://<host>/mcp` |
 | **OpenClaw** | Streamable-HTTP | Register via OpenClaw MCP registry |
 | **Codex** | Streamable-HTTP | Add to Codex MCP server list |
+| **OpenCode** | Streamable-HTTP + SSE | Add to OpenCode MCP config |
 
-All three use the same `X-MCP-Key` header authentication and expose the same 8 tools.
+All clients use the same `X-MCP-Key` header authentication and expose the same 8 tools.
 
 ### Connect it to Claude Code
 
@@ -277,7 +282,7 @@ note     ──< resource_reference >── resource
 message  ──< resource_reference >── resource
 
 review_task   (article | note) review state machine
-              strategies: ArticleReviewStrategy / MessageReviewStrategy
+              strategies: ArticleReviewStrategy / MessageReviewStrategy / NoteReviewStrategy
               events: ContentApprovedEvent / ContentRejectedEvent
 ```
 

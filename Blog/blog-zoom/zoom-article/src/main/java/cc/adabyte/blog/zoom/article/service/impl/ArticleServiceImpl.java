@@ -228,6 +228,9 @@ public class ArticleServiceImpl implements ArticleService {
         if (article == null) {
             return;
         }
+        // 审核链路（含审核时指定的封面）不经过 saveOrUpdate，发布时必须补齐资源绑定，
+        // 否则 ARTICLE 池图片 refCount=0，访客访问 404
+        resourceFacade.bindArticleResources(article.getId(), article.getCoverResourceId(), article.getContent());
         doPublish(article);
     }
 

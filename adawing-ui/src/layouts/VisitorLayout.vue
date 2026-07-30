@@ -40,9 +40,7 @@ onUnmounted(() => {
     <ThemeToggle />
     <CursorTrail />
     <ReadingProgress />
-    <transition name="header-fade">
-      <VisitorHeader v-show="showHeader" ref="headerRef" />
-    </transition>
+    <VisitorHeader ref="headerRef" :class="{ 'header-hidden': !showHeader }" />
     <FloatingNav />
     <main class="visitor-main">
       <RouterView v-slot="{ Component }">
@@ -65,17 +63,6 @@ onUnmounted(() => {
 
 .visitor-main {
   flex: 1 0 auto;
-}
-
-.header-fade-enter-active,
-.header-fade-leave-active {
-  transition: transform 0.4s ease, opacity 0.4s ease;
-}
-
-.header-fade-enter-from,
-.header-fade-leave-to {
-  transform: translateY(-20px);
-  opacity: 0;
 }
 
 .page-enter-active,

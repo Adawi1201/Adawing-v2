@@ -180,6 +180,15 @@ button {
   justify-content: space-between;
   align-items: baseline;
   border-bottom: 1px solid var(--line);
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+/* 隐藏时保留文档流占位，仅用 transform/opacity 淡出——
+   v-show (display:none) 会抽掉高度引发全页布局抖动 */
+.v-header.header-hidden {
+  transform: translateY(-20px);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .v-header .logo {

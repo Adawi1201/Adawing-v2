@@ -235,7 +235,7 @@ onUnmounted(() => {
 
       <div v-if="reference" class="ref-banner">
         <span class="rb-label">REF</span>
-        <span class="rb-title">In reply to «{{ reference.title }}»</span>
+        <span class="rb-title">From «{{ reference.title }}»</span>
         <button class="rb-x" title="Remove reference" @click="clearReference">×</button>
       </div>
 
@@ -282,7 +282,7 @@ onUnmounted(() => {
             class="ref-chip"
             :title="msg.refTitle"
             @click="goToArticle(msg.refId)"
-          >✎ In reply to «<span class="rc-t">{{ msg.refTitle }}</span>»</div>
+          ><span class="rc-p">✎ From «</span><span class="rc-t">{{ msg.refTitle }}</span><span class="rc-p">»</span></div>
 
           <div class="dear">Dear friend,</div>
           <div class="mc-head">
@@ -496,6 +496,9 @@ input.letter-field { height: 32px; }
   transition: background 0.18s;
 }
 .ref-chip:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.ref-chip .rc-p {
+  flex-shrink: 0; white-space: nowrap;
+}
 .ref-chip .rc-t {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px;
   min-width: 0;

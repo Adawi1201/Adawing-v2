@@ -255,7 +255,7 @@ onUnmounted(() => {
         <span class="live-sign">— yours, {{ form.nickname || '…' }}</span>
         <div class="spacer"></div>
         <button class="btn-ori btn-ori-sm btn-ori-primary" :disabled="submitting" @click="submit">
-          {{ submitting ? 'Sending…' : 'Seal & send ✉' }}
+          {{ submitting ? 'Sending…' : 'Seal & send' }}
         </button>
       </div>
     </div>
@@ -498,6 +498,7 @@ input.letter-field { height: 32px; }
 .ref-chip:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
 .ref-chip .rc-t {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px;
+  min-width: 0;
 }
 
 /* ── 点赞 ── */

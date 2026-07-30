@@ -77,12 +77,8 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public ResourceDownload download(Long resourceId) {
-        CachedResource cached = contentCache.getIfPresent(resourceId);
-        if (cached != null) {
-            return new ResourceDownload(cached.content(), cached.mimeType(), cached.size(),
-                    cached.originalName(), cached.publicAccess());
-        }
-
+        // 访问判定实时计算、不进缓存：refCount 变化后缓存脏读会导致访客持续 404，
+        // 且 404 命中会刷新 expireAfterAccess 使脏数据永不过期
         Resource resource = resourceMapper.selectById(resourceId);
         if (resource == null) {
             throw new BusinessException("资源不存在");
@@ -94,6 +90,12 @@ public class ResourceServiceImpl implements ResourceService {
         boolean publicAccess = resource.getStatus() == ResourceStatus.ACTIVE
                 && (poolPublic || referenced);
 
+        CachedResource cached = contentCache.getIfPresent(resourceId);
+        if (cached != null) {
+            return new ResourceDownload(cached.content(), cached.mimeType(), cached.size(),
+                    cached.originalName(), publicAccess);
+        }
+
         byte[] content;
         try (InputStream stream = ossTemplate.download(resource.getUrl())) {
             content = stream.readAllBytes();
@@ -103,7 +105,7 @@ public class ResourceServiceImpl implements ResourceService {
         }
 
         CachedResource toCache = new CachedResource(content, resource.getMimeType(),
-                resource.getSize(), resource.getOriginalName(), publicAccess);
+                resource.getSize(), resource.getOriginalName());
         contentCache.put(resourceId, toCache);
 
         return new ResourceDownload(content, resource.getMimeType(), resource.getSize(),

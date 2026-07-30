@@ -25,7 +25,7 @@ class ResourceContentCacheTest {
     }
 
     private CachedResource resource(int bytes) {
-        return new CachedResource(new byte[bytes], "image/png", (long) bytes, "x.png", true);
+        return new CachedResource(new byte[bytes], "image/png", (long) bytes, "x.png");
     }
 
     @Test

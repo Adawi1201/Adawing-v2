@@ -14,13 +14,13 @@ onMounted(() => {
 })
 
 watch(() => site.config.favicon, (faviconId) => {
-  let link = document.querySelector('link[rel="icon"]')
-  if (!link) {
-    link = document.createElement('link')
-    link.rel = 'icon'
-    document.head.appendChild(link)
-  }
-  link.href = faviconId ? resourceContentUrl(faviconId) : '/favicon.ico'
+  // Replace the <link> element instead of mutating href: some WebKit-based
+  // browsers (e.g. Orion) only react to link add/remove, not href changes.
+  document.querySelectorAll('link[rel="icon"]').forEach((el) => el.remove())
+  const link = document.createElement('link')
+  link.rel = 'icon'
+  link.href = faviconId ? `${resourceContentUrl(faviconId)}?v=${faviconId}` : '/favicon.ico'
+  document.head.appendChild(link)
 }, { immediate: true })
 </script>
 

@@ -9,6 +9,11 @@ export function suggestTags(name) {
   return request.get('/tags/suggest', { params: { name } })
 }
 
+// 访客：全站标签列表（公开端点，不含文章计数）
+export function listAllTags() {
+  return request.get('/tags')
+}
+
 // ── 文章-标签关系操作（zoom-article: /api/v2/article-tags）──
 export function listTagsWithCount() {
   return request.get('/article-tags')

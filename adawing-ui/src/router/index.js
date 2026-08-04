@@ -12,6 +12,7 @@ const router = createRouter({
         { path: 'chronicle', name: 'Chronicle', component: () => import('@/views/visitor/ChronicleView.vue') },
         { path: 'notes', name: 'Notes', component: () => import('@/views/visitor/NotesView.vue') },
         { path: 'messages', name: 'Messages', component: () => import('@/views/visitor/MessagesView.vue') },
+        { path: 'tags', name: 'Tags', component: () => import('@/views/visitor/TagsCloudView.vue') },
         { path: 'tags/:name', name: 'TagArticles', component: () => import('@/views/visitor/TagArticlesView.vue') },
         { path: 'about', name: 'About', component: () => import('@/views/visitor/AboutView.vue') }
       ]

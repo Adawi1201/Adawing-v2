@@ -735,6 +735,56 @@ button {
 }
 
 /* ===== NOTES (TIMELINE DYNAMICS) ===== */
+/* ===== TAGS CLOUD ===== */
+.tags-cloud-ori {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 80px 48px;
+  text-align: center;
+}
+
+.tags-cloud-ori .page-title {
+  font-size: 1.6rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.tags-cloud-ori .page-sub {
+  font-size: 14px;
+  color: var(--ink-faint);
+  margin-bottom: 64px;
+  letter-spacing: 0.1em;
+}
+
+.tag-bubbles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.tag-bubble {
+  --bubble-accent: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 22px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 15px;
+  color: var(--ink-light);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+}
+
+.tag-bubble:hover {
+  color: var(--bubble-accent);
+  border-color: var(--bubble-accent);
+  background: var(--accent-faint);
+  transform: translateY(-2px);
+}
+
 .notes-ori {
   max-width: 780px;
   margin: 0 auto;
@@ -1418,6 +1468,7 @@ textarea.input-ori {
   .article-ori,
   .timeline-ori,
   .notes-ori,
+  .tags-cloud-ori,
   .messages-ori {
     padding: 60px 24px;
   }

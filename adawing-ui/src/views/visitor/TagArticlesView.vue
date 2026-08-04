@@ -73,7 +73,16 @@ onMounted(load)
 </template>
 
 <style scoped>
-.tag-articles { padding-bottom: 60px; }
+.tag-articles {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 80px 48px 60px;
+}
+/* 页面已提供居中容器与内边距，避免与全局 .article-list-ori 的 padding 叠加 */
+.tag-articles :deep(.article-list-ori) {
+  max-width: 100%;
+  padding: 0;
+}
 .tag-head {
   border-bottom: 1px solid var(--line);
   padding-bottom: 20px;
@@ -91,5 +100,10 @@ onMounted(load)
   font-size: 2.2rem;
   font-weight: 500;
   color: var(--ink);
+}
+@media (max-width: 768px) {
+  .tag-articles {
+    padding: 60px 24px;
+  }
 }
 </style>

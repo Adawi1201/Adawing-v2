@@ -19,7 +19,12 @@ watch(() => site.config.favicon, (faviconId) => {
   document.querySelectorAll('link[rel="icon"]').forEach((el) => el.remove())
   const link = document.createElement('link')
   link.rel = 'icon'
-  link.href = faviconId ? `${resourceContentUrl(faviconId)}?v=${faviconId}` : '/favicon.ico'
+  if (faviconId) {
+    link.href = `${resourceContentUrl(faviconId)}?v=${faviconId}`
+  } else {
+    link.type = 'image/svg+xml'
+    link.href = '/favicon.svg'
+  }
   document.head.appendChild(link)
 }, { immediate: true })
 </script>

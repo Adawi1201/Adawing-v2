@@ -306,17 +306,6 @@ Things AdaWing deliberately does **not** do:
 
 ---
 
-## ✦ Development Workflow
-
-This project follows a strict **12-phase spec→plan→build→verify** workflow. Each phase runs in an isolated session with:
-
-1. **Codegraph-first code retrieval** — no raw grep/read loops
-2. **Test-before-merge discipline** — business layer tests are mandatory; failures block the build
-3. **Single-file edit discipline** — fix one file at a time, re-test, then proceed
-4. **PAUSE on uncertainty** — two or more "maybe / perhaps / assume" signals triggers a hard stop and user consultation
-
-
----
 
 ## ✦ Tech Stack Summary
 

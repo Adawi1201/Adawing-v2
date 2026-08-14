@@ -221,8 +221,8 @@ onMounted(loadKeys)
 .warning-ori {
   padding: 16px 20px;
   background: var(--accent-faint);
-  border: 1px solid var(--accent);
-  border-radius: 0;
+  border: var(--border-w, 1px) solid var(--accent);
+  border-radius: var(--radius, 0);
   margin-bottom: 24px;
   font-size: 13px;
   color: var(--ink);

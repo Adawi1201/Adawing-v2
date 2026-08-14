@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { listResources } from '@/api/resources.js'
+import { listResources, listPublicResources } from '@/api/resources.js'
 import AuthImage from '@/components/AuthImage.vue'
 
 const USAGE_CONFIG = {
@@ -17,6 +17,7 @@ const USAGE_CONFIG = {
   emoji: {
     pool: 'EMOJI',
     allowFallback: false,
+    public: true,
     title: 'Choose Emoji'
   },
   icon: {
@@ -46,6 +47,7 @@ const currentTitle = ref(props.title)
 const currentPool = ref(props.pool)
 const currentAllowFallback = ref(props.allowFallback)
 const currentUsage = ref(props.usage)
+const currentPublic = ref(false)
 
 function resolveConfig(override = {}) {
   const usage = override.usage || props.usage || ''
@@ -54,6 +56,7 @@ function resolveConfig(override = {}) {
   currentPool.value = override.pool || usageConfig?.pool || props.pool || ''
   currentAllowFallback.value = override.allowFallback ?? usageConfig?.allowFallback ?? props.allowFallback ?? false
   currentTitle.value = override.title || usageConfig?.title || props.title
+  currentPublic.value = override.public ?? usageConfig?.public ?? false
 }
 
 async function open(override = {}) {
@@ -63,12 +66,19 @@ async function open(override = {}) {
   error.value = ''
   bubbleKey.value++
   try {
-    const params = { page: 1, size: 100 }
-    if (currentPool.value) params.pool = currentPool.value
-    if (currentAllowFallback.value) params.allowFallback = true
-    const res = await listResources(params)
-    const data = res.data || res
-    resources.value = data.list || []
+    if (currentPublic.value) {
+      // 公开池（如表情包）走访客接口，无需登录
+      const res = await listPublicResources(currentPool.value)
+      const data = res.data || res
+      resources.value = Array.isArray(data) ? data : (data.list || [])
+    } else {
+      const params = { page: 1, size: 100 }
+      if (currentPool.value) params.pool = currentPool.value
+      if (currentAllowFallback.value) params.allowFallback = true
+      const res = await listResources(params)
+      const data = res.data || res
+      resources.value = data.list || []
+    }
   } catch (e) {
     error.value = e.message || 'Failed to load'
   } finally {
@@ -233,7 +243,7 @@ function select(r) {
   padding: 9px 14px;
   display: flex; align-items: center; gap: 10px;
   font-size: 11px; letter-spacing: 0.04em;
-  border-radius: 4px;
+  border-radius: var(--radius, 4px);
 }
 
 .rp-bubble-msg {
@@ -241,7 +251,7 @@ function select(r) {
 }
 
 .rp-bubble-error {
-  background: rgba(196,92,92,0.06); border: 1px solid rgba(196,92,92,0.3); color: #c45c5c;
+  background: var(--danger-bg); border: 1px solid var(--danger); color: var(--danger);
 }
 .rp-bubble-empty {
   background: var(--accent-faint); border: 1px solid var(--accent); color: var(--accent);

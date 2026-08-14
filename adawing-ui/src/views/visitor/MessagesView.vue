@@ -353,6 +353,30 @@ onUnmounted(() => {
   --like: #e8567f;
 }
 
+/* 非 oriental 风格：留言板拟物色从全局变量派生，融入当前主题 */
+:global([data-palette]:not([data-palette="oriental"]) .messages-ori) {
+  --board: color-mix(in srgb, var(--bg) 88%, var(--ink) 12%);
+  --board-edge: color-mix(in srgb, var(--ink) 22%, transparent);
+  --paper: var(--panel);
+  --paper-shadow: color-mix(in srgb, var(--ink) 26%, transparent);
+  --hole: color-mix(in srgb, var(--bg) 92%, var(--ink) 8%);
+  --line-rule: var(--accent-faint);
+  --fold-back: color-mix(in srgb, var(--bg) 90%, var(--ink) 10%);
+  --fold-edge: color-mix(in srgb, var(--ink) 18%, transparent);
+  --like: #e8567f;
+}
+
+/* 深色底修正：板面压暗、阴影加深、边缘提亮，避免纸张过亮飘起 */
+:global([data-palette]:not([data-palette="oriental"])[data-theme="dark"] .messages-ori) {
+  --board: color-mix(in srgb, var(--bg) 92%, #000 8%);
+  --board-edge: color-mix(in srgb, var(--ink) 30%, transparent);
+  --paper: color-mix(in srgb, var(--panel) 88%, var(--ink) 12%);
+  --paper-shadow: rgba(0, 0, 0, 0.55);
+  --hole: color-mix(in srgb, var(--bg) 96%, #000 4%);
+  --fold-back: color-mix(in srgb, var(--panel) 82%, var(--ink) 18%);
+  --fold-edge: rgba(0, 0, 0, 0.5);
+}
+
 /* ── 缺角上折（真折角）：缺口暗影 + 翻起纸背三角 ── */
 .dogear {
   position: absolute; right: 0; bottom: 0; width: 0; height: 0; z-index: 3;

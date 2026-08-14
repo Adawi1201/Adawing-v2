@@ -184,8 +184,12 @@ onMounted(load)
 
 <style scoped>
 .msg-row {
-  border: 1px solid var(--line);
-  margin-bottom: 8px;
+  border: var(--border-w, 1px) solid var(--line);
+  border-radius: var(--radius, 0);
+  background: var(--panel, transparent);
+  box-shadow: var(--shadow-soft, none);
+  overflow: hidden;
+  margin-bottom: 12px;
   transition: border-color 0.2s;
 }
 .msg-row.expanded { border-color: var(--accent); }
@@ -230,10 +234,11 @@ onMounted(load)
 
 .ms-badge {
   font-size: 11px; font-weight: 600; padding: 2px 10px; letter-spacing: 0.05em;
+  border-radius: var(--radius-badge, 2px);
 }
-.s-1 { background: rgba(245,158,11,0.1); color: #b45309; }
-.s-2 { background: rgba(16,185,129,0.1); color: #065f46; }
-.s-3 { background: rgba(100,116,139,0.1); color: #475569; }
+.s-1 { background: var(--warn-bg); color: var(--warn); }
+.s-2 { background: var(--success-bg); color: var(--success); }
+.s-3 { background: var(--info-bg); color: var(--info); }
 
 .ms-date { font-size: 11px; color: var(--ink-faint); }
 
@@ -293,8 +298,8 @@ onMounted(load)
   margin-top: 8px;
 }
 .resolved-icon { font-size: 14px; }
-.resolved-icon.approved { color: #10b981; }
-.resolved-icon.rejected { color: #ef4444; }
+.resolved-icon.approved { color: var(--success); }
+.resolved-icon.rejected { color: var(--danger); }
 
 /* ── transition ── */
 .slide-enter-active { transition: all 0.2s ease-out; }

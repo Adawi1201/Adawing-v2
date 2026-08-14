@@ -3,6 +3,30 @@ import { ref, onMounted, computed } from 'vue'
 import { getSiteConfig, saveSiteConfig } from '@/api/config.js'
 import AuthImage from '@/components/AuthImage.vue'
 import ResourcePicker from '@/components/ResourcePicker.vue'
+import { useThemeStore, CUSTOM_PRESETS } from '@/stores/theme.js'
+
+const theme = useThemeStore()
+
+const PALETTE_OPTIONS = [
+  { name: 'oriental', label: '东方美学' },
+  { name: 'anthropic', label: 'Anthropic' },
+  { name: 'kimi', label: 'Kimi' },
+  { name: 'catppuccin', label: 'Catppuccin' },
+  { name: 'glass', label: '透明底板' },
+  { name: 'cli', label: '现代终端' },
+  { name: 'custom', label: '自定义' },
+]
+
+function onPaletteChange(e) {
+  const name = e.target.value
+  if (name === 'custom') theme.setCustom({ preset: 1 })
+  else theme.setPalette(name)
+}
+function pickPreset(i) { theme.setCustom({ preset: i }) }
+function swatchBg(i) {
+  const c = CUSTOM_PRESETS[i]
+  return c.gradient ? `linear-gradient(135deg, ${c.gradient[0]}, ${c.gradient[1]})` : c.bg
+}
 
 const config = ref({
   name: '',
@@ -109,6 +133,31 @@ onMounted(load)
     <div v-if="loading" class="loading-ori">Loading...</div>
 
     <div v-else class="settings-form">
+      <section class="form-section">
+        <h3>外观 / Appearance</h3>
+        <div class="form-row">
+          <label>主题风格</label>
+          <select class="input-ori" :value="theme.palette" @change="onPaletteChange">
+            <option v-for="p in PALETTE_OPTIONS" :key="p.name" :value="p.name">{{ p.label }}</option>
+          </select>
+        </div>
+        <div v-if="theme.palette === 'custom'" class="form-row">
+          <label>预设配色</label>
+          <div class="appearance-presets">
+            <button
+              v-for="(c, i) in CUSTOM_PRESETS"
+              :key="i"
+              class="ap-preset"
+              :class="{ active: theme.custom && theme.custom.preset === i }"
+              @click.prevent="pickPreset(i)"
+            >
+              <span class="ap-dot" :style="{ background: swatchBg(i) }"></span>
+              <span class="ap-dot" :style="{ background: c.accent }"></span>
+            </button>
+          </div>
+        </div>
+      </section>
+
       <section class="form-section">
         <h3>Basic</h3>
         <div class="form-row">
@@ -285,8 +334,11 @@ onMounted(load)
 }
 
 .form-section {
-  border: 1px solid var(--line);
-  padding: 16px;
+  border: var(--border-w, 1px) solid var(--line);
+  border-radius: var(--radius, 0);
+  background: var(--panel, transparent);
+  box-shadow: var(--shadow-soft, none);
+  padding: 20px;
 }
 
 .form-section h3 {
@@ -323,10 +375,11 @@ onMounted(load)
 .s-resource-thumb {
   width: 48px; height: 48px;
   flex-shrink: 0;
-  border: 1px dashed var(--line);
+  border: var(--border-w, 1px) dashed var(--line);
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  background: var(--bg-warm);
+  background: var(--panel-2, var(--bg-warm));
+  border-radius: var(--radius, 0);
   transition: border-color 0.2s;
 }
 
@@ -358,8 +411,8 @@ onMounted(load)
 .s-resource-id {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px; color: var(--ink-light);
-  background: var(--bg-warm);
-  padding: 2px 8px; border: 1px solid var(--line);
+  background: var(--panel-2, var(--bg-warm));
+  padding: 2px 8px; border: var(--border-w, 1px) solid var(--line); border-radius: var(--radius-badge, 0);
 }
 
 .s-resource-hint {
@@ -373,7 +426,16 @@ onMounted(load)
   padding: 0; letter-spacing: 0.05em; text-align: left;
 }
 
-.s-resource-clear:hover { color: #c45c5c; }
+.s-resource-clear:hover { color: var(--danger); }
+
+.appearance-presets { display: flex; gap: 8px; flex-wrap: wrap; }
+.ap-preset {
+  display: flex; gap: 0; padding: 3px; cursor: pointer;
+  background: var(--panel-2, transparent);
+  border: var(--border-w, 1px) solid var(--line); border-radius: var(--radius, 4px);
+}
+.ap-preset.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.ap-dot { width: 18px; height: 18px; border-radius: 50%; display: block; }
 
 .link-row {
   display: grid;
@@ -385,18 +447,18 @@ onMounted(load)
 
 .link-icon-field {
   width: 36px; height: 36px;
-  border: 1px dashed var(--line);
+  border: var(--border-w, 1px) dashed var(--line);
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  background: var(--bg-warm);
-  border-radius: 4px;
+  background: var(--panel-2, var(--bg-warm));
+  border-radius: var(--radius, 4px);
   transition: border-color 0.2s;
 }
 
 .link-icon-field:hover { border-color: var(--accent); }
 
 .link-icon-img {
-  width: 100%; height: 100%; object-fit: cover; border-radius: 3px;
+  width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius, 3px);
 }
 
 .link-icon-placeholder {
@@ -415,8 +477,9 @@ onMounted(load)
 }
 
 .json-preview {
-  background: var(--bg);
-  border: 1px solid var(--line);
+  background: var(--panel-2, var(--bg));
+  border: var(--border-w, 1px) solid var(--line);
+  border-radius: var(--radius, 0);
   padding: 12px;
   font-size: 11px;
   line-height: 1.5;

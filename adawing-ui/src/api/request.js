@@ -23,19 +23,19 @@ let handling401 = false
 
 async function handleUnauthorized() {
   if (handling401) return
+  // 动态导入，避免 request.js ↔ stores/auth.js 循环依赖
+  const { default: router } = await import('@/router/index.js')
+  const current = router.currentRoute.value
+  // 仅管理端区域的 401 才注销并跳登录页；访客端（如匿名访问受限资源）不做任何跳转
+  if (!current.path.startsWith('/yusal/admin') || current.name === 'AdminLogin') {
+    return
+  }
   handling401 = true
   toast('登录已过期，请重新登录', 'warn')
   try {
-    // 动态导入，避免 request.js ↔ stores/auth.js 循环依赖
-    const [{ useAuthStore }, { default: router }] = await Promise.all([
-      import('@/stores/auth.js'),
-      import('@/router/index.js')
-    ])
+    const { useAuthStore } = await import('@/stores/auth.js')
     useAuthStore().logout()
-    const current = router.currentRoute.value
-    if (current.name !== 'AdminLogin') {
-      await router.push({ name: 'AdminLogin', query: { redirect: current.fullPath } })
-    }
+    await router.push({ name: 'AdminLogin', query: { redirect: current.fullPath } })
   } finally {
     handling401 = false
   }

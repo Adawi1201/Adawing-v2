@@ -166,18 +166,18 @@ onUnmounted(() => {
 }
 
 .back-to-top {
-  border: none;
-  border-top: 1px solid var(--line);
-  border-radius: 0;
-  padding-top: 14px;
-  margin-top: 2px;
-  width: 40px;
-  height: auto;
-  aspect-ratio: auto;
+  margin-top: 8px;
 }
 
-.back-to-top:hover {
-  border-top-color: var(--accent);
+/* 分隔线画在按钮上方间隙，保持按钮本体圆形 */
+.back-to-top::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 4px;
+  right: 4px;
+  height: 1px;
+  background: var(--line);
 }
 
 .float-enter-active,

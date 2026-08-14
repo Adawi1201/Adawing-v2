@@ -6,6 +6,7 @@ const theme = useThemeStore()
 
 <template>
   <button
+    v-if="theme.palette === 'oriental'"
     class="theme-toggle"
     aria-label="Toggle theme"
     :title="theme.isDark ? 'Switch to light' : 'Switch to dark'"

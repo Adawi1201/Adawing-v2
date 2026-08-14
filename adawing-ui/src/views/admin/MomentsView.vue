@@ -107,7 +107,10 @@ onMounted(load)
 .moment-form-ori {
   margin-bottom: 36px;
   padding: 20px;
-  border: 1px solid var(--line);
+  border: var(--border-w, 1px) solid var(--line);
+  border-radius: var(--radius, 0);
+  background: var(--panel, transparent);
+  box-shadow: var(--shadow-soft, none);
 }
 
 .moment-form-ori h2 {

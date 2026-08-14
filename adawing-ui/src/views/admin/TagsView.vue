@@ -183,7 +183,7 @@ onMounted(load)
   width: 42px;
   height: 36px;
   border: 1px solid var(--line);
-  border-radius: 3px;
+  border-radius: var(--radius, 3px);
   background: var(--bg);
   cursor: pointer;
   padding: 2px;
@@ -236,7 +236,7 @@ onMounted(load)
   gap: 7px;
   padding: 5px 10px;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius, 4px);
   font-size: 13px;
   color: var(--ink);
 }

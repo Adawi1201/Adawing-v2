@@ -2,6 +2,7 @@
 import VisitorHeader from '@/components/VisitorHeader.vue'
 import VisitorFooter from '@/components/VisitorFooter.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import ThemePanel from '@/components/ThemePanel.vue'
 import FloatingNav from '@/components/FloatingNav.vue'
 import ReadingProgress from '@/components/ReadingProgress.vue'
 import CursorTrail from '@/components/CursorTrail.vue'
@@ -38,6 +39,7 @@ onUnmounted(() => {
 <template>
   <div class="visitor-layout">
     <ThemeToggle />
+    <ThemePanel />
     <CursorTrail />
     <ReadingProgress />
     <VisitorHeader ref="headerRef" :class="{ 'header-hidden': !showHeader }" />
@@ -58,7 +60,7 @@ onUnmounted(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: var(--layout-bg, var(--bg));
 }
 
 .visitor-main {

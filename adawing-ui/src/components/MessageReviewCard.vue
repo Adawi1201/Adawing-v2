@@ -115,6 +115,6 @@ function doIgnore() {
   display: flex; align-items: center; gap: 8px; margin-top: 8px;
 }
 .resolved-icon { font-size: 14px; }
-.resolved-icon.approved { color: #10b981; }
-.resolved-icon.rejected { color: #ef4444; }
+.resolved-icon.approved { color: var(--success); }
+.resolved-icon.rejected { color: var(--danger); }
 </style>

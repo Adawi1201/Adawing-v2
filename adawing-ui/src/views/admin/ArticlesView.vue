@@ -136,13 +136,13 @@ onMounted(load)
 .art-meta { display: flex; gap: 10px; align-items: center; font-size: 11px; color: var(--ink-faint); }
 
 .art-badge {
-  font-size: 10px; font-weight: 600; padding: 1px 8px; letter-spacing: 0.05em; border-radius: 2px;
+  font-size: 10px; font-weight: 600; padding: 1px 8px; letter-spacing: 0.05em; border-radius: var(--radius-badge, 2px);
 }
-.s-0 { background: rgba(100,116,139,0.1); color: #475569; }
-.s-1 { background: rgba(245,158,11,0.1); color: #b45309; }
-.s-2 { background: rgba(16,185,129,0.1); color: #065f46; }
-.s-3 { background: rgba(239,68,68,0.1); color: #991b1b; }
-.s-4 { background: rgba(100,116,139,0.1); color: #64748b; }
+.s-0 { background: var(--info-bg); color: var(--info); }
+.s-1 { background: var(--warn-bg); color: var(--warn); }
+.s-2 { background: var(--success-bg); color: var(--success); }
+.s-3 { background: var(--danger-bg); color: var(--danger); }
+.s-4 { background: var(--info-bg); color: var(--info); }
 
 .art-actions {
   display: flex; gap: 4px; flex-shrink: 0; align-items: center;

@@ -6,6 +6,7 @@ import cc.adabyte.blog.common.exception.BusinessException;
 import cc.adabyte.blog.common.result.Result;
 import cc.adabyte.blog.resource.core.entity.Resource;
 import cc.adabyte.blog.resource.core.service.ResourceDownload;
+import cc.adabyte.blog.resource.core.service.ResourcePoolService;
 import cc.adabyte.blog.resource.core.service.ResourceService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -26,6 +28,16 @@ import java.nio.charset.StandardCharsets;
 public class ResourceController {
 
     private final ResourceService resourceService;
+    private final ResourcePoolService resourcePoolService;
+
+    /** 访客列举公开池资源（如留言板表情包）。仅允许 publicByDefault 的池，防止私有池被遍历。 */
+    @GetMapping("/public")
+    public Result<List<Resource>> listPublic(@RequestParam ResourcePool pool) {
+        if (!pool.isPublicByDefault()) {
+            throw new BusinessException("该资源池不对外开放");
+        }
+        return Result.ok(resourcePoolService.listForUse(pool, false));
+    }
 
     @PostMapping("/upload")
     public Result<Resource> upload(

@@ -88,7 +88,7 @@ function doIgnore() {
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; background: var(--bg);
   font-size: 12px; color: var(--ink-faint);
-  transition: border-color 0.2s; border-radius: 2px; gap: 6px;
+  transition: border-color 0.2s; border-radius: var(--radius, 2px); gap: 6px;
 }
 .cover-btn:hover { border-color: var(--accent); }
 .cover-btn-img { height: 28px; min-width: 44px; object-fit: cover; }
@@ -99,6 +99,6 @@ function doIgnore() {
   display: flex; align-items: center; gap: 8px; margin-top: 8px;
 }
 .resolved-icon { font-size: 14px; }
-.resolved-icon.approved { color: #10b981; }
-.resolved-icon.rejected { color: #ef4444; }
+.resolved-icon.approved { color: var(--success); }
+.resolved-icon.rejected { color: var(--danger); }
 </style>

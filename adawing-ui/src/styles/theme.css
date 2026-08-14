@@ -1,4 +1,9 @@
+/* ===== 主题变量系统 =====
+   data-palette: 风格 | data-theme: 明暗（仅 oriental 可切换）
+   颜色变量 + 形态变量（radius/shadow/panel）+ 字体变量 + 语义状态色 */
+
 :root {
+  /* 颜色 */
   --bg: #FEFEFE;
   --bg-rgb: 254, 254, 254;
   --bg-shift: 250, 245, 238;
@@ -10,8 +15,32 @@
   --accent-hover: #9A5F28;
   --accent-faint: rgba(184, 115, 51, 0.1);
   --line: rgba(0, 0, 0, 0.22);
+  /* 形态（oriental 基准：直角·无阴影·hairline） */
+  --panel: var(--bg);
+  --panel-2: var(--bg-warm);
+  --radius: 0px;
+  --radius-btn: 0px;
+  --radius-badge: 2px;
+  --shadow-card: none;
+  --shadow-soft: none;
+  --border-w: 1px;
+  --panel-blur: 0px;
+  /* 字体 */
   --font-display: 'Cormorant Garamond', 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
   --font-body: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+  /* 语义状态色（亮） */
+  --success: #0a7d5c;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --warn: #b45309;
+  --warn-bg: rgba(245, 158, 11, 0.12);
+  --danger: #b91c1c;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --info: #64748b;
+  --info-bg: rgba(100, 116, 139, 0.12);
+  /* 类型徽章点缀（管理端审核类型） */
+  --c-type-message: #6366f1;
+  --c-type-article: #10b981;
+  --c-type-note: #e0872f;
 }
 
 [data-theme="dark"] {
@@ -26,7 +55,130 @@
   --accent-hover: #E8AD82;
   --accent-faint: rgba(212, 150, 106, 0.12);
   --line: rgba(255, 255, 255, 0.18);
+  /* 语义状态色（暗，提亮度保持可读） */
+  --success: #34d399;
+  --success-bg: rgba(52, 211, 153, 0.14);
+  --warn: #fbbf24;
+  --warn-bg: rgba(251, 191, 36, 0.14);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.14);
+  --info: #94a3b8;
+  --info-bg: rgba(148, 163, 184, 0.14);
 }
+
+/* ===== palette 覆盖块 =====
+   每块覆盖：颜色 + 形态 + 字体 + 状态色；固定明暗时同时覆盖 data-theme 语义 */
+
+/* Anthropic — 米白纸感 / 大圆角 / 柔和浮起 / 珊瑚橙胶囊 / 细衬线标题 */
+[data-palette="anthropic"] {
+  --bg: #FAF9F5; --bg-rgb: 250, 249, 245; --bg-shift: 240, 238, 230; --bg-warm: #F0EEE6;
+  --ink: #141413; --ink-light: #3D3D3A; --ink-faint: #6B6B66;
+  --accent: #D97757; --accent-hover: #C4643F; --accent-faint: rgba(217, 119, 87, 0.1);
+  --line: rgba(20, 20, 19, 0.12);
+  --panel: #FFFFFF; --panel-2: #F0EEE6;
+  --radius: 14px; --radius-btn: 999px; --radius-badge: 999px;
+  --shadow-card: 0 1px 2px rgba(20,20,19,.06), 0 4px 16px rgba(20,20,19,.08);
+  --shadow-soft: 0 1px 3px rgba(20,20,19,.05);
+  --border-w: 1px;
+  --font-display: 'Newsreader', 'Noto Serif SC', Georgia, serif;
+  --font-body: Inter, -apple-system, sans-serif;
+}
+
+/* Kimi — 近白冷调 / Kimi蓝 / 中圆角 / 克制轻阴影 / 几何无衬线粗体负字距 */
+[data-palette="kimi"] {
+  --bg: #F7F8FA; --bg-rgb: 247, 248, 250; --bg-shift: 239, 242, 246; --bg-warm: #EFF2F6;
+  --ink: #1B1B1F; --ink-light: #3A3A42; --ink-faint: #8A8A94;
+  --accent: #0066FF; --accent-hover: #0052CC; --accent-faint: rgba(0, 102, 255, 0.08);
+  --line: rgba(27, 27, 31, 0.1);
+  --panel: #FFFFFF; --panel-2: #EFF2F6;
+  --radius: 12px; --radius-btn: 999px; --radius-badge: 999px;
+  --shadow-card: 0 1px 2px rgba(27,27,31,.04), 0 8px 24px rgba(27,27,31,.07);
+  --shadow-soft: 0 1px 3px rgba(27,27,31,.04);
+  --border-w: 1px;
+  --font-display: Inter, -apple-system, sans-serif;
+  --font-body: Inter, -apple-system, sans-serif;
+}
+
+/* Catppuccin Mocha — 三级表面色阶 / 粉彩多色 / 柔圆角 */
+[data-palette="catppuccin"] {
+  --bg: #1E1E2E; --bg-rgb: 30, 30, 46; --bg-shift: 49, 50, 68; --bg-warm: #313244;
+  --ink: #CDD6F4; --ink-light: #BAC2DE; --ink-faint: #9399B2;
+  --accent: #CBA6F7; --accent-hover: #B58BE0; --accent-faint: rgba(203, 166, 247, 0.14);
+  --line: rgba(180, 190, 254, 0.14);
+  --panel: #313244; --panel-2: #45475A;
+  --radius: 8px; --radius-btn: 8px; --radius-badge: 999px;
+  --shadow-card: 0 2px 8px rgba(0,0,0,.18); --shadow-soft: none;
+  --border-w: 1.5px;
+  --font-display: 'Comfortaa', 'Yuanti SC', 'YouYuan', sans-serif;
+  --font-body: 'Comfortaa', 'Yuanti SC', 'YouYuan', sans-serif;
+  --success: #A6E3A1; --success-bg: rgba(166, 227, 161, 0.16);
+  --warn: #F9E2AF;   --warn-bg: rgba(249, 226, 175, 0.16);
+  --danger: #F38BA8; --danger-bg: rgba(243, 139, 168, 0.16);
+  --info: #89B4FA;   --info-bg: rgba(137, 180, 250, 0.16);
+  --c-type-message: #89B4FA; --c-type-article: #A6E3A1; --c-type-note: #FAB387;
+}
+
+/* Glass 透明底板 — 大圆角毛玻璃 / 氛围渐变 / 软投影 */
+[data-palette="glass"] {
+  --bg: rgba(255, 255, 255, 0.55); --bg-rgb: 255, 255, 255; --bg-shift: 255, 255, 255; --bg-warm: rgba(255,255,255,0.38);
+  --ink: #3E3A4E; --ink-light: #565064; --ink-faint: #7C7690;
+  --accent: #7A6FF0; --accent-hover: #5F54D8; --accent-faint: rgba(122, 111, 240, 0.12);
+  --line: rgba(255, 255, 255, 0.5);
+  --panel: rgba(255, 255, 255, 0.55); --panel-2: rgba(255, 255, 255, 0.38);
+  --radius: 16px; --radius-btn: 12px; --radius-badge: 999px;
+  --shadow-card: 0 8px 32px rgba(90, 80, 140, 0.18);
+  --shadow-soft: 0 2px 10px rgba(90, 80, 140, 0.1);
+  --panel-blur: 14px;
+  --font-display: 'Comfortaa', 'Yuanti SC', 'YouYuan', sans-serif;
+  --font-body: 'Comfortaa', 'Yuanti SC', 'YouYuan', sans-serif;
+}
+
+/* CLI 现代终端 — 深青灰 / 等宽 / 语法色 / 低透明框线 */
+[data-palette="cli"] {
+  --bg: #0D1117; --bg-rgb: 13, 17, 23; --bg-shift: 22, 27, 34; --bg-warm: #161B22;
+  --ink: #E6EDF3; --ink-light: #B9C4CF; --ink-faint: #7D8590;
+  --accent: #E0AF68; --accent-hover: #D19A4E; --accent-faint: rgba(224, 175, 104, 0.1);
+  --line: rgba(230, 237, 243, 0.12);
+  --panel: #161B22; --panel-2: #1C2430;
+  --radius: 6px; --radius-btn: 6px; --radius-badge: 4px;
+  --shadow-card: none; --shadow-soft: none;
+  --border-w: 2px;
+  --font-display: 'JetBrains Mono', monospace;
+  --font-body: 'JetBrains Mono', monospace;
+  --success: #9ECE6A; --success-bg: transparent;
+  --warn: #E0AF68;   --warn-bg: transparent;
+  --danger: #F38BA8; --danger-bg: transparent;
+  --info: #7DCFFF;   --info-bg: transparent;
+  --c-type-message: #7DCFFF; --c-type-article: #9ECE6A; --c-type-note: #E0AF68;
+}
+
+/* Custom 纯色自定义 — 中性现代基底，颜色由 JS 注入；
+   panel 用实色（bg 提亮一档）保证文字不透明，渐变预设下不透到 body 渐变 */
+[data-palette="custom"] {
+  --panel: var(--bg-warm); --panel-2: var(--bg-warm);
+  --radius: 10px; --radius-btn: 8px; --radius-badge: 999px;
+  --shadow-card: 0 2px 10px rgba(0,0,0,.2); --shadow-soft: 0 1px 4px rgba(0,0,0,.15);
+  --border-w: 1.5px;
+  --font-display: 'Comfortaa', 'Yuanti SC', 'YouYuan', sans-serif;
+  --font-body: 'Comfortaa', 'Yuanti SC', 'YouYuan', sans-serif;
+}
+[data-palette="custom"][data-theme="light"] {
+  --panel: #FFFFFF; --panel-2: rgba(0, 0, 0, 0.03);
+}
+
+/* Glass 渐变底与固定明暗的 color-scheme 已在下方 html 规则处理 */
+
+/* ===== 排印人格：各风格标题字重 / 字距 ===== */
+[data-palette="anthropic"] h1, [data-palette="anthropic"] h2, [data-palette="anthropic"] h3 { font-weight: 400; letter-spacing: 0.01em; }
+[data-palette="kimi"] h1, [data-palette="kimi"] h2, [data-palette="kimi"] h3 { font-weight: 700; letter-spacing: -0.02em; }
+[data-palette="catppuccin"] h1, [data-palette="catppuccin"] h2, [data-palette="catppuccin"] h3 { font-weight: 600; letter-spacing: 0; }
+[data-palette="glass"] h1, [data-palette="glass"] h2, [data-palette="glass"] h3 { font-weight: 500; letter-spacing: 0; }
+[data-palette="cli"] h1, [data-palette="cli"] h2, [data-palette="cli"] h3 { font-weight: 500; letter-spacing: 0; }
+[data-palette="custom"] h1, [data-palette="custom"] h2, [data-palette="custom"] h3 { font-weight: 600; letter-spacing: -0.01em; }
+/* Kimi / Anthropic 的 logo 字重字距 */
+[data-palette="kimi"] .v-header .logo, [data-palette="kimi"] .admin-sidebar-ori .logo { font-weight: 700; letter-spacing: -0.02em; }
+[data-palette="anthropic"] .v-header .logo, [data-palette="anthropic"] .admin-sidebar-ori .logo { font-weight: 500; letter-spacing: 0.18em; }
+[data-palette="cli"] .v-header .logo, [data-palette="cli"] .admin-sidebar-ori .logo { font-weight: 500; letter-spacing: 0; }
 
 * {
   margin: 0;
@@ -44,6 +196,66 @@ html {
 
 [data-theme="light"] {
   color-scheme: light;
+}
+
+/* 透明底板：body 衬氛围渐变，面板毛玻璃 */
+[data-palette="glass"] body {
+  background: linear-gradient(135deg, #a8c8ec 0%, #c9a7d8 40%, #e8b8c8 70%, #f0d8b0 100%) fixed;
+}
+
+/* 自定义预设1（渐变）：body 双色渐变，由 JS 注入变量 */
+[data-palette="custom"][data-gradient] body {
+  background: linear-gradient(135deg, var(--grad-from, #134E5E), var(--grad-to, #71B280)) fixed;
+}
+
+/* glass / 渐变预设：布局层背景透明，露出 body 渐变（否则被实色盖住） */
+[data-palette="glass"],
+[data-palette="custom"][data-gradient] {
+  --layout-bg: transparent;
+}
+
+/* ===== 风格纹理层 ===== */
+/* CLI：终端扫描线 */
+[data-palette="cli"] body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(230,237,243,.022) 0 1px, transparent 1px 3px);
+}
+/* Kimi：细腻网格点（现代 SaaS 的技术感） */
+[data-palette="kimi"] body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(0,102,255,.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+/* Catppuccin：极淡噪点柔化色阶 */
+[data-palette="catppuccin"] body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(203,166,247,.04) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+/* 内容层抬到纹理之上 */
+#app { position: relative; z-index: 1; }
+
+/* ===== CLI 终端提示符：$ 命令 / # 标题 / ~ 日期 / % 标签（伪元素注入，仅 CLI） ===== */
+[data-palette="cli"] .hero-oriental h1::before {
+  content: '$ ';
+  color: var(--success);
+}
+[data-palette="cli"] .article-item-ori h3::before,
+[data-palette="cli"] .th-name::before {
+  content: '# ';
+  color: var(--info);
+}
+[data-palette="cli"] .article-item-ori .date::before,
+[data-palette="cli"] .timeline-entry-ori .date::before {
+  content: '~ ';
+  color: var(--ink-faint);
+}
+[data-palette="cli"] .article-item-ori .tag::before,
+[data-palette="cli"] .ms-badge::before {
+  content: '% ';
 }
 
 body {
@@ -144,7 +356,7 @@ button {
   width: 32px;
   height: 32px;
   border-radius: 2px;
-  border: 1px solid var(--line);
+  border: var(--border-w) solid var(--line);
   background: var(--bg);
   color: var(--ink-faint);
   cursor: pointer;
@@ -179,7 +391,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--border-w) solid var(--line);
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
@@ -294,11 +506,67 @@ button {
 }
 
 .article-item-ori {
+  display: block;
   position: relative;
   overflow: hidden;
   padding: 32px 0;
-  border-top: 1px solid var(--line);
+  border-top: var(--border-w) solid var(--line);
   cursor: pointer;
+}
+
+/* 非 oriental 风格：文章条目呈现为卡片（oriental 的 radius/shadow 为空，天然回退为 hairline 列表） */
+[data-palette]:not([data-palette="oriental"]) .article-item-ori {
+  border-top: none;
+  background: var(--panel);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+/* 非 oriental 风格：共享列表项统一卡片化（时间线/动态/留言条目） */
+[data-palette]:not([data-palette="oriental"]) .timeline-entry-ori,
+[data-palette]:not([data-palette="oriental"]) .note-item-ori,
+[data-palette]:not([data-palette="oriental"]) .msg-item-ori,
+[data-palette]:not([data-palette="oriental"]) .key-item-ori {
+  border-top: none;
+  background: var(--panel);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
+  padding: 22px 24px;
+  margin-bottom: 16px;
+}
+
+/* 非 oriental 风格：统计卡片 / 表格卡片化 */
+[data-palette]:not([data-palette="oriental"]) .stat-ori {
+  background: var(--panel);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 20px 22px;
+}
+[data-palette]:not([data-palette="oriental"]) .table-ori {
+  background: var(--panel);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 8px 0;
+  overflow: hidden;
+}
+/* 卡片化表格：首末列加内边距，边框线才不会穿过容器 padding 贴到卡片边缘 */
+[data-palette]:not([data-palette="oriental"]) .table-ori th:first-child,
+[data-palette]:not([data-palette="oriental"]) .table-ori td:first-child {
+  padding-left: 20px;
+}
+[data-palette]:not([data-palette="oriental"]) .table-ori th:last-child,
+[data-palette]:not([data-palette="oriental"]) .table-ori td:last-child {
+  padding-right: 20px;
 }
 
 .article-item-ori::before {
@@ -363,7 +631,8 @@ button {
   height: 80px;
   object-fit: cover;
   flex-shrink: 0;
-  border: 1px solid var(--line);
+  border: var(--border-w) solid var(--line);
+  border-radius: max(calc(var(--radius) * 0.5), 3px);
 }
 
 .article-item-ori h3 {
@@ -404,7 +673,7 @@ button {
   width: 100%;
   object-fit: cover;
   margin-bottom: 32px;
-  border: 1px solid var(--line);
+  border: var(--border-w) solid var(--line);
 }
 
 .article-ori h1 {
@@ -441,7 +710,7 @@ button {
 .article-ori .article-body blockquote {
   margin: 3em 0;
   padding: 0 32px;
-  border-left: 1px solid var(--accent);
+  border-left: var(--border-w) solid var(--accent);
   font-family: var(--font-display);
   font-style: italic;
   font-size: 1.1rem;
@@ -462,7 +731,7 @@ button {
   padding: 32px;
   overflow-x: auto;
   margin: 2em 0;
-  border: 1px solid var(--line);
+  border: var(--border-w) solid var(--line);
 }
 
 .article-ori .article-body pre code {
@@ -479,8 +748,8 @@ button {
 .agent-note {
   margin: 80px 0;
   padding: 32px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-top: var(--border-w) solid var(--line);
+  border-bottom: var(--border-w) solid var(--line);
 }
 
 .agent-note .note-label {
@@ -535,7 +804,7 @@ button {
   letter-spacing: 0.02em;
   cursor: pointer;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: var(--radius-badge, 20px);
   border: 1px solid var(--tc, var(--accent));
   color: var(--tc, var(--accent));
   background: transparent;
@@ -572,7 +841,7 @@ button {
   margin: 0 auto 32px;
   border-radius: 50%;
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: var(--border-w) solid var(--line);
 }
 
 .about-avatar img {
@@ -637,7 +906,7 @@ button {
   align-items: center;
   gap: 8px;
   padding: 8px 18px;
-  border: 1px solid var(--line);
+  border: var(--border-w) solid var(--line);
   font-size: 14px;
   letter-spacing: 0.05em;
   transition: all 0.3s ease;
@@ -649,6 +918,13 @@ button {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-faint);
+}
+
+/* 非 oriental：链接项徽章化（面板底 + 徽章圆角 + 软阴影） */
+[data-palette]:not([data-palette="oriental"]) .link-item a {
+  background: var(--panel);
+  border-radius: var(--radius-badge);
+  box-shadow: var(--shadow-soft);
 }
 
 .link-item .link-name {
@@ -685,7 +961,7 @@ button {
   display: flex;
   gap: 48px;
   padding: 32px 0;
-  border-top: 1px solid var(--line);
+  border-top: var(--border-w) solid var(--line);
 }
 
 .timeline-entry-ori .date {
@@ -769,8 +1045,8 @@ button {
   display: inline-flex;
   align-items: center;
   padding: 10px 22px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-badge, 999px);
   font-size: 15px;
   color: var(--ink-light);
   text-decoration: none;
@@ -806,7 +1082,7 @@ button {
 
 .note-item-ori {
   padding: 32px 0;
-  border-top: 1px solid var(--line);
+  border-top: var(--border-w) solid var(--line);
 }
 
 .note-item-ori .note-meta {
@@ -878,7 +1154,7 @@ button {
   width: 100%;
   padding: 16px 0;
   border: none;
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--border-w) solid var(--line);
   background: transparent;
   font-family: var(--font-body);
   font-size: 15px;
@@ -901,7 +1177,8 @@ button {
 .msg-form-ori button {
   margin-top: 24px;
   background: none;
-  border: 1px solid var(--ink);
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-btn);
   color: var(--ink);
   padding: 12px 28px;
   font-family: var(--font-body);
@@ -937,7 +1214,7 @@ button {
 
 .btn-insert {
   background: var(--bg);
-  border: 1px solid var(--line);
+  border: var(--border-w) solid var(--line);
   color: var(--ink-faint);
   font-size: 11px;
   letter-spacing: 0.06em;
@@ -954,7 +1231,7 @@ button {
 
 .msg-item-ori {
   padding: 32px 0;
-  border-top: 1px solid var(--line);
+  border-top: var(--border-w) solid var(--line);
 }
 
 .msg-item-ori .msg-author {
@@ -1045,7 +1322,7 @@ button {
   align-items: flex-end;
   margin-bottom: 48px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--border-w) solid var(--line);
   gap: 24px;
 }
 
@@ -1097,22 +1374,24 @@ button {
 
 .table-ori th {
   text-align: left;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--ink);
+  padding: 18px 16px 18px 0;
+  border-bottom: var(--border-w) solid var(--ink);
   font-size: 11px;
   color: var(--ink-faint);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 500;
 }
+.table-ori th:last-child { padding-right: 0; }
 
 .table-ori td {
-  padding: 22px 0;
-  border-bottom: 1px solid var(--line);
+  padding: 22px 16px 22px 0;
+  border-bottom: var(--border-w) solid var(--line);
   font-size: 14px;
   color: var(--ink-light);
   vertical-align: middle;
 }
+.table-ori td:last-child { padding-right: 0; }
 
 .table-ori tbody tr {
   transition: background 0.3s ease;
@@ -1151,7 +1430,7 @@ button {
 
 .key-item-ori {
   padding: 24px 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--border-w) solid var(--line);
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -1181,7 +1460,7 @@ button {
   width: 100%;
   padding: 14px 0;
   border: none;
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--border-w) solid var(--line);
   background: transparent;
   font-family: var(--font-body);
   font-size: 15px;
@@ -1223,7 +1502,8 @@ textarea.input-ori {
 
 .btn-ori {
   background: none;
-  border: 1px solid var(--ink);
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-btn);
   color: var(--ink);
   padding: 12px 28px;
   font-family: var(--font-body);
@@ -1262,6 +1542,25 @@ textarea.input-ori {
   color: var(--bg);
 }
 
+/* 实心胶囊按钮风格：anthropic / kimi / catppuccin / glass / custom */
+[data-palette="anthropic"] .btn-ori-primary,
+[data-palette="kimi"] .btn-ori-primary,
+[data-palette="catppuccin"] .btn-ori-primary,
+[data-palette="glass"] .btn-ori-primary,
+[data-palette="custom"] .btn-ori-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+[data-palette="kimi"] .btn-ori-primary { box-shadow: 0 2px 8px rgba(0,102,255,.25); }
+[data-palette="glass"] .btn-ori-primary { backdrop-filter: none; }
+/* CLI：实心底为 accent-faint，等宽 */
+[data-palette="cli"] .btn-ori-primary {
+  background: var(--accent-faint);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .btn-ori-sm {
   padding: 6px 14px;
   font-size: 11px;
@@ -1287,7 +1586,7 @@ textarea.input-ori {
 
 .btn-ori-danger:hover {
   background: none;
-  color: #c45c5c;
+  color: var(--danger);
 }
 
 /* ===== LOGIN ===== */
@@ -1303,8 +1602,12 @@ textarea.input-ori {
   width: 100%;
   max-width: 420px;
   padding: 72px 48px;
-  border: 1px solid var(--line);
-  background: var(--bg);
+  border: var(--border-w) solid var(--line);
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
 }
 
 .login-card-ori h1 {
@@ -1317,7 +1620,7 @@ textarea.input-ori {
 .login-card-ori .error {
   margin-bottom: 24px;
   font-size: 14px;
-  color: #c45c5c;
+  color: var(--danger);
 }
 
 .login-card-ori .input-ori {
@@ -1340,6 +1643,7 @@ textarea.input-ori {
 .pagination-ori button {
   background: none;
   border: 1px solid transparent;
+  font-family: var(--font-body);
   font-size: 13px;
   color: var(--ink-faint);
   padding: 8px 14px;
@@ -1347,6 +1651,20 @@ textarea.input-ori {
   letter-spacing: 0.05em;
   transition: all 0.3s ease;
   min-width: 36px;
+}
+
+/* 非 oriental：分页按钮接入形态变量（面板底 / 边框宽 / 按钮圆角 / 激活实色） */
+[data-palette]:not([data-palette="oriental"]) .pagination-ori button {
+  background: var(--panel);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-btn);
+  color: var(--ink-light);
+}
+[data-palette]:not([data-palette="oriental"]) .pagination-ori button:hover,
+[data-palette]:not([data-palette="oriental"]) .pagination-ori button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
 }
 
 .pagination-ori button:hover,
@@ -1371,6 +1689,13 @@ textarea.input-ori {
   letter-spacing: 0.1em;
 }
 
+/* 表格内的空态行：.table-ori td 的 text-align:left 优先级更高，需显式盖回居中 */
+.table-ori td.empty-ori,
+.table-ori td.loading-ori {
+  text-align: center;
+}
+}
+
 /* ===== EDITOR MODAL ===== */
 .editor-modal-ori {
   position: fixed;
@@ -1389,8 +1714,12 @@ textarea.input-ori {
   max-width: 880px;
   max-height: 90vh;
   overflow-y: auto;
-  background: var(--bg);
-  border: 1px solid var(--line);
+  background: var(--panel);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
   padding: 40px;
 }
 
@@ -1404,7 +1733,7 @@ textarea.input-ori {
 }
 
 .editor-card-ori .editor-box {
-  border: 1px solid var(--line);
+  border: var(--border-w) solid var(--line);
   margin-bottom: 28px;
 }
 
@@ -1440,7 +1769,7 @@ textarea.input-ori {
 .tag-pill-ori {
   font-size: 12px;
   padding: 8px 16px;
-  border: 1px solid var(--line);
+  border: var(--border-w) solid var(--line);
   color: var(--ink-light);
   letter-spacing: 0.05em;
 }

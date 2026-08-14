@@ -166,8 +166,11 @@ onMounted(load)
 
 <style scoped>
 .review-row {
-  border: 1px solid var(--line);
-  margin-bottom: 8px;
+  border: var(--border-w, 1px) solid var(--line);
+  border-radius: var(--radius, 0);
+  background: var(--panel, transparent);
+  box-shadow: var(--shadow-soft, none);
+  margin-bottom: 12px;
   transition: border-color 0.2s;
 }
 .review-row.expanded { border-color: var(--accent); }
@@ -187,9 +190,9 @@ onMounted(load)
   font-size: 12px; font-weight: 700; flex-shrink: 0;
   color: #fff;
 }
-.rs-icon.message { background: #6366f1; }
-.rs-icon.article { background: #10b981; }
-.rs-icon.note { background: #e0872f; }
+.rs-icon.message { background: var(--c-type-message); }
+.rs-icon.article { background: var(--c-type-article); }
+.rs-icon.note { background: var(--c-type-note); }
 
 .rs-main { flex: 1; min-width: 0; }
 .rs-title {
@@ -211,10 +214,11 @@ onMounted(load)
 
 .rs-badge {
   font-size: 11px; font-weight: 600; padding: 2px 10px; letter-spacing: 0.05em;
+  border-radius: var(--radius-badge, 2px);
 }
-.s-0 { background: rgba(245,158,11,0.1); color: #b45309; }
-.s-1 { background: rgba(16,185,129,0.1); color: #065f46; }
-.s-2 { background: rgba(100,116,139,0.1); color: #475569; }
+.s-0 { background: var(--warn-bg); color: var(--warn); }
+.s-1 { background: var(--success-bg); color: var(--success); }
+.s-2 { background: var(--info-bg); color: var(--info); }
 
 .rs-chevron {
   color: var(--ink-faint); transition: transform 0.2s;

@@ -167,22 +167,24 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void saveOrUpdate(Article article, List<String> tagNames) {
-        if (article.getStatus() == null) {
-            article.setStatus(ContentStatus.DRAFT);
-        }
-        if (article.getSource() == null) {
-            article.setSource(ArticleSource.ORIGINAL);
-        }
-        if (article.getHidden() == null) {
-            article.setHidden(false);
-        }
-        if (article.getTop() == null) {
-            article.setTop(false);
-        }
-        if (article.getViewCount() == null) {
-            article.setViewCount(0);
-        }
         if (article.getId() == null) {
+            // 字段默认值仅用于新建；更新时保持 null，由 MyBatis-Plus 忽略，
+            // 否则编辑器保存（只携带标题/正文/封面）会把已发布文章打回草稿、清空阅读量
+            if (article.getStatus() == null) {
+                article.setStatus(ContentStatus.DRAFT);
+            }
+            if (article.getSource() == null) {
+                article.setSource(ArticleSource.ORIGINAL);
+            }
+            if (article.getHidden() == null) {
+                article.setHidden(false);
+            }
+            if (article.getTop() == null) {
+                article.setTop(false);
+            }
+            if (article.getViewCount() == null) {
+                article.setViewCount(0);
+            }
             articleMapper.insert(article);
         } else {
             articleMapper.updateById(article);

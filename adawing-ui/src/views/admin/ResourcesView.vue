@@ -139,8 +139,11 @@ onMounted(load)
 }
 
 .res-card {
-  border: 1px solid var(--line);
-  background: var(--bg);
+  border: var(--border-w, 1px) solid var(--line);
+  border-radius: var(--radius, 0);
+  overflow: hidden;
+  background: var(--panel, var(--bg));
+  box-shadow: var(--shadow-soft, none);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .res-card:hover {

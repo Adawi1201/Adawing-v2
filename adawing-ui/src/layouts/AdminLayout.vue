@@ -1,6 +1,7 @@
 <script setup>
 import AdminSidebar from '@/components/AdminSidebar.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import ThemePanel from '@/components/ThemePanel.vue'
 </script>
 
 <template>
@@ -8,6 +9,7 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
     <AdminSidebar />
     <main class="admin-main-ori">
       <ThemeToggle />
+      <ThemePanel />
       <RouterView />
     </main>
   </div>

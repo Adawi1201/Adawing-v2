@@ -43,4 +43,7 @@ const router = createRouter({
   ]
 })
 
+// 站内导航一律 replace：整站访问在浏览器历史里只占一条，后退直接离开站点
+router.push = (to) => router.replace(to)
+
 export default router

@@ -120,11 +120,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             case "/api/v2/auth/login" -> "POST".equals(method);
             case "/api/v2/articles/published",
                  "/api/v2/articles/archive",
-                 "/api/v2/messages",
                  "/api/v2/notes",
                  "/api/v2/tags",
                  "/api/v2/tags/suggest",
                  "/api/v2/config/site",
+                 "/api/v2/resource/public",
                  "/api/v2/system/config/dashboard" -> "GET".equals(method);
             default -> {
                 if ("GET".equals(method) && ARTICLE_DETAIL_PATTERN.matcher(uri).matches()) {
@@ -133,7 +133,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if ("GET".equals(method) && NOTE_DETAIL_PATTERN.matcher(uri).matches()) {
                     yield true;
                 }
-                if ("POST".equals(method) && "/api/v2/messages".equals(uri)) {
+                // 留言板：GET 列表与 POST 提交均对访客开放（注意不可放入上方 GET-only case，
+                // switch 命中该 case 后不会落入 default，POST 会被误判为受保护端点）
+                if ("/api/v2/messages".equals(uri)) {
                     yield true;
                 }
                 // 访客点赞已发布留言（Service 层校验状态）

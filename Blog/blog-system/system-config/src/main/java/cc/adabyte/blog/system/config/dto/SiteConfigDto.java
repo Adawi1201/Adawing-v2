@@ -2,8 +2,6 @@ package cc.adabyte.blog.system.config.dto;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class SiteConfigDto {
     private String name;
@@ -15,6 +13,5 @@ public class SiteConfigDto {
     private String publicSecurityRecord;
     private String footerText;
     private SeoDto seo;
-    private ProfileDto profile;
-    private List<LinkDto> links;
+    private AboutDto about;
 }

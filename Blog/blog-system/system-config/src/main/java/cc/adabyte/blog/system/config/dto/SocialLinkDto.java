@@ -1,0 +1,10 @@
+package cc.adabyte.blog.system.config.dto;
+
+import lombok.Data;
+
+@Data
+public class SocialLinkDto {
+    private String name;
+    private String url;
+    private String icon;
+}

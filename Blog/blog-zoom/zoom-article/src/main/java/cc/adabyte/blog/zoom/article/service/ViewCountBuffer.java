@@ -9,8 +9,7 @@ import java.util.concurrent.atomic.LongAdder;
 
 /**
  * 文章浏览量增量缓冲器。
- * 访问时在内存累加，由定时任务批量刷回 DB。缓冲的是「待刷回的脏增量」，
- * 不使用 Caffeine（其淘汰机制会丢失未刷回增量）。
+ * 访问时在内存累加，由定时任务批量刷回 DB。
  */
 @Component
 public class ViewCountBuffer {

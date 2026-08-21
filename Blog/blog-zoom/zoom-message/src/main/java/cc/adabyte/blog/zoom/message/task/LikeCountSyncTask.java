@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * 定时将内存中的留言点赞增量批量刷回数据库。
- * 应用关闭时兜底刷回一次，避免丢失当周期增量。仿 {@code ViewCountSyncTask}。
+ * 应用关闭时兜底刷回一次，避免丢失当周期增量。
  */
 @Slf4j
 @Component

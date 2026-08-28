@@ -11,6 +11,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.Duration;
+import java.util.Date;
 
 @Slf4j
 @Component
@@ -75,6 +77,33 @@ public class OssTemplate {
             return endpoint + "/" + key;
         }
         return protocol + props.getBucketName() + "." + host + "/" + key;
+    }
+
+    /**
+     * 计算预签名 URL 的过期时刻，对齐到 ttl 长度的固定窗口。
+     *
+     * <p>不用 {@code now + ttl}，是为了让同一窗口内的所有请求签出完全相同的 URL——
+     * 否则每次请求的 Expires/Signature 都不同，浏览器与 CDN 会视为不同资源，缓存被打穿。
+     *
+     * <p>{@code +2} 个窗口保证在窗口边缘取到的 URL 至少还有一个完整窗口有效，
+     * 不会出现刚拿到就过期；代价是实际有效期在 1~2 个窗口之间浮动。
+     */
+    static Date signExpiry(long nowMillis, long ttlMinutes) {
+        long window = Duration.ofMinutes(ttlMinutes).toMillis();
+        return new Date(((nowMillis / window) + 2) * window);
+    }
+
+    /**
+     * 为已存储的资源 URL 签发预签名直链，供浏览器直连私有读 bucket。
+     *
+     * @param url         入库时由 {@link #getUrl(String)} 生成的 OSS URL
+     * @param ttlMinutes  签名有效期（分钟），同时是签名 URL 的稳定窗口
+     */
+    public String presignedUrl(String url, long ttlMinutes) {
+        ensureClient();
+        String key = parseKey(url);
+        return ossClient.generatePresignedUrl(props.getBucketName(), key,
+                signExpiry(System.currentTimeMillis(), ttlMinutes)).toString();
     }
 
     public InputStream download(String url) {

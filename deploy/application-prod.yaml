@@ -72,6 +72,13 @@ resource:
     max-size: 500          # 最大缓存条数
     expire-minutes: 30     # 访问后过期时间（分钟）
     max-bytes: 2097152     # 单条缓存字节上限（2MB），超过不缓存
+  # ── 图片资源访问模式 ──
+  proxy:
+    # PROXY         = 后端回源 OSS 并落缓存后返回字节流（默认，bucket 公共读/私有读均可）
+    # DIRECT_SIGNED = 下发 OSS 预签名 URL，浏览器直连对象存储（要求 bucket 私有读）
+    # 非图片资源不受此项影响，恒走代理并落缓存
+    mode: PROXY
+    sign-ttl-minutes: 30   # 签名有效期，同时是签名 URL 的稳定窗口，仅 DIRECT_SIGNED 生效
 
 # ── 文章浏览量刷库 ──
 article:

@@ -4,7 +4,9 @@ import cc.adabyte.blog.common.constants.AuthConstants;
 import cc.adabyte.blog.common.constants.ResourcePool;
 import cc.adabyte.blog.common.exception.BusinessException;
 import cc.adabyte.blog.common.result.Result;
+import cc.adabyte.blog.resource.core.config.ResourceProxyProperties;
 import cc.adabyte.blog.resource.core.entity.Resource;
+import cc.adabyte.blog.resource.core.service.ResourceDirectUrlResolver;
 import cc.adabyte.blog.resource.core.service.ResourceDownload;
 import cc.adabyte.blog.resource.core.service.ResourcePoolService;
 import cc.adabyte.blog.resource.core.service.ResourceService;
@@ -29,6 +31,8 @@ public class ResourceController {
 
     private final ResourceService resourceService;
     private final ResourcePoolService resourcePoolService;
+    private final ResourceDirectUrlResolver directUrlResolver;
+    private final ResourceProxyProperties proxyProperties;
 
     /** 访客列举公开池资源（如留言板表情包）。仅允许 publicByDefault 的池，防止私有池被遍历。 */
     @GetMapping("/public")
@@ -50,13 +54,27 @@ public class ResourceController {
     public void download(@PathVariable Long resourceId,
                          HttpServletRequest request,
                          HttpServletResponse response) {
-        ResourceDownload download = resourceService.download(resourceId);
-        if (!download.publicAccess()) {
-            String currentUsername = (String) request.getAttribute(AuthConstants.CURRENT_USERNAME_ATTRIBUTE);
-            if (currentUsername == null) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        String currentUsername = (String) request.getAttribute(AuthConstants.CURRENT_USERNAME_ATTRIBUTE);
+
+        // 匿名访问（访客端 <img>）在 DIRECT_SIGNED 模式下重定向到 OSS 预签名直链，
+        // 不回源、不落缓存。管理端 AuthImage 带 JWT 走 XHR 取 blob，跨域重定向需要
+        // OSS CORS 配置，故已登录请求恒走代理转发。
+        if (currentUsername == null) {
+            String directUrl = directUrlResolver.resolve(resourceId);
+            if (directUrl != null) {
+                response.setStatus(HttpServletResponse.SC_FOUND);
+                response.setHeader("Location", directUrl);
+                // 签名 URL 的剩余有效期恒 ≥ 一个 TTL 窗口，按此设置缓存不会缓存到失效链接
+                response.setHeader("Cache-Control",
+                        "private, max-age=" + proxyProperties.getSignTtlMinutes() * 60);
                 return;
             }
+        }
+
+        ResourceDownload download = resourceService.download(resourceId);
+        if (!download.publicAccess() && currentUsername == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
         byte[] content = download.content();
         response.setContentType(download.mimeType() != null ? download.mimeType() : "application/octet-stream");

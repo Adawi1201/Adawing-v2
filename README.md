@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)">
-    <img alt="AdaWing" src="https://img.shields.io/badge/AdaWing-v2.1-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwyIDIybDEwLTQgMTAgNHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
+    <img alt="AdaWing" src="https://img.shields.io/badge/AdaWing-v2.2-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwyIDIybDEwLTQgMTAgNHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
   </picture>
 </p>
 
@@ -80,6 +80,7 @@ blog-boot ──┬── blog-common           (compile scope, no Spring Boot s
 - Admin-only creation; frontend forbids `allow-create`
 - Levenshtein-distance deduplication on new tag creation
 - Tag merge support with full reassignment
+- Bubble-cloud tag index (`/tags`) sized by article count
 - Landable tag pages — visitors browse articles by tag (`/tags/:name`)
 - Sorted by article count
 
@@ -101,6 +102,7 @@ blog-boot ──┬── blog-common           (compile scope, no Spring Boot s
 - Scheduled orphan cleanup (daily 3:00 AM, 7-day grace period)
 - Alibaba Cloud OSS backend with proxy download endpoint (solves CORS + ACL issues)
 - Caffeine in-memory cache for hot resource content (configurable via YAML)
+- **Switchable access mode** (`resource.proxy.mode`) — `PROXY` streams bytes through the backend and fills the cache; `DIRECT_SIGNED` hands out OSS pre-signed URLs so browsers fetch images straight from object storage. Images only, and only for resources that pass the public-access check; non-image resources always stay on the cached proxy path
 
 ### 🔐 Auth
 - Admin: JWT (BCrypt-password, 7-day token)
@@ -114,13 +116,20 @@ blog-boot ──┬── blog-common           (compile scope, no Spring Boot s
 - Data-at-a-glance: article / message / note / review counts
 - `GET /api/v2/system/config/dashboard`
 
+### 🎨 Palette Theme System
+- **7 palettes** — `oriental` (the default: square corners, serif, generous whitespace), `anthropic`, `kimi`, `catppuccin`, `glass`, `cli`, and `custom`
+- Each palette declares its own light/dark polarity; only `oriental` exposes the light/dark toggle, and it seeds from `prefers-color-scheme` on first visit
+- **Custom palette** — 5 two-colour presets (one of them a gradient) plus a free background/accent colour picker. Ink, borders and surfaces are derived from background luminance, so text contrast survives any pair
+- Driven entirely by CSS variables on `data-palette` / `data-theme`; choices persist in `localStorage` with migration from the legacy v1 key
+
 ### ✨ Frontend
 - **Oriental-aesthetic design** — no heavy UI framework, hand-tuned CSS
-- **Dark mode** with `prefers-color-scheme` auto-detection
 - **GSAP scroll animations** — staggered reveal, typewriter hero text
 - **Reading progress** bar + **floating nav** breadcrumb
 - **Dual layout isolation** — visitor layout and admin layout share zero styles
 - **Unified Markdown rendering** — shared Vditor options with KaTeX math across visitor and admin
+- **Config-driven About page** — profile pin, experience timeline, dev stack, contacts and link roll are all edited from admin Settings, no redeploy needed
+- **Session expiry handling** — a 401 on any admin call redirects to login with a toast instead of a silent failure
 
 ---
 
@@ -260,8 +269,8 @@ adawing/
 │       ├── stores/                #   Pinia (auth · site · theme)
 │       ├── utils/                 #   formatters, URL builders
 │       └── views/
-│           ├── visitor/           #   Home · Article · Chronicle · Notes · Messages · About
-│           └── admin/             #   Dashboard · Articles · Review · Messages · Tags · Settings
+│           ├── visitor/           #   Home · Article · Chronicle · Notes · Messages · Tags · About
+│           └── admin/             #   Dashboard · Articles · Review · Messages · Tags · Moments · Resources · Settings · Account
 └── docs/
     └── examples/mcp-configs/      #   MCP client config templates + agent skill
 
@@ -287,22 +296,6 @@ review_task   (article | note) review state machine
 ```
 
 All 12 tables use `utf8mb4` across the board. No physical foreign keys — referential integrity is maintained at the application layer.
-
----
-
-## ✦ Non-Goals
-
-Things AdaWing deliberately does **not** do:
-
-- ❌ Multi-user / RBAC — single-admin by design
-- ❌ Redis — replaced by Caffeine local cache
-- ❌ Elasticsearch / Meilisearch — keyword search is sufficient
-- ❌ Server-side LLM calls — all AI work happens on the agent side
-- ❌ WebSocket / real-time push
-- ❌ i18n / multi-language
-- ❌ SSR / SSG
-- ❌ API docs (Knife4j / Swagger) — kept minimal
-- ❌ Docker (for now — layered JAR is enough)
 
 ---
 

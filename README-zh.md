@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)">
-    <img alt="AdaWing" src="https://img.shields.io/badge/AdaWing-v2.1-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwyIDIybDEwLTQgMTAgNHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
+    <img alt="AdaWing" src="https://img.shields.io/badge/AdaWing-v2.2-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkwyIDIybDEwLTQgMTAgNHoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
   </picture>
 </p>
 
@@ -80,6 +80,7 @@ blog-boot ──┬── blog-common           （compile scope，无 Spring Bo
 - 仅管理端可创建，前端禁止 `allow-create`
 - 新建标签时 Levenshtein 编辑距离去重
 - 支持标签合并及文章重分配
+- 标签气泡云索引页（`/tags`），气泡大小按关联文章数缩放
 - 标签落地页：访客可按标签浏览文章（`/tags/:name`）
 - 按关联文章数排序
 
@@ -101,6 +102,7 @@ blog-boot ──┬── blog-common           （compile scope，无 Spring Bo
 - 每日凌晨 3:00 定时清理 7 天前标记的孤儿资源
 - 阿里云 OSS 后端 + 代理下载端点（解决跨域和 ACL 问题）
 - 热点资源内容 Caffeine 内存缓存（YAML 可配置）
+- **访问模式可切换**（`resource.proxy.mode`）：`PROXY` 由后端回源并落缓存后返回字节流；`DIRECT_SIGNED` 直接下发 OSS 预签名 URL，浏览器直连对象存储。仅对图片、且仅对通过公开判定的资源生效，非图片资源恒走代理缓存路径
 
 ### 🔐 认证
 - 管理端：JWT（BCrypt 密码，7 天有效期）
@@ -114,13 +116,20 @@ blog-boot ──┬── blog-common           （compile scope，无 Spring Bo
 - 文章 / 留言 / 动态 / 待审核 数量一目了然
 - `GET /api/v2/system/config/dashboard`
 
+### 🎨 调色板主题系统
+- **7 套配色**：`oriental`（默认，直角 · 衬线 · 留白）、`anthropic`、`kimi`、`catppuccin`、`glass`（毛玻璃）、`cli`（现代终端）、`custom`
+- 每套配色自带明暗取向，只有 `oriental` 开放明暗切换，首次访问时取 `prefers-color-scheme` 作为初值
+- **自定义配色**：5 组双色预设（其中一组为渐变），另有底色 / 强调色自由取色器。墨色、描边与内容表面均由底色明度推导，任意配色都能保住文字对比度
+- 全部通过 `data-palette` / `data-theme` 上的 CSS 变量驱动；选择持久化在 `localStorage`，并从 v1 旧键自动迁移
+
 ### ✨ 前端
 - **东方美学设计** — 无重度 UI 框架，手写 CSS
-- **暗色模式** 自动跟随 `prefers-color-scheme`
 - **GSAP 滚动动画** — 错位渐现、打字机 Hero 文字
 - **阅读进度条** + **悬浮导航**
 - **双布局完全隔离** — 访客端和管理端零样式渗透
 - **统一 Markdown 渲染** — 共享 Vditor 配置，全站支持 KaTeX 数学公式
+- **关于页由配置驱动** — 个人名片、经历时间线、技术栈、联系方式、友链全部在管理端设置页编辑，无需重新部署
+- **登录态过期处理** — 管理端请求收到 401 时带 toast 跳转登录页，不再静默失败
 
 ---
 
@@ -259,8 +268,8 @@ adawing/
 │       ├── stores/                #   Pinia（auth · site · theme）
 │       ├── utils/                 #   格式化工具、URL 构建
 │       └── views/
-│           ├── visitor/           #   首页 · 文章 · 时间线 · 动态 · 留言 · 关于
-│           └── admin/             #   看板 · 文章 · 审核 · 留言 · 标签 · 设置
+│           ├── visitor/           #   首页 · 文章 · 时间线 · 动态 · 留言 · 标签云 · 关于
+│           └── admin/             #   看板 · 文章 · 审核 · 留言 · 标签 · 动态 · 资源 · 设置 · 账户
 └── docs/
     └── examples/mcp-configs/      #   MCP 客户端配置模板 + Agent Skill
 
@@ -286,22 +295,6 @@ review_task   （article | note）审核状态机
 ```
 
 全部 12 张表使用 `utf8mb4`。无物理外键——引用完整性在应用层维护。
-
----
-
-## ✦ Non-Goals
-
-AdaWing 有意不做的事情：
-
-- ❌ 多用户 / RBAC — 单管理员设计
-- ❌ Redis — Caffeine 本地缓存完全够用
-- ❌ Elasticsearch / Meilisearch — 关键词搜索已足够
-- ❌ 服务端 LLM 调用 — 所有 AI 工作在 Agent 端完成
-- ❌ WebSocket / 实时推送
-- ❌ 国际化 / 多语言
-- ❌ SSR / SSG
-- ❌ API 文档（Knife4j / Swagger） — 保持精简
-- ❌ Docker（目前 — 分层 JAR 部署已满足需求）
 
 ---
 

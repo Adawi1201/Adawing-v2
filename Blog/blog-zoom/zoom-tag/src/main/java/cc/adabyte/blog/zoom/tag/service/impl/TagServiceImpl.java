@@ -53,7 +53,7 @@ public class TagServiceImpl implements TagService {
             try {
                 tagMapper.insert(tag);
             } catch (DuplicateKeyException e) {
-                // 并发下同名已被插入，回查复用
+                // 同名词条在并发下可能已由其他请求插入，回查现有词条复用
                 tag = tagMapper.selectByName(name);
             }
             if (tag != null) result.add(tag);

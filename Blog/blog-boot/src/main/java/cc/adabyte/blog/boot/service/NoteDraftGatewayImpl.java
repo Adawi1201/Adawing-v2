@@ -29,7 +29,7 @@ public class NoteDraftGatewayImpl implements NoteDraftGateway {
         Long noteId = noteService.saveDraft(note);
         log.info("[NoteDraftGateway] Created draft id={} title={}", noteId, title);
 
-        // 自动提交审核链（AI 生成 note 永不自动发布）
+        // AI 生成的 note 需经人工审核后才可发布，创建即提交审核链
         SubmitReviewRequest reviewReq = new SubmitReviewRequest();
         reviewReq.setContentType("note");
         reviewReq.setContentId(noteId);

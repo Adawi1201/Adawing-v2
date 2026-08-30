@@ -34,9 +34,8 @@ public class MarkdownResourceRenderer {
     private final ResourceDirectUrlResolver directUrlResolver;
 
     /**
-     * 消毒路径**不发**预签名直链：{@link HtmlSanitizer} 使用 xhtml 转义，
-     * 会把签名 URL 查询串里的 {@code &} 转成 {@code &amp;}，签名当场失效。
-     * 留言 / 便签正文图片因此恒走代理转发。
+     * 消毒路径恒走代理转发，不发预签名直链：经 xhtml 转义后签名 URL 查询串的
+     *  {@code &} 会被改写为 {@code &amp;}，签名不再有效。
      */
     public String render(String markdown) {
         if (markdown == null || markdown.isBlank()) {
@@ -50,7 +49,7 @@ public class MarkdownResourceRenderer {
      * 仅替换 resource:// 占位符，不做 HTML 消毒。
      * 用于交给前端 Vditor 渲染的 Markdown 正文，避免转义破坏 LaTeX 等语法。
      *
-     * <p>因为不经消毒，此路径允许发出预签名直链（见
+     * <p>不经消毒，故此路径允许发出预签名直链（见
      * {@link ResourceDirectUrlResolver}）。
      */
     public String renderWithoutSanitize(String markdown) {

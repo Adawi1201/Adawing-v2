@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 /**
  * 访客端留言视图对象。
  *
- * <p>故意排除 {@code email} 与 {@code rejectReason} 等敏感/管理字段，
- * 防止访客列表接口泄露留言者隐私信息。
+ * <p>仅承载访客可见字段；{@code email} 等联系方式、{@code rejectReason}
+ * 等管理信息不出现在访客端接口中。
  */
 @Data
 public class MessageVo {

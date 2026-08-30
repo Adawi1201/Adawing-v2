@@ -133,8 +133,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if ("GET".equals(method) && NOTE_DETAIL_PATTERN.matcher(uri).matches()) {
                     yield true;
                 }
-                // 留言板：GET 列表与 POST 提交均对访客开放（注意不可放入上方 GET-only case，
-                // switch 命中该 case 后不会落入 default，POST 会被误判为受保护端点）
+                // 留言板：GET 列表与 POST 提交均对访客开放。
+                // 该判定须放在 default 内按方法匹配，不能并入上方 GET-only case（switch 命中即终结）。
                 if ("/api/v2/messages".equals(uri)) {
                     yield true;
                 }

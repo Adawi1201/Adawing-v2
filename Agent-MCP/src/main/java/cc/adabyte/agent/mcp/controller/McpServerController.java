@@ -59,8 +59,8 @@ public class McpServerController {
             });
 
     /**
-     * Streamable HTTP 的可选 GET 流。本服务不做服务端主动推送，
-     * 流仅保持挂起并周期发送心跳注释，供严格要求 GET 返回 200 的客户端（如 opencode）建立连接。
+     * Streamable HTTP 的可选 GET 长连接通道，供要求 GET 返回 200 的流式客户端使用。
+     * 服务端不做主动推送：流保持挂起，仅周期发送心跳注释维持连接。
      * 未携带会话 Header 时允许匿名挂起；携带但未知时返回 404。
      */
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)

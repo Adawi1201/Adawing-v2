@@ -168,8 +168,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     public void saveOrUpdate(Article article, List<String> tagNames) {
         if (article.getId() == null) {
-            // 字段默认值仅用于新建；更新时保持 null，由 MyBatis-Plus 忽略，
-            // 否则编辑器保存（只携带标题/正文/封面）会把已发布文章打回草稿、清空阅读量
+            // 默认字段仅在新建时写入；编辑保存只覆盖提交的字段
             if (article.getStatus() == null) {
                 article.setStatus(ContentStatus.DRAFT);
             }
@@ -230,8 +229,8 @@ public class ArticleServiceImpl implements ArticleService {
         if (article == null) {
             return;
         }
-        // 审核链路（含审核时指定的封面）不经过 saveOrUpdate，发布时必须补齐资源绑定，
-        // 否则 ARTICLE 池图片 refCount=0，访客访问 404
+        // 审核通过的发布不走 saveOrUpdate，需在此按当前封面与正文补齐资源绑定，
+        // 保证正文图片进入引用计数、对访客公开
         resourceFacade.bindArticleResources(article.getId(), article.getCoverResourceId(), article.getContent());
         doPublish(article);
     }
@@ -249,7 +248,7 @@ public class ArticleServiceImpl implements ArticleService {
     public void reject(Long id, String reason, String reviewerNote) {
         Article article = articleMapper.selectById(id);
         if (article != null) {
-            // 闭环：拒绝后回到草稿状态，可修改后重新提交审核
+            // 拒绝后回到草稿状态，保留修改后再审的可能
             article.setStatus(ContentStatus.DRAFT);
             article.setRejectReason(reason);
             article.setReviewerNote(reviewerNote);

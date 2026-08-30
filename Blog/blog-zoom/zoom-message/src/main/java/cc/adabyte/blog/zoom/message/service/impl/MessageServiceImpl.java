@@ -84,7 +84,7 @@ public class MessageServiceImpl implements MessageService {
         if (message.getLikeCount() == null) {
             message.setLikeCount(0);
         }
-        // 带引用对象时标记为文章引用；否则无引用
+        // 按是否携带引用对象标记留言附属类型
         message.setRefType(message.getRefId() != null ? MessageRefType.ARTICLE : MessageRefType.NONE);
         messageMapper.insert(message);
 

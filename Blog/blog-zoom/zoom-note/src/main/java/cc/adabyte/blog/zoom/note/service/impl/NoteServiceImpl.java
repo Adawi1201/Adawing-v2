@@ -53,7 +53,7 @@ public class NoteServiceImpl implements NoteService {
     @Transactional
     public void delete(Long id) {
         noteMapper.deleteById(id);
-        // 通知 system-review 清理关联的审核任务，避免删除后残留孤儿任务
+        // 删除动态时同步清理审核任务，保持两端数据一致
         eventPublisher.publishEvent(new NoteDeletedEvent(id));
     }
 
@@ -91,7 +91,7 @@ public class NoteServiceImpl implements NoteService {
     @Override
     @Transactional
     public void reject(Long id, String reason, String reviewerNote) {
-        // note 不存拒绝原因（走 review_task），仅回退到草稿
+        // 拒绝原因由审核任务统一承载，note 仅回退到草稿
         updateStatusIfPresent(id, ContentStatus.DRAFT);
         log.info("[Note] Rejected → DRAFT: noteId={}, reason={}", id, reason);
     }

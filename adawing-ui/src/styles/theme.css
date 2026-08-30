@@ -208,7 +208,7 @@ html {
   background: linear-gradient(135deg, var(--grad-from, #134E5E), var(--grad-to, #71B280)) fixed;
 }
 
-/* glass / 渐变预设：布局层背景透明，露出 body 渐变（否则被实色盖住） */
+/* glass / 渐变预设：布局层背景透明，让 body 渐变透出 */
 [data-palette="glass"],
 [data-palette="custom"][data-gradient] {
   --layout-bg: transparent;

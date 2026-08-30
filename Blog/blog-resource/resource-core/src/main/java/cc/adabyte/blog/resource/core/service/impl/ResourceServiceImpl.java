@@ -77,8 +77,8 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public ResourceDownload download(Long resourceId) {
-        // 访问判定实时计算、不进缓存：refCount 变化后缓存脏读会导致访客持续 404，
-        // 且 404 命中会刷新 expireAfterAccess 使脏数据永不过期
+        // 访问判定每次请求实时计算，不随内容缓存：引用/池公开性属于可变状态，
+        // 必须用当前 DB 值判定，内容缓存只保存不可变字节
         Resource resource = resourceMapper.selectById(resourceId);
         if (resource == null) {
             throw new BusinessException("资源不存在");
@@ -173,7 +173,7 @@ public class ResourceServiceImpl implements ResourceService {
             log.error("[Resource] OSS 删除失败（继续清理 DB 记录）: id={} url={}", resourceId, resource.getUrl(), e);
         }
 
-        // 清理引用记录（兜底，防止 resource_reference 残留导致前端请求不存在的资源）
+        // 一并清理引用记录，保持引用表与资源生命周期一致
         referenceMapper.deleteByResourceId(resourceId);
 
         resourceMapper.deleteById(resourceId);

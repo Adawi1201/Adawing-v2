@@ -46,7 +46,7 @@ public class GetArticleTool implements McpTool {
         if (result == null) {
             return Map.of("error", "Article not found: " + id);
         }
-        // 使用 HashMap 而非 Map.of() 以兼容 null 值（如 content 可能因编码问题为空）
+        // 结果容器需容纳 null 值（如 content 可能为空），HashMap 不加拒绝
         Map<String, Object> data = new HashMap<>();
         data.put("id", result.id());
         data.put("title", result.title());

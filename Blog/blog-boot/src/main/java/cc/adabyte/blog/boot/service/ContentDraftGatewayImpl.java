@@ -35,7 +35,7 @@ public class ContentDraftGatewayImpl implements ContentDraftGateway {
         articleService.saveOrUpdate(article, null);
         log.info("[ContentDraftGateway] Created draft id={} title={}", article.getId(), title);
 
-        // 自动提交审核链：1) 创建 review_task 记录  2) 更新 article status 为 PENDING_REVIEW
+        // 提交审核链：创建 review_task 记录，并将文章置为待审核
         SubmitReviewRequest reviewReq = new SubmitReviewRequest();
         reviewReq.setContentType("article");
         reviewReq.setContentId(article.getId());

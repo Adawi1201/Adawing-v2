@@ -82,11 +82,9 @@ public class OssTemplate {
     /**
      * 计算预签名 URL 的过期时刻，对齐到 ttl 长度的固定窗口。
      *
-     * <p>不用 {@code now + ttl}，是为了让同一窗口内的所有请求签出完全相同的 URL——
-     * 否则每次请求的 Expires/Signature 都不同，浏览器与 CDN 会视为不同资源，缓存被打穿。
-     *
-     * <p>{@code +2} 个窗口保证在窗口边缘取到的 URL 至少还有一个完整窗口有效，
-     * 不会出现刚拿到就过期；代价是实际有效期在 1~2 个窗口之间浮动。
+     * <p>过期时刻落在窗口边界（{@code next + 2} 个窗口），使同一窗口内所有请求
+     * 签出完全相同的 URL，浏览器与 CDN 可复用同一缓存对象；窗口边缘取到的
+     * URL 至少还有一个完整窗口有效，实际有效期在 1~2 个窗口之间浮动。
      */
     static Date signExpiry(long nowMillis, long ttlMinutes) {
         long window = Duration.ofMinutes(ttlMinutes).toMillis();

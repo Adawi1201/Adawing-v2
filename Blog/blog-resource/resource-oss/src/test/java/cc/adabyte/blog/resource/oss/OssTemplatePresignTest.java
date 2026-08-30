@@ -21,8 +21,8 @@ import static org.mockito.Mockito.when;
 /**
  * 预签名直链测试。
  *
- * <p>核心不变量：同一 TTL 窗口内签出的 URL 必须完全相同，否则浏览器缓存被打穿，
- * 直链模式反而比代理模式更慢。
+ * <p>核心不变量：同一 TTL 窗口内签出的 URL 必须完全相同，浏览器与 CDN 才能命中
+ * 同一缓存对象，直链才能比代理更快。
  */
 @DisplayName("OSS 预签名直链测试")
 class OssTemplatePresignTest {
@@ -46,7 +46,7 @@ class OssTemplatePresignTest {
 
         assertEquals(OssTemplate.signExpiry(base, TTL),
                 OssTemplate.signExpiry(base + 60_000, TTL),
-                "同窗口内过期时间必须一致，否则签名 URL 每次都变");
+                "同窗口内过期时间必须一致，签名 URL 才能保持稳定");
         assertEquals(OssTemplate.signExpiry(base, TTL),
                 OssTemplate.signExpiry(base + WINDOW - 1, TTL),
                 "窗口末尾仍应落在同一窗口");

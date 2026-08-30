@@ -15,9 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * 留言板公开性契约测试。
  *
- * <p>此前 JWT 白名单把 {@code /api/v2/messages} 写在 GET-only 的 switch case 里，
- * POST 命中该 case 直接 yield false，default 分支里的 POST 放行成为死代码——
- * 访客匿名提交留言一律 401。本测试锁定 GET/POST 双方法的匿名公开契约。
+ * <p>约定：{@code GET /api/v2/messages} 列表与 {@code POST /api/v2/messages} 提交
+ * 均对访客匿名开放（POST 进入待审核链）。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc

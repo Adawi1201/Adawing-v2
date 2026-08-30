@@ -13,12 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * 动态删除清理审核任务回归测试。
+ * 动态删除清理审核任务契约测试。
  *
- * <p>此前 {@code NoteServiceImpl.delete} 只删 note 本身，不通知 system-review，
- * 导致删除已提交审核的动态后 review_task 残留成孤儿任务（文章走
- * ArticleDeletedEvent 有清理，动态漏了）。现动态删除发布 NoteDeletedEvent，
- * system-review 的 NoteDeletedEventListener 消费后清理对应审核任务。
+ * <p>约定：删除动态时同步发布 {@code NoteDeletedEvent}，system-review 消费后
+ * 清理关联审核任务，与文章删除路径保持一致。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("动态删除清理审核任务测试")

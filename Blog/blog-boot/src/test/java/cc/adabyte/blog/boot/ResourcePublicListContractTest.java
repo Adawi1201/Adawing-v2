@@ -13,10 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * 公开资源列举端点契约测试。
  *
- * <p>访客留言板的表情包选择器需要匿名列举 EMOJI 池，此前只能调管理端
- * {@code /api/v2/admin/resources}，匿名 401 后被前端重定向到后台登录页（P0）。
- * 本测试锁定 {@code GET /api/v2/resource/public} 的契约：
- * 公开池（EMOJI/AVATAR）匿名可列举，私有池（ARTICLE/MISC）拒绝。
+ * <p>约定：{@code GET /api/v2/resource/public} 供访客匿名列举公开池资源
+ * （EMOJI/AVATAR），满足留言板表情选择器需求；私有池（ARTICLE/MISC）拒绝匿名。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc

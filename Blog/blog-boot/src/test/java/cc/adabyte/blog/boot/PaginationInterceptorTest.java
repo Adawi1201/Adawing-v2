@@ -14,16 +14,15 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * 分页拦截器回归测试。
+ * 分页拦截器契约测试。
  *
- * <p>此前全站未注册 {@code PaginationInnerInterceptor}，{@code Page} 参数被静默
- * 忽略：查询不加 {@code LIMIT}（一次返回全部行），且 {@code getTotal()} 恒为 0。
- * 本测试通过创建多于单页容量的文章，验证：
+ * <p>约定：Mapper 中的 {@code Page} 参数须真正生效——查询行数被 {@code LIMIT}
+ * 截断到 size，且 {@code total} 反映真实总数。通过创建多于单页容量的文章验证：
  * <ul>
- *   <li>返回行数被 {@code LIMIT} 截断到 size（而非全部）；</li>
- *   <li>{@code total} 反映真实总数（而非 0）。</li>
+ *   <li>返回行数为 size（而非全部）；</li>
+ *   <li>{@code total} 为真实总数（而非 0）。</li>
  * </ul>
- * 两条断言各自都能独立捕获拦截器缺失的回归。
+ * 两条断言各自独立。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("分页拦截器回归测试")

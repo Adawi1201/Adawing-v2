@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * <p>覆盖的关键契约：
  * <ul>
- *   <li>PROXY 模式下行为与开关引入前完全一致；</li>
+ *   <li>PROXY 模式恒走代理回源，不签发签名直链；</li>
  *   <li>直链只发给「图片 + 通过访问判定」的资源，未引用资源与非图片资源恒走代理；</li>
  *   <li>消毒渲染路径恒走代理——HTML 转义会破坏签名；</li>
  *   <li>签名失败时降级为代理，不让页面图片变空白。</li>

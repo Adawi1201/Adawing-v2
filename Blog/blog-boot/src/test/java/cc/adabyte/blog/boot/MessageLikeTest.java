@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 留言点赞缓冲刷库回归测试。
- * 覆盖 Spec AC3/AC5/AC6：已发布留言点赞内存累加、返回值含增量、sync 后落库、非 PUBLISHED 拒绝。
+ * 已发布留言点赞内存累加、返回值含增量、sync 后落库、非 PUBLISHED 拒绝。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("留言点赞缓冲刷库测试")
@@ -52,7 +52,7 @@ class MessageLikeTest {
     }
 
     @Test
-    @DisplayName("AC3/AC6 — 点赞内存累加，返回值含增量，sync 前 DB 不变")
+    @DisplayName("点赞内存累加，返回值含增量，sync 前 DB 不变")
     void accumulatesInMemory() {
         Message seed = insertMessage(ContentStatus.PUBLISHED);
 
@@ -64,7 +64,7 @@ class MessageLikeTest {
     }
 
     @Test
-    @DisplayName("AC6 — sync 后增量落库，缓冲清零")
+    @DisplayName("sync 后增量落库，缓冲清零")
     void syncFlushesToDb() {
         Message seed = insertMessage(ContentStatus.PUBLISHED);
 
@@ -79,7 +79,7 @@ class MessageLikeTest {
     }
 
     @Test
-    @DisplayName("AC5 — 非 PUBLISHED 留言点赞被拒绝且不累加")
+    @DisplayName("非 PUBLISHED 留言点赞被拒绝且不累加")
     void nonPublishedRejected() {
         Message pending = insertMessage(ContentStatus.PENDING_REVIEW);
 
@@ -88,7 +88,7 @@ class MessageLikeTest {
     }
 
     @Test
-    @DisplayName("AC5 — 点赞不存在留言抛出业务异常")
+    @DisplayName("点赞不存在留言抛出业务异常")
     void nonExistentRejected() {
         assertThrows(BusinessException.class, () -> messageService.like(999_999_999L));
     }

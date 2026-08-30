@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 文章浏览量缓存刷库回归测试。
- * 覆盖 Spec AC1-AC3：访问内存累加（DB 不变）、返回值含增量、sync 后落库、未命中不累加。
+ * 访问内存累加（DB 不变）、返回值含增量、sync 后落库、未命中不累加。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("文章浏览量缓存刷库测试")
@@ -56,7 +56,7 @@ class ArticleViewCountTest {
     }
 
     @Test
-    @DisplayName("AC1/AC3 — 访问只累加内存，返回值含增量，DB 在 sync 前不变")
+    @DisplayName("访问只累加内存，返回值含增量，DB 在 sync 前不变")
     void accumulatesInMemory() {
         Article seed = insertArticle(ContentStatus.PUBLISHED, false);
 
@@ -73,7 +73,7 @@ class ArticleViewCountTest {
     }
 
     @Test
-    @DisplayName("AC2 — sync 后增量落库，缓冲清零")
+    @DisplayName("sync 后增量落库，缓冲清零")
     void syncFlushesToDb() {
         Article seed = insertArticle(ContentStatus.PUBLISHED, false);
 
@@ -88,14 +88,14 @@ class ArticleViewCountTest {
     }
 
     @Test
-    @DisplayName("AC2 — 访问不存在文章返回 null 且不累加")
+    @DisplayName("访问不存在文章返回 null 且不累加")
     void nonExistentReturnsNull() {
         assertNull(articleService.getPublishedById(999_999_999L));
         assertEquals(0, viewCountBuffer.peek(999_999_999L), "不存在文章不应累加");
     }
 
     @Test
-    @DisplayName("AC2 — 草稿不可访问且不累加")
+    @DisplayName("草稿不可访问且不累加")
     void draftNotAccessibleNoIncrement() {
         Article draft = insertArticle(ContentStatus.DRAFT, false);
 
@@ -107,7 +107,7 @@ class ArticleViewCountTest {
     }
 
     @Test
-    @DisplayName("AC2 — 隐藏文章不可访问且不累加")
+    @DisplayName("隐藏文章不可访问且不累加")
     void hiddenNotAccessibleNoIncrement() {
         Article hidden = insertArticle(ContentStatus.PUBLISHED, true);
 

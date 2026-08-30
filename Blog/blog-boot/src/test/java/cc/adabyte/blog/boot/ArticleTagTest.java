@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 文章标签落地 / 按标签查询 / 合并 / 删除 / 计数 回归测试。
- * 覆盖 Spec AC1/AC3/AC4/AC5/AC6。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("文章标签重构测试")
@@ -42,7 +41,7 @@ class ArticleTagTest {
     }
 
     @Test
-    @DisplayName("AC1 — 保存文章落地标签，详情回显 tags，article_tag 有数据")
+    @DisplayName("保存文章落地标签，详情回显 tags，article_tag 有数据")
     void saveBindsTags() {
         Article a = newArticle("标签测试文章");
         articleService.saveOrUpdate(a, List.of("Java", "Spring"));
@@ -55,7 +54,7 @@ class ArticleTagTest {
     }
 
     @Test
-    @DisplayName("AC1 — 重复标签名复用词条，不新增 tag 行")
+    @DisplayName("重复标签名复用词条，不新增 tag 行")
     void reuseExistingTag() {
         Article a1 = newArticle("文章A");
         articleService.saveOrUpdate(a1, List.of("Kotlin"));
@@ -69,7 +68,7 @@ class ArticleTagTest {
     }
 
     @Test
-    @DisplayName("AC3 — 按标签查询已发布文章")
+    @DisplayName("按标签查询已发布文章")
     void listByTag() {
         Article a = newArticle("可检索文章");
         articleService.saveOrUpdate(a, List.of("检索专用标签"));
@@ -85,7 +84,7 @@ class ArticleTagTest {
     }
 
     @Test
-    @DisplayName("AC4 — 标签列表含真实引用数")
+    @DisplayName("标签列表含真实引用数")
     void tagCount() {
         Article a = newArticle("计数文章");
         articleService.saveOrUpdate(a, List.of("计数标签"));
@@ -96,7 +95,7 @@ class ArticleTagTest {
     }
 
     @Test
-    @DisplayName("AC5 — 合并标签：源关联迁移到目标并去重，源标签删除")
+    @DisplayName("合并标签：源关联迁移到目标并去重，源标签删除")
     void mergeTags() {
         Article a = newArticle("合并文章");
         articleService.saveOrUpdate(a, List.of("旧标签", "目标标签"));
@@ -112,7 +111,7 @@ class ArticleTagTest {
     }
 
     @Test
-    @DisplayName("AC6 — 被引用标签不可删除，未引用可删除")
+    @DisplayName("被引用标签不可删除，未引用可删除")
     void deleteTagGuard() {
         Article a = newArticle("删除守卫文章");
         articleService.saveOrUpdate(a, List.of("在用标签"));

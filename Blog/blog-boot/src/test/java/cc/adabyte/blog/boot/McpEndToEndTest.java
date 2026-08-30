@@ -232,7 +232,7 @@ class McpEndToEndTest {
         assertTrue(names.contains("create_article_draft"));
         assertTrue(names.contains("search_articles"));
         assertTrue(names.contains("get_article"));
-        // v2.1 note MCP tools
+        // note 系列工具
         assertTrue(names.contains("create_note_draft"));
         assertTrue(names.contains("get_note"));
         assertTrue(names.contains("search_notes"));
@@ -257,7 +257,7 @@ class McpEndToEndTest {
         assertTrue(rulesData.has("summary"), "应有 summary 字段规则");
         assertTrue(rulesData.get("title").get("required").asBoolean());
 
-        // sourceAgent 枚举应包含 opencode（v2.1 新增支持）
+        // sourceAgent 枚举应覆盖全部已支持的 agent
         assertTrue(rulesData.has("sourceAgent"), "应有 sourceAgent 字段规则");
         java.util.List<String> agents = new java.util.ArrayList<>();
         rulesData.get("sourceAgent").get("enum").forEach(n -> agents.add(n.asText()));
@@ -334,7 +334,7 @@ class McpEndToEndTest {
         assertTrue(ids.contains(String.valueOf(createdDraftId)));
     }
 
-    // ---- note MCP (v2.1) ----
+    // ---- note MCP ----
 
     private static Long createdNoteId;
 

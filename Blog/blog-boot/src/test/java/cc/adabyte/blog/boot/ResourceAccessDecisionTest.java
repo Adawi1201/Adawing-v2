@@ -20,12 +20,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
- * 资源访问判定实时性回归测试。
+ * 资源访问判定实时性测试。
  *
- * <p>线上事故：资源在 refCount=0 时被下载，publicAccess=false 随内容一起进缓存；
- * 后续绑定（refCount=1）后缓存不失效，且匿名 404 命中会刷新 expireAfterAccess，
- * 导致已绑定的文章图片对访客永久 404。修复后访问判定每次请求实时计算，
- * 缓存只保存不可变的内容字节。
+ * <p>契约：访问判定每次请求实时计算，不随内容缓存；内容缓存只保存不可变字节，
+ * 保证资源绑定状态变化立即可见。
  */
 @DisplayName("资源访问判定实时性测试")
 class ResourceAccessDecisionTest {
@@ -67,7 +65,7 @@ class ResourceAccessDecisionTest {
         assertFalse(before.publicAccess(), "未引用时应对访客隐藏");
 
         ResourceDownload after = service.download(39L);
-        assertTrue(after.publicAccess(), "绑定后应立即对访客公开（修复前此处因缓存脏读为 false）");
+        assertTrue(after.publicAccess(), "绑定后应立即对访客公开（访问判定实时计算，不随内容缓存过期）");
         assertArrayEquals(new byte[]{1, 2, 3, 4}, after.content(), "内容字节仍应来自缓存");
 
         verify(ossTemplate, times(1)).download(anyString());

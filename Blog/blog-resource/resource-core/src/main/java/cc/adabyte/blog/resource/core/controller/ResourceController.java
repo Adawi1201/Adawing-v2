@@ -50,16 +50,22 @@ public class ResourceController {
         return Result.ok(resourceService.upload(file, pool));
     }
 
+    /**
+     * @param proxy 声明调用方只接受字节流、不接受跳转。无法跟随跨域重定向的调用方
+     *              （XHR 取 blob，如管理端 {@code AuthImage}）必须带上。该参数同时
+     *              使两类调用方落在不同的缓存键上。不放宽访问判定。
+     */
     @GetMapping("/{resourceId}/content")
     public void download(@PathVariable Long resourceId,
+                         @RequestParam(required = false, defaultValue = "false") boolean proxy,
                          HttpServletRequest request,
                          HttpServletResponse response) {
         String currentUsername = (String) request.getAttribute(AuthConstants.CURRENT_USERNAME_ATTRIBUTE);
 
         // 匿名访问（访客端 <img>）在 DIRECT_SIGNED 模式下重定向到 OSS 预签名直链，
-        // 不回源、不落缓存。管理端 AuthImage 带 JWT 走 XHR 取 blob，跨域重定向需要
-        // OSS CORS 配置，故已登录请求恒走代理转发。
-        if (currentUsername == null) {
+        // 不回源、不落缓存。直链仅在调用方能跟随跨域跳转时可用，故由 proxy 参数
+        // 显式排除，不依赖对请求身份的推断。
+        if (!proxy && currentUsername == null) {
             String directUrl = directUrlResolver.resolve(resourceId);
             if (directUrl != null) {
                 response.setStatus(HttpServletResponse.SC_FOUND);

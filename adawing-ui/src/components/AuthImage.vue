@@ -35,7 +35,10 @@ async function load(id) {
 
   loading.value = true
   try {
+    // 本组件以 XHR 取 blob，只能消费字节流：proxy=1 要求后端回源转发。
+    // 该参数也使本组件与访客端 <img> 落在不同的缓存键上。
     const blob = await request.get(`/resource/${id}/content`, {
+      params: { proxy: 1 },
       responseType: 'blob'
     })
     currentObjectUrl = URL.createObjectURL(blob)

@@ -37,8 +37,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   <li>PROXY 模式恒走代理回源，不签发签名直链；</li>
  *   <li>直链只发给「图片 + 通过访问判定」的资源，未引用资源与非图片资源恒走代理；</li>
  *   <li>消毒渲染路径恒走代理——HTML 转义会破坏签名；</li>
- *   <li>签名失败时降级为代理，不让页面图片变空白。</li>
+ *   <li>签名失败时降级为代理，不让页面图片变空白；</li>
+ *   <li>{@code proxy=1} 的调用方恒得到字节流，且该参数不放宽访问判定。</li>
  * </ul>
+ *
+ * <p>{@code proxy} 参数存在的原因：代理与直链的选择必须由调用方声明，不能由请求身份
+ * 推断。同一资源 URL 同时被访客端 {@code <img>} 与管理端 XHR 使用，而 302 响应可被
+ * 浏览器按 URL 缓存（{@code Vary} 不含 {@code Authorization}），身份推断的结果会跨调用方
+ * 复用；XHR 又无法跟随跨域跳转。相关回归见 {@code explicitProxyParam*} 用例。
  */
 @DisplayName("资源访问模式测试")
 class ResourceProxyModeTest {
@@ -278,6 +284,49 @@ class ResourceProxyModeTest {
                     .andExpect(status().isNotFound());
 
             verifyNoInteractions(ossTemplate);
+        }
+
+        @Test
+        @DisplayName("proxy=1 + 匿名 + DIRECT_SIGNED：强制代理字节流，不发 302")
+        void explicitProxyParamForcesProxyEvenWhenAnonymous() throws Exception {
+            MockMvc mvc = mockMvc(props(ResourceProxyProperties.Mode.DIRECT_SIGNED));
+            stubResource(publicImage());
+            stubDownload(true, "image/png");
+
+            mvc.perform(get("/api/v2/resource/7/content").param("proxy", "1"))
+                    .andExpect(status().isOk())
+                    .andExpect(header().string("Content-Type", "image/png"))
+                    .andExpect(header().doesNotExist("Location"));
+
+            verify(resourceService).download(7L);
+            verifyNoInteractions(ossTemplate);
+        }
+
+        @Test
+        @DisplayName("proxy=1 不绕过访问判定：匿名取未引用资源仍是 404")
+        void explicitProxyParamStillEnforces404() throws Exception {
+            MockMvc mvc = mockMvc(props(ResourceProxyProperties.Mode.DIRECT_SIGNED));
+            stubResource(resource(ResourcePool.ARTICLE, 0, "image/png", ResourceStatus.ACTIVE));
+            stubDownload(false, "image/png");
+
+            mvc.perform(get("/api/v2/resource/7/content").param("proxy", "1"))
+                    .andExpect(status().isNotFound());
+
+            verifyNoInteractions(ossTemplate);
+        }
+
+        @Test
+        @DisplayName("省略 proxy 参数时默认 false，匿名仍走直链")
+        void omittedProxyParamDefaultsToDirect() throws Exception {
+            MockMvc mvc = mockMvc(props(ResourceProxyProperties.Mode.DIRECT_SIGNED));
+            stubResource(publicImage());
+            stubSigning();
+
+            mvc.perform(get("/api/v2/resource/7/content"))
+                    .andExpect(status().isFound())
+                    .andExpect(header().string("Location", SIGNED_URL));
+
+            verifyNoInteractions(resourceService);
         }
 
         @Test

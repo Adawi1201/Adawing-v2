@@ -59,9 +59,7 @@ async function generate() {
     copied.value = false
     keyForm.value = { name: '', description: '' }
     await loadKeys()
-  } catch (e) {
-    toast(e.message, 'error')
-  } finally {
+  } catch { /* 错误提示由请求拦截器统一处理 */ } finally {
     generating.value = false
   }
 }

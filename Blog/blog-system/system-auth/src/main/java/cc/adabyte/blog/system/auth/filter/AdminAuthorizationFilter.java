@@ -1,7 +1,9 @@
 package cc.adabyte.blog.system.auth.filter;
 
 import cc.adabyte.blog.common.constants.AuthConstants;
+import cc.adabyte.blog.common.result.Result;
 import cc.adabyte.blog.system.auth.enums.UserRole;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +32,8 @@ import java.util.Set;
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
 @RequiredArgsConstructor
 public class AdminAuthorizationFilter extends OncePerRequestFilter {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -73,8 +77,10 @@ public class AdminAuthorizationFilter extends OncePerRequestFilter {
             UserRole role = (UserRole) request.getAttribute(AuthConstants.CURRENT_ROLE_ATTRIBUTE);
             if (role != UserRole.ADMIN) {
                 log.warn("越权访问管理端点: {} {} (role={})", method, uri, role);
+                // 与 GlobalExceptionHandler 保持同一错误契约：真实状态码 + Result JSON
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("Forbidden");
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write(OBJECT_MAPPER.writeValueAsString(Result.error(403, "无权访问")));
                 return;
             }
         }

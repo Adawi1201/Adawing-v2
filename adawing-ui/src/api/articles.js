@@ -4,8 +4,8 @@ export function listPublished(params) {
   return request.get('/articles/published', { params })
 }
 
-export function getPublished(id) {
-  return request.get(`/articles/${id}`)
+export function getPublished(id, config) {
+  return request.get(`/articles/${id}`, config)
 }
 
 export function listArchive() {

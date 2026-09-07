@@ -38,7 +38,7 @@ public class ResourceController {
     @GetMapping("/public")
     public Result<List<Resource>> listPublic(@RequestParam ResourcePool pool) {
         if (!pool.isPublicByDefault()) {
-            throw new BusinessException("该资源池不对外开放");
+            throw BusinessException.forbidden("该资源池不对外开放");
         }
         return Result.ok(resourcePoolService.listForUse(pool, false));
     }
@@ -95,7 +95,7 @@ public class ResourceController {
             out.write(content);
         } catch (IOException e) {
             log.error("资源下载失败: resourceId={}", resourceId, e);
-            throw new BusinessException("资源下载失败");
+            throw new BusinessException(500, "资源下载失败");
         }
     }
 

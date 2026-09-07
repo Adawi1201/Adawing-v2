@@ -6,7 +6,6 @@ import Vditor from 'vditor'
 import { getAdmin, saveArticle } from '@/api/articles.js'
 import AuthImage from '@/components/AuthImage.vue'
 import { resourceReferenceImage, restoreResourceReferences } from '@/utils/resourceRef.js'
-import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import { useThemeStore } from '@/stores/theme.js'
 import { VDITOR_CDN, buildEditorPreview } from '@/utils/vditorOptions.js'
@@ -96,7 +95,7 @@ async function loadArticle() {
     // 回显已有标签到逗号分隔输入框
     tagInput.value = (article.tags || []).map(t => t.name).join(', ')
     if (vditor) vditor.setValue(form.value.content || '')
-  } catch (e) { toast(e.message, 'error') }
+  } catch { /* 错误提示由请求拦截器统一处理 */ }
 }
 
 async function submit() {
@@ -111,7 +110,7 @@ async function submit() {
     }
     await saveArticle(data)
     router.push({ name: 'AdminArticles' })
-  } catch (e) { toast(e.message, 'error') }
+  } catch { /* 错误提示由请求拦截器统一处理 */ }
   finally { saving.value = false }
 }
 

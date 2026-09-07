@@ -38,10 +38,10 @@ public class AuthServiceImpl implements AuthService {
     private SysUser verifyPassword(String username, String password, String errorMsg) {
         SysUser user = sysUserMapper.selectByUsername(username);
         if (user == null || !passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new BusinessException(errorMsg);
+            throw BusinessException.unauthorized(errorMsg);
         }
         if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new BusinessException(errorMsg);
+            throw BusinessException.unauthorized(errorMsg);
         }
         return user;
     }

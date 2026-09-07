@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { listNotes, saveNote, deleteNote } from '@/api/notes.js'
 import { resourceReferenceImage } from '@/utils/resourceRef.js'
-import { toast } from '@/utils/toast.js'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import { formatDate } from '@/utils/formatDate.js'
 import MarkdownContent from '@/components/MarkdownContent.vue'
@@ -34,9 +33,7 @@ async function submit() {
     await saveNote({ title: form.value.title, content: form.value.content, type: type.value })
     reset()
     await load()
-  } catch (e) {
-    toast(e.message, 'error')
-  } finally { saving.value = false }
+  } catch { /* 错误提示由请求拦截器统一处理 */ } finally { saving.value = false }
 }
 
 async function remove(id) {
@@ -44,9 +41,7 @@ async function remove(id) {
   try {
     await deleteNote(id)
     await load()
-  } catch (e) {
-    toast(e.message, 'error')
-  }
+  } catch { /* 错误提示由请求拦截器统一处理 */ }
 }
 
 function insertEmoji(r) {

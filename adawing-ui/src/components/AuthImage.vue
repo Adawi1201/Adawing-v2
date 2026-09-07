@@ -39,7 +39,8 @@ async function load(id) {
     // 该参数也使本组件与访客端 <img> 落在不同的缓存键上。
     const blob = await request.get(`/resource/${id}/content`, {
       params: { proxy: 1 },
-      responseType: 'blob'
+      responseType: 'blob',
+      silent: true
     })
     currentObjectUrl = URL.createObjectURL(blob)
     blobUrl.value = currentObjectUrl

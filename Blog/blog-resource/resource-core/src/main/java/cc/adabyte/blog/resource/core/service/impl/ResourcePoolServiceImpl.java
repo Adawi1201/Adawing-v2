@@ -47,7 +47,7 @@ public class ResourcePoolServiceImpl implements ResourcePoolService {
         validate(targetPool);
         Resource resource = resourceMapper.selectById(resourceId);
         if (resource == null) {
-            throw new BusinessException("资源不存在");
+            throw BusinessException.notFound("资源不存在");
         }
         resource.setPool(targetPool);
         resourceMapper.updateById(resource);

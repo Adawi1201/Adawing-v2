@@ -56,7 +56,7 @@ public class ResourceServiceImpl implements ResourceService {
             content = file.getBytes();
         } catch (IOException e) {
             log.error("读取上传文件失败", e);
-            throw new BusinessException("读取上传文件失败");
+            throw new BusinessException(500, "读取上传文件失败");
         }
 
         ossTemplate.upload(key, content, file.getContentType());
@@ -81,7 +81,7 @@ public class ResourceServiceImpl implements ResourceService {
         // 必须用当前 DB 值判定，内容缓存只保存不可变字节
         Resource resource = resourceMapper.selectById(resourceId);
         if (resource == null) {
-            throw new BusinessException("资源不存在");
+            throw BusinessException.notFound("资源不存在");
         }
         // 公开条件：ACTIVE 且（所在池默认公开，或已被引用）。
         // AVATAR / EMOJI 等天然公开的资源不经引用计数，故不能只看 ref_count。
@@ -101,7 +101,7 @@ public class ResourceServiceImpl implements ResourceService {
             content = stream.readAllBytes();
         } catch (IOException e) {
             log.error("资源读取失败: resourceId={}", resourceId, e);
-            throw new BusinessException("资源读取失败");
+            throw new BusinessException(500, "资源读取失败");
         }
 
         CachedResource toCache = new CachedResource(content, resource.getMimeType(),

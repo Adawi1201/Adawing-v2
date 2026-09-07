@@ -66,7 +66,7 @@ public final class FileValidator {
             throw new BusinessException("上传文件不能为空");
         }
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new BusinessException("上传文件大小不能超过 10MB");
+            throw BusinessException.payloadTooLarge("上传文件大小不能超过 10MB");
         }
 
         String originalName = file.getOriginalFilename();
@@ -123,7 +123,7 @@ public final class FileValidator {
             System.arraycopy(content, 0, magic, 0, len);
             return magic;
         } catch (IOException e) {
-            throw new BusinessException("读取文件内容失败");
+            throw new BusinessException(500, "读取文件内容失败");
         }
     }
 

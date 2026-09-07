@@ -121,7 +121,7 @@ public class ReviewServiceImpl implements ReviewService {
         ReviewTask task = reviewTaskMapper.selectById(taskId);
         if (task == null) return;
         if (task.getStatus() != ReviewStatus.PENDING) {
-            throw new BusinessException("仅待审核任务支持忽略删除");
+            throw BusinessException.conflict("仅待审核任务支持忽略删除");
         }
         reviewTaskMapper.deleteById(taskId);
         deletionGateway.delete(task.getContentType(), task.getContentId());

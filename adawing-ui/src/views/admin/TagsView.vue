@@ -81,9 +81,7 @@ async function doMerge() {
     sourceId.value = ''
     targetId.value = ''
     await load()
-  } catch (e) {
-    toast(e.message, 'error')
-  } finally {
+  } catch { /* 错误提示由请求拦截器统一处理 */ } finally {
     merging.value = false
   }
 }
@@ -93,9 +91,7 @@ async function doDelete(tag) {
   try {
     await deleteTag(tag.id)
     await load()
-  } catch (e) {
-    toast(e.message, 'error')
-  }
+  } catch { /* 错误提示由请求拦截器统一处理 */ }
 }
 
 watch(() => newTag.value.name, debouncedFetchSuggestions)

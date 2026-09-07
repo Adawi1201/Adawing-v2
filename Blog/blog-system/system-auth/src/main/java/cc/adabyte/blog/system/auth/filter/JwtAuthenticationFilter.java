@@ -1,11 +1,13 @@
 package cc.adabyte.blog.system.auth.filter;
 
 import cc.adabyte.blog.common.constants.AuthConstants;
+import cc.adabyte.blog.common.result.Result;
 import cc.adabyte.blog.common.util.JwtUtil;
 import cc.adabyte.blog.system.auth.entity.SysUser;
 import cc.adabyte.blog.system.auth.enums.UserRole;
 import cc.adabyte.blog.system.auth.enums.UserStatus;
 import cc.adabyte.blog.system.auth.mapper.SysUserMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,7 +32,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -38,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     // 公开端点：匹配方法 + URI，按精确/正则分类
     private static final Pattern ARTICLE_DETAIL_PATTERN = Pattern.compile("^/api/v2/articles/\\d+$");
@@ -78,8 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             log.warn("未提供认证令牌: {} {}", method, uri);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized");
+            writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "未登录或登录已过期");
             return;
         }
 
@@ -93,8 +95,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     filterChain.doFilter(request, response);
                     return;
                 }
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Unauthorized");
+                writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "未登录或登录已过期");
                 return;
             }
             request.setAttribute(CURRENT_USERNAME_ATTR, username);
@@ -106,9 +107,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized");
+            writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "未登录或登录已过期");
         }
+    }
+
+    // 与 GlobalExceptionHandler 保持同一错误契约：真实状态码 + Result JSON
+    private void writeError(HttpServletResponse response, int status, String msg) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(OBJECT_MAPPER.writeValueAsString(Result.error(status, msg)));
     }
 
     private boolean isPublicEndpoint(String method, String uri) {

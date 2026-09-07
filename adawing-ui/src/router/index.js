@@ -14,7 +14,8 @@ const router = createRouter({
         { path: 'messages', name: 'Messages', component: () => import('@/views/visitor/MessagesView.vue') },
         { path: 'tags', name: 'Tags', component: () => import('@/views/visitor/TagsCloudView.vue') },
         { path: 'tags/:name', name: 'TagArticles', component: () => import('@/views/visitor/TagArticlesView.vue') },
-        { path: 'about', name: 'About', component: () => import('@/views/visitor/AboutView.vue') }
+        { path: 'about', name: 'About', component: () => import('@/views/visitor/AboutView.vue') },
+        { path: ':pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/visitor/NotFoundView.vue') }
       ]
     },
     {

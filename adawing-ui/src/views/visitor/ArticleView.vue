@@ -5,13 +5,16 @@ import { getPublished } from '@/api/articles.js'
 import { useWatchRevealChildren } from '@/composables/useScrollReveal.js'
 import { formatDate } from '@/utils/formatDate.js'
 import { sourceLabel } from '@/utils/source.js'
+import { toast } from '@/utils/toast.js'
 import { resourceContentUrl } from '@/utils/resourceUrl.js'
 import { tagColor } from '@/utils/tagColor.js'
 import MarkdownContent from '@/components/MarkdownContent.vue'
+import NotFoundView from '@/views/visitor/NotFoundView.vue'
 
 const route = useRoute()
 const router = useRouter()
 const article = ref(null)
+const notFound = ref(false)
 
 function referThisArticle() {
   if (!article.value) return
@@ -41,8 +44,12 @@ function sourceTag() {
 async function load() {
   loading.value = true
   try {
-    const res = await getPublished(route.params.id)
+    const res = await getPublished(route.params.id, { silent: true })
     article.value = res.data || res
+  } catch (e) {
+    // 404 由页面内联展示；其余错误在此提示（silent 请求拦截器不弹 toast）
+    if (e.status === 404) notFound.value = true
+    else toast(e.message, 'error')
   } finally {
     loading.value = false
   }
@@ -54,6 +61,7 @@ onMounted(load)
 <template>
   <article ref="containerRef" class="article-ori">
     <div v-if="loading" class="loading-ori">Loading...</div>
+    <NotFoundView v-else-if="notFound" />
     <template v-else-if="article">
       <header class="article-header">
         <div class="article-date">{{ formatDate(article.createTime) }} / {{ sourceTag() }} · 阅读 {{ (article.viewCount ?? 0).toLocaleString() }}</div>

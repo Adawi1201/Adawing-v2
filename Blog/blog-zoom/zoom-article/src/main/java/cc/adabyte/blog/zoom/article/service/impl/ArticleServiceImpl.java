@@ -119,7 +119,7 @@ public class ArticleServiceImpl implements ArticleService {
     public void deleteTag(Long tagId) {
         Long c = articleTagMapper.countByTagId(tagId);
         if (c != null && c > 0) {
-            throw new BusinessException("该标签仍被 " + c + " 篇文章引用，无法删除");
+            throw BusinessException.conflict("该标签仍被 " + c + " 篇文章引用，无法删除");
         }
         tagService.deleteById(tagId);
     }
@@ -217,7 +217,7 @@ public class ArticleServiceImpl implements ArticleService {
             return;
         }
         if (article.getSource() == ArticleSource.AI_GENERATED) {
-            throw new BusinessException("Agent 生成文章由审核通过后自动发布，不支持手动发布");
+            throw BusinessException.forbidden("Agent 生成文章由审核通过后自动发布，不支持手动发布");
         }
         doPublish(article);
     }

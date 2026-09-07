@@ -1,5 +1,6 @@
 package cc.adabyte.blog.zoom.article.controller;
 
+import cc.adabyte.blog.common.exception.BusinessException;
 import cc.adabyte.blog.common.result.PageResult;
 import cc.adabyte.blog.common.result.Result;
 import cc.adabyte.blog.resource.core.service.ResourceAllocationFacade;
@@ -61,10 +62,11 @@ public class ArticleController {
     @GetMapping("/{id}")
     public Result<Article> getPublishedById(@PathVariable Long id) {
         Article article = articleService.getPublishedById(id);
-        if (article != null) {
-            // 文章正文由前端 Vditor 渲染，跳过服务端 HTML 消毒以免转义破坏 LaTeX 公式
-            article.setContent(resourceFacade.renderMarkdownRaw(article.getContent()));
+        if (article == null) {
+            throw BusinessException.notFound("文章不存在或未发布");
         }
+        // 文章正文由前端 Vditor 渲染，跳过服务端 HTML 消毒以免转义破坏 LaTeX 公式
+        article.setContent(resourceFacade.renderMarkdownRaw(article.getContent()));
         return Result.ok(article);
     }
 

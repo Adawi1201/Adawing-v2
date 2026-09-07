@@ -69,7 +69,7 @@ public class ResourceAllocationFacadeImpl implements ResourceAllocationFacade {
         log.info("[Resource] 删除请求: id={} name={} refCount={}", resourceId, resource.getOriginalName(), resource.getRefCount());
         if (resource.getRefCount() != null && resource.getRefCount() > 0) {
             log.warn("[Resource] 删除被拒绝：资源仍被引用 id={} refCount={}", resourceId, resource.getRefCount());
-            throw new BusinessException("资源已被引用，无法删除，请先解除引用");
+            throw BusinessException.conflict("资源已被引用，无法删除，请先解除引用");
         }
         resourceService.physicalDelete(resourceId);
     }

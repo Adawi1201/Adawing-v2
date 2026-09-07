@@ -151,10 +151,10 @@ public class MessageServiceImpl implements MessageService {
     public long like(Long id) {
         Message msg = messageMapper.selectById(id);
         if (msg == null) {
-            throw new BusinessException("留言不存在");
+            throw BusinessException.notFound("留言不存在");
         }
         if (msg.getStatus() != ContentStatus.PUBLISHED) {
-            throw new BusinessException("该留言暂不可点赞");
+            throw BusinessException.conflict("该留言暂不可点赞");
         }
         likeBuffer.increment(id);
         long base = msg.getLikeCount() == null ? 0L : msg.getLikeCount();

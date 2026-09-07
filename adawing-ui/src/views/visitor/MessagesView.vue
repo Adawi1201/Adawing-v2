@@ -124,9 +124,7 @@ async function submit() {
     form.value = { nickname: '', email: '', content: '' }
     reference.value = null
     toast('信已寄出，等待审核后钉上墙 · Sent for review', 'info')
-  } catch (e) {
-    toast(e.message, 'error')
-  } finally {
+  } catch { /* 错误提示由请求拦截器统一处理 */ } finally {
     submitting.value = false
   }
 }
@@ -151,12 +149,11 @@ async function likeNote(msg, event) {
     const res = await likeMessage(msg.id)
     const server = res.data ?? res
     if (typeof server === 'number') msg.likeCount = server
-  } catch (e) {
+  } catch {
     // revert on failure
     likedIds.value.delete(msg.id)
     persistLikedIds()
     msg.likeCount = Math.max(0, (msg.likeCount || 1) - 1)
-    toast(e.message || '点赞失败', 'error')
   }
 }
 

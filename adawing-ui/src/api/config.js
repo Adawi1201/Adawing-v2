@@ -5,5 +5,5 @@ export function getSiteConfig() {
 }
 
 export function saveSiteConfig(config) {
-  return request.put('/config/site', config)
+  return request.put('/config/site', config, { silent: true })
 }

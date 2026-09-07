@@ -61,4 +61,14 @@ public interface ArticleMapper extends BaseMapper<Article> {
         ORDER BY create_time DESC LIMIT #{limit}
         """)
     List<Article> selectByKeyword(@Param("keyword") String keyword, @Param("limit") int limit);
+
+    /** 面向访客的搜索：仅命中已发布且未隐藏的文章。 */
+    @Select("""
+        SELECT * FROM article
+        WHERE status = #{status} AND is_hidden = 0
+          AND (title LIKE CONCAT('%', #{keyword}, '%') OR summary LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY create_time DESC LIMIT #{limit}
+        """)
+    List<Article> selectPublishedByKeyword(@Param("keyword") String keyword, @Param("status") int status,
+                                           @Param("limit") int limit);
 }

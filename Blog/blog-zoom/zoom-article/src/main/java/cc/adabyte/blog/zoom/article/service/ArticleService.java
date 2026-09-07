@@ -10,6 +10,7 @@ import java.util.Map;
 
 public interface ArticleService {
     PageResult<Article> listPublished(int page, int size);
+    List<Article> searchPublished(String keyword, int limit);
     Article getPublishedById(Long id);
     PageResult<Article> listByTag(String tagName, int page, int size);
     java.util.List<cc.adabyte.blog.zoom.article.dto.TagWithCount> listTagsWithCount();
@@ -26,6 +27,7 @@ public interface ArticleService {
     void submitForReview(Long id);
     void reject(Long id, String reason, String reviewerNote);
     void hide(Long id);
+    void unhide(Long id);
     void updateCover(Long id, Long coverResourceId);
     void delete(Long id);
     Long getTotalViewCount();

@@ -54,6 +54,16 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public List<Article> searchPublished(String keyword, int limit) {
+        if (keyword == null || keyword.isBlank()) return List.of();
+        int cappedLimit = Math.min(Math.max(limit, 1), 20);
+        List<Article> articles = articleMapper.selectPublishedByKeyword(
+                keyword.trim(), ContentStatus.PUBLISHED.getValue(), cappedLimit);
+        attachTags(articles);
+        return articles;
+    }
+
+    @Override
     public Article getPublishedById(Long id) {
         Article article = articleMapper.selectPublishedById(id, ContentStatus.PUBLISHED.getValue());
         if (article == null) {
@@ -278,6 +288,16 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleMapper.selectById(id);
         if (article != null) {
             article.setHidden(true);
+            articleMapper.updateById(article);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void unhide(Long id) {
+        Article article = articleMapper.selectById(id);
+        if (article != null) {
+            article.setHidden(false);
             articleMapper.updateById(article);
         }
     }

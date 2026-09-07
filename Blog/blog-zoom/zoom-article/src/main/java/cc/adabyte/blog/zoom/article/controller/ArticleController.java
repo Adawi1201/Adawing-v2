@@ -32,6 +32,13 @@ public class ArticleController {
         return Result.ok(articleService.listPublished(page, size));
     }
 
+    @GetMapping("/search")
+    public Result<List<Article>> search(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "10") int limit) {
+        return Result.ok(articleService.searchPublished(keyword, limit));
+    }
+
     @GetMapping("/admin")
     public Result<PageResult<Article>> listAll(
             @RequestParam(defaultValue = "1") int page,
@@ -102,6 +109,12 @@ public class ArticleController {
     @PostMapping("/{id}/hide")
     public Result<Void> hide(@PathVariable Long id) {
         articleService.hide(id);
+        return Result.ok();
+    }
+
+    @PostMapping("/{id}/unhide")
+    public Result<Void> unhide(@PathVariable Long id) {
+        articleService.unhide(id);
         return Result.ok();
     }
 

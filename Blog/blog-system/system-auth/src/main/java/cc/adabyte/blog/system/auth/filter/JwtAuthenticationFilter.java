@@ -126,6 +126,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return switch (uri) {
             case "/api/v2/auth/login" -> "POST".equals(method);
             case "/api/v2/articles/published",
+                 "/api/v2/articles/search",
                  "/api/v2/articles/archive",
                  "/api/v2/notes",
                  "/api/v2/tags",

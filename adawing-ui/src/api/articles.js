@@ -4,6 +4,10 @@ export function listPublished(params) {
   return request.get('/articles/published', { params })
 }
 
+export function searchArticles(params) {
+  return request.get('/articles/search', { params })
+}
+
 export function getPublished(id, config) {
   return request.get(`/articles/${id}`, config)
 }
@@ -34,6 +38,10 @@ export function publish(id) {
 
 export function hide(id) {
   return request.post(`/articles/${id}/hide`)
+}
+
+export function unhide(id) {
+  return request.post(`/articles/${id}/unhide`)
 }
 
 export function submitForReview(id) {

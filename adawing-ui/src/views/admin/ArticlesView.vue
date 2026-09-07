@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { listAdmin, publish, hide, submitForReview, deleteArticle } from '@/api/articles.js'
+import { listAdmin, publish, hide, unhide, submitForReview, deleteArticle } from '@/api/articles.js'
 import AuthImage from '@/components/AuthImage.vue'
 import Pagination from '@/components/Pagination.vue'
 import { formatDate } from '@/utils/formatDate.js'
@@ -17,6 +17,11 @@ const CS_DRAFT = 0, CS_PENDING = 1, CS_PUBLISHED = 2, CS_REJECTED = 3, CS_HIDDEN
 
 function statusText(s) {
   return { [CS_DRAFT]: 'Draft', [CS_PENDING]: 'Pending', [CS_PUBLISHED]: 'Published', [CS_REJECTED]: 'Rejected', [CS_HIDDEN]: 'Hidden' }[s] || s
+}
+
+// 可见性由 is_hidden 标记独立控制，隐藏文章状态仍是 Published
+function displayStatus(a) {
+  return a.hidden ? CS_HIDDEN : a.status
 }
 
 function sourceText(s) {
@@ -38,9 +43,14 @@ function goEdit(id) { router.push({ name: 'AdminArticleEdit', params: { id } }) 
 
 async function doPublish(id) { await publish(id); await load() }
 async function doHide(id) { await hide(id); await load() }
+async function doUnhide(id) { await unhide(id); await load() }
 async function doReview(id) { await submitForReview(id); await load() }
 
-function deleteMessageForStatus(status) {
+function deleteMessageForStatus(article) {
+  const status = article.status
+  if (article.hidden) {
+    return 'Delete this hidden article permanently?'
+  }
   if (status === CS_PENDING) {
     return 'Delete this pending article and clear its pending review task?'
   }
@@ -83,7 +93,7 @@ onMounted(load)
         <div class="art-main">
           <div class="art-title">{{ a.title }}</div>
           <div class="art-meta">
-            <span :class="'art-badge s-' + a.status">{{ statusText(a.status) }}</span>
+            <span :class="'art-badge s-' + displayStatus(a)">{{ statusText(displayStatus(a)) }}</span>
             <span>{{ sourceText(a.source) }}</span>
             <span>{{ formatDate(a.createTime) }}</span>
           </div>
@@ -100,7 +110,8 @@ onMounted(load)
           </template>
           <template v-else-if="a.status === CS_PUBLISHED">
             <button class="btn-ori btn-ori-xs" @click="goEdit(a.id)">Edit</button>
-            <button class="btn-ori btn-ori-xs" @click="doHide(a.id)">Hide</button>
+            <button v-if="a.hidden" class="btn-ori btn-ori-xs" @click="doUnhide(a.id)">Unhide</button>
+            <button v-else class="btn-ori btn-ori-xs" @click="doHide(a.id)">Hide</button>
             <button class="btn-ori btn-ori-xs btn-ori-danger" @click="doDelete(a)">Del</button>
           </template>
           <template v-else-if="a.status === CS_HIDDEN">

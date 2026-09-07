@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -12,12 +15,23 @@ import java.util.List;
 import java.util.Map;
 
 public interface ArticleMapper extends BaseMapper<Article> {
+
+    /**
+     * 手写 @Select 不经过 MyBatis-Plus 的 @TableField 映射，实体的 top/hidden
+     * 与列名 is_top/is_hidden 不一致，需显式 resultMap 才能正确填充。
+     */
+    @Results(id = "articleRow", value = {
+            @Result(column = "is_top", property = "top"),
+            @Result(column = "is_hidden", property = "hidden")
+    })
     @Select("SELECT * FROM article WHERE status = #{status} AND is_hidden = 0 ORDER BY is_top DESC, create_time DESC")
     IPage<Article> selectPublished(Page<Article> page, @Param("status") int status);
 
+    @ResultMap("articleRow")
     @Select("SELECT * FROM article ORDER BY create_time DESC")
     IPage<Article> selectAll(Page<Article> page);
 
+    @ResultMap("articleRow")
     @Select("SELECT * FROM article WHERE id = #{id} LIMIT 1")
     Article selectAdminById(@Param("id") Long id);
 
@@ -27,12 +41,14 @@ public interface ArticleMapper extends BaseMapper<Article> {
     @Select("SELECT COUNT(*) FROM article WHERE source = #{source}")
     Long countBySource(@Param("source") int source);
 
+    @ResultMap("articleRow")
     @Select("SELECT * FROM article WHERE status = #{status} AND is_hidden = 0 ORDER BY create_time DESC")
     List<Article> selectPublishedAll(@Param("status") int status);
 
     @Select("SELECT FORMATDATETIME(create_time, 'yyyy-MM') as month, COUNT(*) as cnt FROM article WHERE status = #{status} GROUP BY month ORDER BY month DESC")
     List<Map<String, Object>> selectArchiveStats(@Param("status") int status);
 
+    @ResultMap("articleRow")
     @Select("""
         SELECT a.* FROM article a
         INNER JOIN article_tag at ON a.id = at.article_id
@@ -43,6 +59,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
     IPage<Article> selectByTag(Page<Article> page, @Param("tagName") String tagName,
                                 @Param("status") int status);
 
+    @ResultMap("articleRow")
     @Select("SELECT * FROM article WHERE id = #{id} AND status = #{status} AND is_hidden = 0 LIMIT 1")
     Article selectPublishedById(@Param("id") Long id, @Param("status") int status);
 
@@ -55,6 +72,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
     @Select("SELECT SUM(view_count) FROM article")
     Long selectTotalViewCount();
 
+    @ResultMap("articleRow")
     @Select("""
         SELECT * FROM article
         WHERE (title LIKE CONCAT('%', #{keyword}, '%') OR summary LIKE CONCAT('%', #{keyword}, '%'))
@@ -63,6 +81,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
     List<Article> selectByKeyword(@Param("keyword") String keyword, @Param("limit") int limit);
 
     /** 面向访客的搜索：仅命中已发布且未隐藏的文章。 */
+    @ResultMap("articleRow")
     @Select("""
         SELECT * FROM article
         WHERE status = #{status} AND is_hidden = 0

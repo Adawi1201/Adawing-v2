@@ -139,6 +139,15 @@ class ArticleSearchContractTest {
                 .andExpect(status().isOk());
         assertFalse(searchBody(KEYWORD).contains(idFragment(article)), "hide 后不应被搜出");
 
+        String adminBody = mockMvc.perform(get("/api/v2/articles/admin")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertTrue(adminBody.contains("\"id\":" + article.getId()),
+                "管理端列表应仍包含被隐藏文章");
+        assertTrue(adminBody.contains("\"hidden\":true"),
+                "管理端列表应能读到 is_hidden 标记");
+
         mockMvc.perform(post("/api/v2/articles/" + article.getId() + "/unhide")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());

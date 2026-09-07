@@ -76,6 +76,10 @@ onMounted(load)
     <h2 class="page-title reveal">Chronicle</h2>
 
     <div class="chronicle-search reveal">
+      <svg class="chronicle-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
       <input
         v-model="keyword"
         class="chronicle-search-input"
@@ -134,10 +138,21 @@ onMounted(load)
 <style scoped>
 .chronicle-search {
   margin-bottom: 28px;
+  position: relative;
+}
+.chronicle-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  color: var(--ink-faint);
+  pointer-events: none;
 }
 .chronicle-search-input {
   width: 100%;
-  padding: 10px 14px;
+  padding: 10px 14px 10px 36px;
   font-size: 14px;
   font-family: inherit;
   color: var(--ink);

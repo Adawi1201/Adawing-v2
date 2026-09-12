@@ -5,6 +5,7 @@ import { listAdmin, publish, hide, unhide, submitForReview, deleteArticle } from
 import AuthImage from '@/components/AuthImage.vue'
 import Pagination from '@/components/Pagination.vue'
 import { formatDate } from '@/utils/formatDate.js'
+import { sourceLabel } from '@/utils/source.js'
 
 const router = useRouter()
 const articles = ref([])
@@ -22,10 +23,6 @@ function statusText(s) {
 // 可见性由 is_hidden 标记独立控制，隐藏文章状态仍是 Published
 function displayStatus(a) {
   return a.hidden ? CS_HIDDEN : a.status
-}
-
-function sourceText(s) {
-  return s === 1 ? 'Agent' : 'Original'
 }
 
 async function load() {
@@ -94,7 +91,7 @@ onMounted(load)
           <div class="art-title">{{ a.title }}</div>
           <div class="art-meta">
             <span :class="'art-badge s-' + displayStatus(a)">{{ statusText(displayStatus(a)) }}</span>
-            <span>{{ sourceText(a.source) }}</span>
+            <span>{{ sourceLabel(a) }}</span>
             <span>{{ formatDate(a.createTime) }}</span>
           </div>
         </div>

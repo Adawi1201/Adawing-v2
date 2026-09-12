@@ -95,8 +95,8 @@
   --shadow-card: 0 1px 2px rgba(27,27,31,.04), 0 8px 24px rgba(27,27,31,.07);
   --shadow-soft: 0 1px 3px rgba(27,27,31,.04);
   --border-w: 1px;
-  --font-display: Inter, -apple-system, sans-serif;
-  --font-body: Inter, -apple-system, sans-serif;
+  --font-display: 'MiSans', Inter, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'MiSans', Inter, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 /* Catppuccin Mocha — 三级表面色阶 / 粉彩多色 / 柔圆角 */

@@ -168,7 +168,9 @@ onMounted(load)
   position: absolute; top: 4px; right: 4px;
   font-size: 8px; letter-spacing: 0.07em; font-weight: 600;
   background: var(--bg); color: var(--ink-faint);
-  padding: 1px 5px; border: 1px solid var(--line);
+  padding: 1px 5px;
+  border: var(--border-w, 1px) solid var(--line);
+  border-radius: var(--radius-badge, 2px);
 }
 
 .rc-info {

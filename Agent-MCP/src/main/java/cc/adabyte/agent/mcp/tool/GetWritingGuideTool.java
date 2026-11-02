@@ -1,5 +1,6 @@
 package cc.adabyte.agent.mcp.tool;
 
+import cc.adabyte.blog.common.gateway.WritingGuideGateway;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -10,18 +11,19 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class GetNoteRulesTool implements McpTool {
+public class GetWritingGuideTool implements McpTool {
 
+    private final WritingGuideGateway writingGuideGateway;
     private final ObjectMapper objectMapper;
 
     @Override
     public String getName() {
-        return "get_note_rules";
+        return "get_writing_guide";
     }
 
     @Override
     public String getDescription() {
-        return "获取动态（note）创作的字段规则与约束";
+        return "获取站点维护的写作指南（Markdown），起草文章或动态前调用并遵循";
     }
 
     @Override
@@ -35,12 +37,6 @@ public class GetNoteRulesTool implements McpTool {
 
     @Override
     public Object execute(JsonNode arguments) {
-        return Map.of(
-                "title", Map.of("maxLength", 256, "required", false),
-                "content", Map.of("format", "markdown", "required", true),
-                "type", Map.of("required", true, "enum", new String[]{"PERSONAL", "TECH"}),
-                "sourceAgent", Map.of("required", true, "enum", new String[]{"codex", "claude-code", "openclaw", "opencode"}),
-                "note", "AI 生成的动态需经人工审核后才会发布"
-        );
+        return Map.of("content", writingGuideGateway.getWritingGuide());
     }
 }

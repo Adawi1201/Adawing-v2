@@ -1,17 +1,17 @@
 ---
 name: adawing-content
-description: Use when creating, searching, or reading blog articles or notes (动态) on an AdaWing site through the connected "adawing" MCP server. Triggers whenever the user asks to publish/draft a post or a note, look up existing articles/notes, or fetch their content on their AdaWing blog. Covers the content-creation rules, the review flow (AI content is never auto-published), and the exact tool contracts.
+description: Use when creating, searching, or reading blog articles or notes (动态) on an AdaWing site through the connected "adawing" MCP server. Triggers whenever the user asks to publish/draft a post or a note, look up existing articles, or fetch their content on their AdaWing blog. Covers the field rules, the writing guide, the review flow (AI content is never auto-published), and the exact tool contracts.
 ---
 
 # AdaWing Content (MCP)
 
 ## Overview
 
-AdaWing exposes a small, stable MCP surface for authoring blog content. There
-are two content types: **articles** (long-form posts) and **notes** (动态 —
-short-form updates). This skill tells you how to use both correctly — the tool
-contracts, the field rules, and the one thing that trips up every agent: **your
-drafts are NOT published. They enter a human review queue.**
+AdaWing exposes a small MCP surface for authoring blog content. There are two
+content types: **articles** (long-form posts) and **notes** (动态 — short-form
+updates). This skill tells you how to use both correctly — the field rules, the
+tool contracts, and the one thing that trips up every agent: **your drafts are
+NOT published. They enter a human review queue.**
 
 **Core principle:** never imply to the user that an article or note is live.
 You create a *draft that awaits human approval*. Say so, every time.
@@ -31,7 +31,7 @@ There is no publish tool, by design — this holds for both articles and notes.
 
 - User wants to turn work (a writeup, a changelog entry, a quick update) into an **article** or a **note** on their AdaWing site.
 - User asks what already exists on the blog ("do I have a post about X?").
-- User wants the full text of an existing article or note to edit/reference.
+- User wants the full text of an existing published article to reference.
 
 **Article vs note:** an article is a full long-form post (has a `summary`,
 supports `tags`); a note (动态) is a short-form update, tagged with a `type`
@@ -42,25 +42,27 @@ sections/headings.
 If the `adawing` MCP server is not connected, stop and tell the user to
 configure it (see the connection section) — don't fabricate results.
 
-## First move: read the rules, don't assume them
+## First move: read the writing guide
 
-Before your first draft in a session, fetch the current rules for the content
-type you're creating: `get_content_rules` for articles (also served as the
-`adawing://content-rules` resource), or `get_note_rules` for notes. The rules
-are served by the site and can change; the values below are current defaults,
-not a contract to hardcode.
+Before your first draft in a session, call `get_writing_guide`. It returns the
+site owner's guide for how articles and notes should be written (audience,
+voice, structure, what to avoid). The guide is maintained on the site and can
+change; follow it over your own defaults. If `content` is empty, the site has
+no guide yet — write plainly and say so to the user.
 
-**Article fields** (`get_content_rules`):
+## Field rules
+
+**Article** (`create_article_draft`):
 
 | Field | Rule |
 |-------|------|
 | `title` | required, max 256 chars |
 | `content` | required, **Markdown** |
 | `summary` | optional, max 512 chars |
-| `tags` | max 5, `allowCreate: false` — you cannot invent tags |
+| `tags` | optional, max 5, **must be existing tag names** from `get_tags` — you cannot create tags |
 | `sourceAgent` | required, one of `codex` / `claude-code` / `openclaw` / `opencode` |
 
-**Note fields** (`get_note_rules`):
+**Note** (`create_note_draft`):
 
 | Field | Rule |
 |-------|------|
@@ -71,31 +73,35 @@ not a contract to hardcode.
 
 ## The tools
 
-Eight tools, split into an **article** set and a **note** set. Names and
-existing fields are frozen — the server contract only grows, never shrinks.
-Call them exactly as specified.
+Six tools. Call them exactly as specified.
 
-### Articles
+#### `get_writing_guide`
+No arguments. Returns `{ content }` — the site's writing guide in Markdown
+(empty string if not configured). Call it first.
 
-#### `get_content_rules`
-No arguments. Returns the article field rules above. Call it first.
+#### `get_tags`
+No arguments. Returns `{ tags: ["name", ...] }` — every existing tag name.
+Pick article tags from this list only.
 
 #### `search_articles`
-Find existing articles by keyword before creating a new one — avoid duplicates.
+Find existing **published** articles by keyword before creating a new one —
+avoid duplicates.
 ```json
 { "keyword": "spring boot cache", "limit": 10 }
 ```
 - `keyword` required. `limit` optional, default 10, **capped at 20** server-side.
 - Returns `{ items: [{id, title, summary}], total, capped }`. If `capped` is
   true your requested limit was clamped.
+- Drafts and pending-review articles are not searchable, including your own.
 
 #### `get_article`
-Fetch one article's full Markdown by id (ids come from `search_articles`).
+Fetch one published article's full Markdown by id (ids come from `search_articles`).
 ```json
 { "id": 42 }
 ```
-Returns `{ id, title, content, summary, sourceAgent }`. If missing, returns
-`{ error: "Article not found: 42" }` — handle it, don't pretend it exists.
+Returns `{ id, title, content, summary, sourceAgent }`. If missing or not
+published, returns `{ error: "Article not found: 42" }` — handle it, don't
+pretend it exists.
 
 #### `create_article_draft`
 Create an article draft. This is the article write path.
@@ -104,34 +110,17 @@ Create an article draft. This is the article write path.
   "title": "Tuning Caffeine cache in Spring Boot",
   "content": "# Intro\n\nMarkdown body here...",
   "summary": "A short teaser, optional.",
+  "tags": ["Spring Boot", "Cache"],
   "sourceAgent": "claude-code"
 }
 ```
 - Required: `title`, `content`, `sourceAgent`.
 - `sourceAgent` must be your identity from the enum above — pick the one that
   matches the tool you're running in, don't guess a fictional value.
-- Returns `{ draftId: <number> }`. This is a *draft id*, not a published URL.
-
-### Notes (动态)
-
-#### `get_note_rules`
-No arguments. Returns the note field rules above. Call it first when drafting a note.
-
-#### `search_notes`
-Find published notes by keyword. Same shape as `search_articles`.
-```json
-{ "keyword": "release", "limit": 10 }
-```
-- `keyword` required. `limit` optional, default 10, **capped at 20** server-side.
-- Returns `{ items: [{id, title, type}], total, capped }`.
-
-#### `get_note`
-Fetch one note's full Markdown by id (ids come from `search_notes`).
-```json
-{ "id": 7 }
-```
-Returns `{ id, title, content, type, sourceAgent }`. If missing, returns
-`{ error: "Note not found: 7" }` — handle it, don't pretend it exists.
+- Returns `{ draftId, ignoredTags }`. `draftId` is a *draft id*, not a
+  published URL. `ignoredTags` lists tags you passed that don't exist on the
+  site; they were not attached. Tell the user about them.
+- More than 5 tags returns `{ error }` and creates nothing.
 
 #### `create_note_draft`
 Create a note draft. This is the note write path.
@@ -151,15 +140,13 @@ Create a note draft. This is the note write path.
 ## Workflow
 
 1. Decide the content type — **article** (long-form) or **note** (short update).
-2. Fetch rules — `get_content_rules` for an article, `get_note_rules` for a note
-   (once per session is enough).
-3. Search first — `search_articles` or `search_notes` to check the topic doesn't
-   already exist. If a close match turns up, ask the user whether to update the
-   existing piece or add a new one.
-4. Write the body as clean Markdown. Respect the length caps. For articles don't
-   invent tags; for notes pick the right `type` (`PERSONAL` / `TECH`).
+2. Call `get_writing_guide` (once per session is enough) and follow it.
+3. For an article: `search_articles` to check the topic isn't already
+   published. If a close match turns up, ask the user whether to proceed.
+   Then `get_tags` and pick up to 5 matching tags.
+4. Write the body as Markdown, following the guide and the field rules above.
 5. Create the draft — `create_article_draft` or `create_note_draft` — and
-   capture the returned `draftId`.
+   capture the returned `draftId` (and `ignoredTags` for articles).
 6. Report honestly:
    > Draft #<draftId> created and queued for review. It won't appear on the
    > site until a human approves it in the AdaWing admin.
@@ -180,10 +167,10 @@ Create a note draft. This is the note write path.
 > (running inside Codex) uses `"sourceAgent": "codex"`.
 
 **Wrong**
-> (asks for 50 results, ignores that only 20 came back)
+> (passes `tags: ["my-new-topic"]` without checking `get_tags`, then ignores `ignoredTags`)
 
 **Right**
-> Checks `capped: true` and tells the user the search was limited to 20 hits.
+> Picks tags from `get_tags`; if `ignoredTags` is non-empty, tells the user which tags were not attached.
 
 ## Connection (if not already set up)
 

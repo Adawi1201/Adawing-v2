@@ -23,7 +23,7 @@ public class CreateNoteDraftTool implements McpTool {
 
     @Override
     public String getDescription() {
-        return "创建动态（note）草稿，进入人工审核，返回草稿 ID";
+        return "创建动态（note）草稿，进入人工审核，返回草稿 ID。起草前先调用 get_writing_guide";
     }
 
     @Override

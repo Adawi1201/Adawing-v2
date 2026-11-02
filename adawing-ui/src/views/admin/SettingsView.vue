@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getSiteConfig, saveSiteConfig } from '@/api/config.js'
+import { getSiteConfig, saveSiteConfig, getWritingGuide, saveWritingGuide } from '@/api/config.js'
 import AuthImage from '@/components/AuthImage.vue'
 import ResourcePicker from '@/components/ResourcePicker.vue'
 import { useThemeStore, CUSTOM_PRESETS } from '@/stores/theme.js'
@@ -175,7 +175,30 @@ function moveItem(kind, index, direction) {
   list.splice(next, 0, item)
 }
 
-onMounted(load)
+const writingGuide = ref('')
+const savingGuide = ref(false)
+
+async function loadGuide() {
+  const res = await getWritingGuide()
+  writingGuide.value = (res.data || res)?.content || ''
+}
+
+async function saveGuide() {
+  savingGuide.value = true
+  message.value = ''
+  try {
+    await saveWritingGuide(writingGuide.value)
+    message.value = 'Writing guide saved'
+    await loadGuide()
+  } catch (e) {
+    message.value = e.message || 'Save failed'
+  } finally { savingGuide.value = false }
+}
+
+onMounted(() => {
+  load()
+  loadGuide()
+})
 </script>
 
 <template>
@@ -262,6 +285,12 @@ onMounted(load)
       </section>
 
       <section class="form-section"><h3>09 / JSON Preview</h3><pre class="json-preview font-mono">{{ previewJson }}</pre></section>
+
+      <section class="form-section">
+        <h3>10 / 写作指南 · Writing Guide</h3>
+        <div class="form-row"><label>Agent 写作指南（Markdown）</label><textarea v-model="writingGuide" class="input-ori font-mono" rows="16" placeholder="Agent 通过 MCP 工具 get_writing_guide 读取本段内容，起草文章与动态时遵循。" /></div>
+        <div class="form-actions"><button class="btn-ori" :disabled="savingGuide" @click="saveGuide">{{ savingGuide ? 'Saving...' : 'Save Writing Guide' }}</button></div>
+      </section>
 
       <div class="form-actions"><button class="btn-ori btn-ori-primary" :disabled="saving" @click="save">{{ saving ? 'Saving...' : 'Save' }}</button></div>
     </div>

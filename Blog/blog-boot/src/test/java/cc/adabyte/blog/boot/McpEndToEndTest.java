@@ -1,6 +1,15 @@
 package cc.adabyte.blog.boot;
 
 import cc.adabyte.blog.common.gateway.McpKeyValidator;
+import cc.adabyte.blog.system.config.service.SystemConfigService;
+import cc.adabyte.blog.zoom.article.dto.ArticleTagRow;
+import cc.adabyte.blog.zoom.article.entity.Article;
+import cc.adabyte.blog.zoom.article.mapper.ArticleTagMapper;
+import cc.adabyte.blog.zoom.article.service.ArticleService;
+import cc.adabyte.blog.zoom.shared.enums.ContentStatus;
+import cc.adabyte.blog.zoom.tag.entity.Tag;
+import cc.adabyte.blog.zoom.tag.mapper.TagMapper;
+import cc.adabyte.blog.zoom.tag.service.TagService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -45,6 +54,21 @@ class McpEndToEndTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ArticleService articleService;
+
+    @Autowired
+    private ArticleTagMapper articleTagMapper;
+
+    @Autowired
+    private TagService tagService;
+
+    @Autowired
+    private TagMapper tagMapper;
+
+    @Autowired
+    private SystemConfigService systemConfigService;
 
     private String sessionId;
 
@@ -101,11 +125,21 @@ class McpEndToEndTest {
         return objectMapper.readTree(result.getResponse().getContentAsString()).get("result");
     }
 
+    private void expectRpcError(String method, Object params, int code) throws Exception {
+        mockMvc.perform(post("/mcp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-MCP-Key", "test-key")
+                        .header(SESSION_HEADER, sessionId)
+                        .content(rpc(method, params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.error.code").value(code));
+    }
+
     // ---- tests ----
 
     @Test
     @Order(1)
-    @DisplayName("initialize — 协商协议版本并声明 tools/resources 能力")
+    @DisplayName("initialize — 协商协议版本并只声明 tools 能力")
     void initialize() throws Exception {
         MvcResult result = mockMvc.perform(post("/mcp")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -120,7 +154,7 @@ class McpEndToEndTest {
         assertEquals("2025-06-18", r.get("protocolVersion").asText(), "应回显客户端请求的受支持版本");
         assertEquals("adawing-mcp-server", r.get("serverInfo").get("name").asText());
         assertTrue(r.get("capabilities").has("tools"));
-        assertTrue(r.get("capabilities").has("resources"));
+        assertFalse(r.get("capabilities").has("resources"), "不再提供 resources 能力");
     }
 
     @Test
@@ -149,44 +183,11 @@ class McpEndToEndTest {
 
     @Test
     @Order(4)
-    @DisplayName("resources/list — 返回 content-rules 资源")
-    void resourcesList() throws Exception {
-        MvcResult result = mcpCall("resources/list", null);
-        JsonNode r = parseResult(result);
-
-        assertTrue(r.has("resources"));
-        assertEquals(1, r.get("resources").size());
-        JsonNode res = r.get("resources").get(0);
-        assertEquals("adawing://content-rules", res.get("uri").asText());
-        assertEquals("application/json", res.get("mimeType").asText());
-    }
-
-    @Test
-    @Order(5)
-    @DisplayName("resources/read — 读取 content-rules 内容")
-    void resourcesRead() throws Exception {
-        MvcResult result = mcpCall("resources/read", Map.of("uri", "adawing://content-rules"));
-        JsonNode r = parseResult(result);
-
-        assertTrue(r.has("contents"));
-        JsonNode content = r.get("contents").get(0);
-        assertEquals("adawing://content-rules", content.get("uri").asText());
-        JsonNode rules = objectMapper.readTree(content.get("text").asText());
-        assertTrue(rules.has("title"));
-        assertTrue(rules.has("content"));
-    }
-
-    @Test
-    @Order(6)
-    @DisplayName("resources/read — 未知资源返回 -32602")
-    void resourcesReadUnknown() throws Exception {
-        mockMvc.perform(post("/mcp")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-MCP-Key", "test-key")
-                        .header(SESSION_HEADER, sessionId)
-                        .content(rpc("resources/read", Map.of("uri", "adawing://unknown"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.error.code").value(-32602));
+    @DisplayName("resources/list、resources/read、prompts/list — 未提供的能力返回 -32601")
+    void undeclaredCapabilitiesNotFound() throws Exception {
+        expectRpcError("resources/list", null, -32601);
+        expectRpcError("resources/read", Map.of("uri", "adawing://content-rules"), -32601);
+        expectRpcError("prompts/list", null, -32601);
     }
 
     @Test
@@ -201,69 +202,43 @@ class McpEndToEndTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-MCP-Key", "test-key")
                         .header(SESSION_HEADER, sessionId)
-                        .content(rpc("resources/read", Map.of("uri", "adawing://unknown"))))
+                        .content(rpc("nonexistent_method", null)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.error.code").value(-32602))
+                .andExpect(jsonPath("$.error.code").value(-32601))
                 .andReturn();
         String errBody = errResult.getResponse().getContentAsString();
         assertFalse(errBody.contains("\"result\""), "错误响应不应包含 result 字段: " + errBody);
     }
 
     @Test
-    @Order(7)
-    @DisplayName("prompts/list — 返回空列表")
-    void promptsList() throws Exception {
-        MvcResult result = mcpCall("prompts/list", null);
-        assertTrue(parseResult(result).has("prompts"));
-    }
-
-    @Test
     @Order(8)
-    @DisplayName("tools/list — 返回 8 个已注册 Tool")
+    @DisplayName("tools/list — 不再注册 rules 与 note 查询类 Tool")
     void toolsList() throws Exception {
         MvcResult result = mcpCall("tools/list", null);
         JsonNode r = parseResult(result);
 
         assertTrue(r.has("tools"));
-        assertEquals(8, r.get("tools").size());
-
         var names = r.get("tools").findValuesAsText("name");
-        assertTrue(names.contains("get_content_rules"));
-        assertTrue(names.contains("create_article_draft"));
-        assertTrue(names.contains("search_articles"));
-        assertTrue(names.contains("get_article"));
-        // note 系列工具
-        assertTrue(names.contains("create_note_draft"));
-        assertTrue(names.contains("get_note"));
-        assertTrue(names.contains("search_notes"));
-        assertTrue(names.contains("get_note_rules"));
+        assertTrue(names.containsAll(java.util.List.of(
+                "create_article_draft", "create_note_draft", "search_articles", "get_article")), "" + names);
+        for (String removed : java.util.List.of("get_content_rules", "get_note_rules", "search_notes", "get_note")) {
+            assertFalse(names.contains(removed), "已移除的 Tool 不应注册: " + removed);
+        }
     }
 
     @Test
     @Order(9)
-    @DisplayName("tools/call get_content_rules — 返回字段规则约束")
-    void getContentRules() throws Exception {
-        MvcResult result = mcpCall("tools/call", Map.of(
-                "name", "get_content_rules",
-                "arguments", Map.of()
-        ));
-        JsonNode r = parseResult(result);
-
-        assertTrue(r.has("content"));
-        String text = r.get("content").get(0).get("text").asText();
-        JsonNode rulesData = objectMapper.readTree(text);
-        assertTrue(rulesData.has("title"), "应有 title 字段规则");
-        assertTrue(rulesData.has("content"), "应有 content 字段规则");
-        assertTrue(rulesData.has("summary"), "应有 summary 字段规则");
-        assertTrue(rulesData.get("title").get("required").asBoolean());
-
-        // sourceAgent 枚举应覆盖全部已支持的 agent
-        assertTrue(rulesData.has("sourceAgent"), "应有 sourceAgent 字段规则");
-        java.util.List<String> agents = new java.util.ArrayList<>();
-        rulesData.get("sourceAgent").get("enum").forEach(n -> agents.add(n.asText()));
-        assertTrue(agents.contains("opencode"), "sourceAgent 枚举应包含 opencode: " + agents);
-        assertTrue(agents.contains("codex") && agents.contains("claude-code") && agents.contains("openclaw"),
-                "不应丢失已有 agent 枚举值: " + agents);
+    @DisplayName("tools/call sourceAgent 枚举 — create 工具的 schema 覆盖全部已支持的 agent")
+    void sourceAgentEnum() throws Exception {
+        JsonNode tools = parseResult(mcpCall("tools/list", null)).get("tools");
+        for (JsonNode tool : tools) {
+            String name = tool.get("name").asText();
+            if (!name.startsWith("create_")) continue;
+            java.util.List<String> agents = new java.util.ArrayList<>();
+            tool.get("inputSchema").get("properties").get("sourceAgent").get("enum").forEach(n -> agents.add(n.asText()));
+            assertTrue(agents.containsAll(java.util.List.of("codex", "claude-code", "openclaw", "opencode")),
+                    name + " sourceAgent 枚举不完整: " + agents);
+        }
     }
 
     private static Long createdDraftId;
@@ -292,66 +267,148 @@ class McpEndToEndTest {
         assertTrue(createdDraftId > 0, "draftId 应为正数");
     }
 
+    private Long createPublishedArticle(String title) {
+        Article article = new Article();
+        article.setTitle(title);
+        article.setContent("# 已发布\n正文");
+        article.setSummary("已发布摘要");
+        article.setStatus(ContentStatus.PUBLISHED);
+        articleService.saveOrUpdate(article, null);
+        return article.getId();
+    }
+
+    private JsonNode toolData(String name, Object arguments) throws Exception {
+        MvcResult result = mcpCall("tools/call", Map.of("name", name, "arguments", arguments));
+        return objectMapper.readTree(parseResult(result).get("content").get(0).get("text").asText());
+    }
+
     @Test
     @Order(11)
-    @DisplayName("tools/call get_article — 根据 ID 获取文章详情")
+    @DisplayName("tools/call get_article — 只返回已发布文章，待审草稿查不到")
     void getArticle() throws Exception {
         assertNotNull(createdDraftId, "依赖上一个测试创建的草稿 ID");
 
-        MvcResult result = mcpCall("tools/call", Map.of(
-                "name", "get_article",
-                "arguments", Map.of("id", createdDraftId)
-        ));
-        JsonNode r = parseResult(result);
+        JsonNode draft = toolData("get_article", Map.of("id", createdDraftId));
+        assertTrue(draft.has("error"), "待审草稿不应被 get_article 返回: " + draft);
 
-        String text = r.get("content").get(0).get("text").asText();
-        JsonNode data = objectMapper.readTree(text);
-
-        assertFalse(data.has("error"), "不应返回错误: " + text);
-        assertEquals(createdDraftId.longValue(), data.get("id").asLong());
-        assertEquals("端到端测试文章", data.get("title").asText());
-        assertTrue(data.get("content").asText().contains("# 测试"));
+        Long publishedId = createPublishedArticle("端到端已发布文章");
+        JsonNode data = toolData("get_article", Map.of("id", publishedId));
+        assertFalse(data.has("error"), "不应返回错误: " + data);
+        assertEquals(publishedId.longValue(), data.get("id").asLong());
+        assertEquals("端到端已发布文章", data.get("title").asText());
+        assertTrue(data.get("content").asText().contains("# 已发布"));
     }
 
     @Test
     @Order(12)
-    @DisplayName("tools/call search_articles — 按关键词搜索文章")
+    @DisplayName("tools/call search_articles — 只命中已发布文章")
     void searchArticles() throws Exception {
         assertNotNull(createdDraftId, "依赖创建草稿测试");
+        Long publishedId = createPublishedArticle("端到端测试已发布");
 
-        MvcResult result = mcpCall("tools/call", Map.of(
-                "name", "search_articles",
-                "arguments", Map.of("keyword", "端到端测试", "limit", 10)
-        ));
-        JsonNode r = parseResult(result);
-
-        String text = r.get("content").get(0).get("text").asText();
-        JsonNode data = objectMapper.readTree(text);
+        JsonNode data = toolData("search_articles", Map.of("keyword", "端到端测试", "limit", 10));
 
         assertTrue(data.has("items"));
-        assertTrue(data.get("items").size() > 0, "应至少搜索到一篇匹配文章");
         var ids = data.get("items").findValuesAsText("id");
-        assertTrue(ids.contains(String.valueOf(createdDraftId)));
+        assertTrue(ids.contains(String.valueOf(publishedId)), "应命中已发布文章: " + ids);
+        assertFalse(ids.contains(String.valueOf(createdDraftId)), "不应命中待审草稿: " + ids);
+    }
+
+    // ---- tags ----
+
+    private static final String EXISTING_TAG = "mcp-e2e-tag";
+    private static final String UNKNOWN_TAG = "mcp-e2e-不存在的标签";
+
+    private void ensureTag(String name) {
+        if (tagMapper.selectByName(name) == null) {
+            Tag tag = new Tag();
+            tag.setName(name);
+            tagService.create(tag);
+        }
+    }
+
+    @Test
+    @Order(30)
+    @DisplayName("tools/call get_tags — 返回已有标签名")
+    void getTags() throws Exception {
+        ensureTag(EXISTING_TAG);
+        JsonNode data = toolData("get_tags", Map.of());
+        var names = new java.util.ArrayList<String>();
+        data.get("tags").forEach(n -> names.add(n.asText()));
+        assertTrue(names.contains(EXISTING_TAG), "应包含已有标签: " + names);
+    }
+
+    @Test
+    @Order(31)
+    @DisplayName("tools/call create_article_draft tags — 只绑定已有标签，未命中的放入 ignoredTags 且不新建")
+    void createArticleDraftWithTags() throws Exception {
+        ensureTag(EXISTING_TAG);
+        JsonNode data = toolData("create_article_draft", Map.of(
+                "title", "带标签的草稿",
+                "content", "正文",
+                "sourceAgent", "opencode",
+                "tags", java.util.List.of(EXISTING_TAG, UNKNOWN_TAG)
+        ));
+
+        assertTrue(data.has("draftId"), "应返回 draftId: " + data);
+        assertEquals(java.util.List.of(UNKNOWN_TAG), objectMapper.convertValue(data.get("ignoredTags"), java.util.List.class));
+
+        Long draftId = data.get("draftId").asLong();
+        var bound = articleTagMapper.selectTagViewsByArticleIds(java.util.List.of(draftId)).stream()
+                .map(ArticleTagRow::name).toList();
+        assertEquals(java.util.List.of(EXISTING_TAG), bound);
+        assertNull(tagMapper.selectByName(UNKNOWN_TAG), "不应新建标签");
+    }
+
+    @Test
+    @Order(32)
+    @DisplayName("tools/call create_article_draft — 未传 tags 时 ignoredTags 为空数组")
+    void createArticleDraftWithoutTags() throws Exception {
+        JsonNode data = toolData("create_article_draft", Map.of(
+                "title", "无标签草稿", "content", "正文", "sourceAgent", "opencode"));
+        assertTrue(data.has("draftId"));
+        assertTrue(data.has("ignoredTags"), "响应应恒含 ignoredTags: " + data);
+        assertTrue(data.get("ignoredTags").isArray() && data.get("ignoredTags").isEmpty(), "" + data);
+    }
+
+    @Test
+    @Order(33)
+    @DisplayName("tools/call create_article_draft — tags 超过 5 个返回 error，不创建文章")
+    void createArticleDraftTooManyTags() throws Exception {
+        long before = articleService.countByStatus(null);
+        JsonNode data = toolData("create_article_draft", Map.of(
+                "title", "标签过多", "content", "正文", "sourceAgent", "opencode",
+                "tags", java.util.List.of("a", "b", "c", "d", "e", "f")));
+        assertTrue(data.has("error"), "" + data);
+        assertEquals(before, articleService.countByStatus(null));
+    }
+
+    // ---- writing guide ----
+
+    @Test
+    @Order(40)
+    @DisplayName("tools/call get_writing_guide — 返回站点配置的写作指南，未配置时为空字符串")
+    void getWritingGuide() throws Exception {
+        systemConfigService.saveWritingGuide("");
+        assertEquals("", toolData("get_writing_guide", Map.of()).path("content").asText(null));
+
+        String guide = "# 写作指南\n\n先写结论。";
+        systemConfigService.saveWritingGuide(guide);
+        assertEquals(guide, toolData("get_writing_guide", Map.of()).path("content").asText(null));
+    }
+
+    @Test
+    @Order(41)
+    @DisplayName("tools/list — 恰为 6 个 Tool")
+    void toolsListExact() throws Exception {
+        var names = parseResult(mcpCall("tools/list", null)).get("tools").findValuesAsText("name");
+        assertEquals(java.util.Set.of(
+                "create_article_draft", "create_note_draft", "search_articles", "get_article",
+                "get_writing_guide", "get_tags"), new java.util.HashSet<>(names));
+        assertEquals(6, names.size());
     }
 
     // ---- note MCP ----
-
-    private static Long createdNoteId;
-
-    @Test
-    @Order(20)
-    @DisplayName("tools/call get_note_rules — 返回 note 字段规则（含 type 枚举）")
-    void getNoteRules() throws Exception {
-        MvcResult result = mcpCall("tools/call", Map.of(
-                "name", "get_note_rules",
-                "arguments", Map.of()
-        ));
-        JsonNode data = objectMapper.readTree(parseResult(result).get("content").get(0).get("text").asText());
-        assertTrue(data.has("type"), "应有 type 字段规则");
-        java.util.List<String> types = new java.util.ArrayList<>();
-        data.get("type").get("enum").forEach(n -> types.add(n.asText()));
-        assertTrue(types.contains("PERSONAL") && types.contains("TECH"), "type 枚举应含 PERSONAL/TECH: " + types);
-    }
 
     @Test
     @Order(21)
@@ -368,22 +425,8 @@ class McpEndToEndTest {
         ));
         JsonNode data = objectMapper.readTree(parseResult(result).get("content").get(0).get("text").asText());
         assertTrue(data.has("draftId"), "应返回 draftId");
-        createdNoteId = data.get("draftId").asLong();
+        Long createdNoteId = data.get("draftId").asLong();
         assertTrue(createdNoteId > 0, "draftId 应为正数");
-    }
-
-    @Test
-    @Order(22)
-    @DisplayName("tools/call get_note — 草稿未发布，get_note 应查不到（仅 PUBLISHED）")
-    void getNoteDraftNotVisible() throws Exception {
-        assertNotNull(createdNoteId, "依赖创建草稿测试");
-        MvcResult result = mcpCall("tools/call", Map.of(
-                "name", "get_note",
-                "arguments", Map.of("id", createdNoteId)
-        ));
-        JsonNode data = objectMapper.readTree(parseResult(result).get("content").get(0).get("text").asText());
-        // note 草稿处于 PENDING_REVIEW，get_note 仅返回 PUBLISHED，故应报未找到
-        assertTrue(data.has("error"), "待审核 note 不应被 get_note 返回: " + data);
     }
 
     // ---- error handling ----

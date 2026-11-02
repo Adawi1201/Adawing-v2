@@ -4,7 +4,6 @@ import cc.adabyte.agent.mcp.protocol.JsonRpcRequest;
 import cc.adabyte.agent.mcp.protocol.JsonRpcResponse;
 import cc.adabyte.agent.mcp.session.McpSession;
 import cc.adabyte.agent.mcp.session.McpSessionStore;
-import cc.adabyte.agent.mcp.tool.McpTool;
 import cc.adabyte.agent.mcp.tool.McpToolRegistry;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +43,6 @@ public class McpServerController {
     private static final String DEFAULT_PROTOCOL_VERSION = "2025-03-26";
     private static final java.util.Set<String> SUPPORTED_PROTOCOL_VERSIONS =
             java.util.Set.of("2024-11-05", "2025-03-26", "2025-06-18");
-    private static final String CONTENT_RULES_URI = "adawing://content-rules";
 
     private final McpToolRegistry toolRegistry;
     private final ObjectMapper objectMapper;
@@ -141,9 +139,6 @@ public class McpServerController {
             case "ping" -> ResponseEntity.ok(JsonRpcResponse.ok(req.getId(), Map.of()));
             case "tools/list" -> handleToolsList(req, session);
             case "tools/call" -> handleToolsCall(req, session);
-            case "resources/list" -> handleResourcesList(req);
-            case "resources/read" -> handleResourcesRead(req);
-            case "prompts/list" -> ResponseEntity.ok(JsonRpcResponse.ok(req.getId(), Map.of("prompts", List.of())));
             default -> {
                 log.warn("[MCP] Method not found: {}, id={}, sessionId={}", method, req.getId(), session.getSessionId());
                 yield ResponseEntity.ok(JsonRpcResponse.error(req.getId(), -32601, "Method not found: " + method));
@@ -184,38 +179,8 @@ public class McpServerController {
         return ResponseEntity.ok(JsonRpcResponse.ok(req.getId(), Map.of(
                 "protocolVersion", negotiated,
                 "serverInfo", Map.of("name", "adawing-mcp-server", "version", "1.1.0"),
-                "capabilities", Map.of("tools", Map.of(), "resources", Map.of())
+                "capabilities", Map.of("tools", Map.of())
         )));
-    }
-
-    private ResponseEntity<?> handleResourcesList(JsonRpcRequest req) {
-        Map<String, Object> resource = new HashMap<>();
-        resource.put("uri", CONTENT_RULES_URI);
-        resource.put("name", "Content Rules");
-        resource.put("description", "文章/内容创作的字段规则与约束（与 get_content_rules 工具一致）");
-        resource.put("mimeType", "application/json");
-        return ResponseEntity.ok(JsonRpcResponse.ok(req.getId(), Map.of("resources", List.of(resource))));
-    }
-
-    private ResponseEntity<?> handleResourcesRead(JsonRpcRequest req) {
-        JsonNode params = req.getParams();
-        String uri = params != null && params.has("uri") ? params.get("uri").asText() : null;
-        if (!CONTENT_RULES_URI.equals(uri)) {
-            return ResponseEntity.ok(JsonRpcResponse.error(req.getId(), -32602, "Unknown resource: " + uri));
-        }
-        try {
-            McpTool rulesTool = toolRegistry.getTool("get_content_rules")
-                    .orElseThrow(() -> new IllegalStateException("get_content_rules tool not registered"));
-            String text = objectMapper.writeValueAsString(rulesTool.execute(null));
-            Map<String, Object> content = new HashMap<>();
-            content.put("uri", CONTENT_RULES_URI);
-            content.put("mimeType", "application/json");
-            content.put("text", text);
-            return ResponseEntity.ok(JsonRpcResponse.ok(req.getId(), Map.of("contents", List.of(content))));
-        } catch (Exception e) {
-            log.error("[MCP] resources/read failed uri={}, id={}", uri, req.getId(), e);
-            return ResponseEntity.ok(JsonRpcResponse.error(req.getId(), -32603, e.getMessage()));
-        }
     }
 
     private ResponseEntity<?> handleToolsList(JsonRpcRequest req, McpSession session) {

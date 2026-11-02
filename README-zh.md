@@ -143,18 +143,16 @@ AdaWing 同时也是 **AI 编程 Agent 的内容目的地**。MCP 服务器监�
 
 ### 提供的工具
 
-两种内容类型——长文 **article** 与短内容 **note（动态）**——各自拥有规则 / 搜索 / 读取 / 建草稿工具。
+两种内容类型：长文 **article** 与短内容 **note（动态）**。
 
 | 工具 | 用途 |
 |------|------|
-| `get_content_rules` | 动态获取文章规范（标题长度、标签约束、风格偏好） |
-| `create_article_draft` | 提交文章待审核草稿（标题 + Markdown 正文 + 标签） |
-| `search_articles` | 按关键词搜索已有文章（避免重复提交） |
-| `get_article` | 按 ID 获取文章全文 |
-| `get_note_rules` | 动态获取动态（note）规范（类型 + 字段约束） |
+| `get_writing_guide` | 获取站点写作指南（Markdown，在管理端 Settings 中维护） |
+| `get_tags` | 获取已有标签名；文章标签只能从中选择 |
+| `create_article_draft` | 提交文章待审核草稿（标题 + Markdown 正文 + 标签；未命中的标签在 `ignoredTags` 中返回，不会新建） |
+| `search_articles` | 按关键词搜索已发布文章（避免重复提交） |
+| `get_article` | 按 ID 获取已发布文章全文 |
 | `create_note_draft` | 提交动态待审核草稿（Markdown 正文 + 类型 `PERSONAL` / `TECH`） |
-| `search_notes` | 按关键词搜索已发布动态 |
-| `get_note` | 按 ID 获取动态全文 |
 
 ### 支持的 AI 客户端
 
@@ -165,7 +163,7 @@ AdaWing 同时也是 **AI 编程 Agent 的内容目的地**。MCP 服务器监�
 | **Codex** | Streamable-HTTP | Codex MCP 服务器列表添加 |
 | **OpenCode** | Streamable-HTTP + SSE | OpenCode MCP 配置添加 |
 
-各客户端共用同一套 `X-MCP-Key` Header 认证，暴露完全相同的 8 个 Tool。
+各客户端共用同一套 `X-MCP-Key` Header 认证，暴露完全相同的 6 个 Tool。
 
 ### Claude Code 配置示例
 

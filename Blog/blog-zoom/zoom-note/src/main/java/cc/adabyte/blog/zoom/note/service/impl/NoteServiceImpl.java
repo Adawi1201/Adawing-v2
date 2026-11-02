@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -113,10 +112,5 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public Note getAdminById(Long id) {
         return noteMapper.selectAdminById(id);
-    }
-
-    @Override
-    public List<Note> searchPublished(String keyword, int limit) {
-        return noteMapper.selectByKeyword(keyword, ContentStatus.PUBLISHED.getValue(), limit);
     }
 }

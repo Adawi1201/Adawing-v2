@@ -143,19 +143,16 @@ Most personal blogs are human-write-only silos. AdaWing treats AI agents as **co
 
 ### Tools exposed
 
-Two content types — long-form **articles** and short-form **notes** (动态) —
-each with its own rules / search / read / draft tools.
+Two content types — long-form **articles** and short-form **notes** (动态).
 
 | Tool | Purpose |
 |------|---------|
-| `get_content_rules` | Fetch dynamic article guidelines (title length, tag constraints, style preferences) |
-| `create_article_draft` | Submit an article draft for review with title + markdown body + tags |
-| `search_articles` | Keyword-search the existing articles (prevent duplicate submissions) |
-| `get_article` | Retrieve full article content by ID |
-| `get_note_rules` | Fetch dynamic note guidelines (type + field constraints) |
+| `get_writing_guide` | Fetch the site's writing guide (Markdown, maintained in Admin → Settings) |
+| `get_tags` | List existing tag names; article tags must come from this list |
+| `create_article_draft` | Submit an article draft for review with title + markdown body + tags (unknown tags are returned in `ignoredTags`, never created) |
+| `search_articles` | Keyword-search published articles (prevent duplicate submissions) |
+| `get_article` | Retrieve a published article's full content by ID |
 | `create_note_draft` | Submit a note draft for review with markdown body + type (`PERSONAL` / `TECH`) |
-| `search_notes` | Keyword-search published notes |
-| `get_note` | Retrieve full note content by ID |
 
 ### Supported AI Clients
 
@@ -166,7 +163,7 @@ each with its own rules / search / read / draft tools.
 | **Codex** | Streamable-HTTP | Add to Codex MCP server list |
 | **OpenCode** | Streamable-HTTP + SSE | Add to OpenCode MCP config |
 
-All clients use the same `X-MCP-Key` header authentication and expose the same 8 tools.
+All clients use the same `X-MCP-Key` header authentication and expose the same 6 tools.
 
 ### Connect it to Claude Code
 

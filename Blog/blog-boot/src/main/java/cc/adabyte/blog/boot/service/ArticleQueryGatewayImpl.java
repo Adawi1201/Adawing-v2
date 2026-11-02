@@ -3,6 +3,7 @@ package cc.adabyte.blog.boot.service;
 import cc.adabyte.blog.common.gateway.ArticleQueryGateway;
 import cc.adabyte.blog.zoom.article.entity.Article;
 import cc.adabyte.blog.zoom.article.mapper.ArticleMapper;
+import cc.adabyte.blog.zoom.shared.enums.ContentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ public class ArticleQueryGatewayImpl implements ArticleQueryGateway {
 
     @Override
     public Result getById(Long id) {
-        Article article = articleMapper.selectById(id);
+        Article article = articleMapper.selectPublishedById(id, ContentStatus.PUBLISHED.getValue());
         if (article == null) return null;
         return new Result(
                 article.getId(),

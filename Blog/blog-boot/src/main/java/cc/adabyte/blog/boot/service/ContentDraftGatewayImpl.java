@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -20,7 +22,8 @@ public class ContentDraftGatewayImpl implements ContentDraftGateway {
     private final ReviewService reviewService;
 
     @Override
-    public Long createArticleDraft(String title, String content, String summary, String sourceAgent) {
+    public Long createArticleDraft(String title, String content, String summary, String sourceAgent,
+                                   List<String> tagNames) {
         Article article = new Article();
         article.setTitle(title);
         article.setContent(content);
@@ -32,7 +35,7 @@ public class ContentDraftGatewayImpl implements ContentDraftGateway {
         article.setHidden(false);
         article.setViewCount(0);
 
-        articleService.saveOrUpdate(article, null);
+        articleService.saveOrUpdate(article, tagNames);
         log.info("[ContentDraftGateway] Created draft id={} title={}", article.getId(), title);
 
         // 提交审核链：创建 review_task 记录，并将文章置为待审核

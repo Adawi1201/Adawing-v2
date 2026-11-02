@@ -7,3 +7,11 @@ export function getSiteConfig() {
 export function saveSiteConfig(config) {
   return request.put('/config/site', config, { silent: true })
 }
+
+export function getWritingGuide() {
+  return request.get('/config/writing-guide')
+}
+
+export function saveWritingGuide(content) {
+  return request.put('/config/writing-guide', { content }, { silent: true })
+}

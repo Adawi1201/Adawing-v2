@@ -76,14 +76,6 @@ public interface ArticleMapper extends BaseMapper<Article> {
     @Select("SELECT SUM(view_count) FROM article")
     Long selectTotalViewCount();
 
-    @ResultMap("articleRow")
-    @Select("""
-        SELECT * FROM article
-        WHERE (title LIKE CONCAT('%', #{keyword}, '%') OR summary LIKE CONCAT('%', #{keyword}, '%'))
-        ORDER BY create_time DESC LIMIT #{limit}
-        """)
-    List<Article> selectByKeyword(@Param("keyword") String keyword, @Param("limit") int limit);
-
     /** 面向访客的搜索：仅命中已发布且未隐藏的文章。 */
     @ResultMap("articleRow")
     @Select("""

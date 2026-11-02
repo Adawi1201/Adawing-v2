@@ -38,6 +38,7 @@ import java.util.Set;
 public class SystemConfigServiceImpl implements SystemConfigService {
 
     private static final String SITE_CONFIG_KEY = "site.config";
+    private static final String WRITING_GUIDE_KEY = "mcp.writing-guide";
 
     private final SystemConfigMapper mapper;
     private final ObjectMapper objectMapper;
@@ -83,6 +84,32 @@ public class SystemConfigServiceImpl implements SystemConfigService {
 
         Set<Long> resourceIds = collectResourceIds(dto);
         eventPublisher.publishEvent(new SiteConfigSavedEvent(resourceIds));
+    }
+
+    @Override
+    public String getWritingGuide() {
+        SystemConfig config = mapper.selectByKey(WRITING_GUIDE_KEY);
+        return config == null || config.getConfigValue() == null ? "" : config.getConfigValue();
+    }
+
+    @Override
+    @Transactional
+    public void saveWritingGuide(String content) {
+        String value = content == null ? "" : content;
+        SystemConfig existing = mapper.selectByKey(WRITING_GUIDE_KEY);
+        if (existing != null) {
+            existing.setConfigValue(value);
+            existing.setUpdateTime(LocalDateTime.now());
+            mapper.updateById(existing);
+        } else {
+            SystemConfig config = new SystemConfig();
+            config.setConfigKey(WRITING_GUIDE_KEY);
+            config.setConfigValue(value);
+            config.setDescription("Agent 写作指南");
+            config.setCreateTime(LocalDateTime.now());
+            config.setUpdateTime(LocalDateTime.now());
+            mapper.insert(config);
+        }
     }
 
     private Set<Long> collectResourceIds(SiteConfigDto dto) {

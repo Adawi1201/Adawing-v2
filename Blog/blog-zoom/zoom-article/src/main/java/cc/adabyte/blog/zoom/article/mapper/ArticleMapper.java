@@ -41,6 +41,10 @@ public interface ArticleMapper extends BaseMapper<Article> {
     @Select("SELECT COUNT(*) FROM article WHERE source = #{source}")
     Long countBySource(@Param("source") int source);
 
+    /** 按展示口径统计 Agent 文章：source_agent 非空即视为 Agent 创作，与前端 sourceLabel 一致。 */
+    @Select("SELECT COUNT(*) FROM article WHERE source_agent IS NOT NULL AND source_agent <> ''")
+    Long countAgentSourced();
+
     @ResultMap("articleRow")
     @Select("SELECT * FROM article WHERE status = #{status} AND is_hidden = 0 ORDER BY create_time DESC")
     List<Article> selectPublishedAll(@Param("status") int status);

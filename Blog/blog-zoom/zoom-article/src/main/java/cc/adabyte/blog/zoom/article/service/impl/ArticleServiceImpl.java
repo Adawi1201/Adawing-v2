@@ -175,6 +175,12 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public long countAgentSourced() {
+        Long count = articleMapper.countAgentSourced();
+        return count != null ? count : 0L;
+    }
+
+    @Override
     @Transactional
     public void saveOrUpdate(Article article, List<String> tagNames) {
         if (article.getId() == null) {

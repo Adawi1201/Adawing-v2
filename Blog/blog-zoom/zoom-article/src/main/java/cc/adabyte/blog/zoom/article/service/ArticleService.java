@@ -21,6 +21,7 @@ public interface ArticleService {
     Article getAdminById(Long id);
     long countByStatus(ContentStatus status);
     long countBySource(ArticleSource source);
+    long countAgentSourced();
     void saveOrUpdate(Article article, List<String> tagNames);
     void publish(Long id);
     void publishApproved(Long id);

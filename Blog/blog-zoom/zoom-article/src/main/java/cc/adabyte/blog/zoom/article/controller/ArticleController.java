@@ -7,7 +7,6 @@ import cc.adabyte.blog.resource.core.service.ResourceAllocationFacade;
 import cc.adabyte.blog.zoom.article.dto.ArticleSaveRequest;
 import cc.adabyte.blog.zoom.article.entity.Article;
 import cc.adabyte.blog.zoom.article.service.ArticleService;
-import cc.adabyte.blog.zoom.shared.enums.ArticleSource;
 import cc.adabyte.blog.zoom.shared.enums.ContentStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,15 +52,18 @@ public class ArticleController {
 
     @GetMapping("/stats")
     public Result<Map<String, Object>> stats() {
+        long total = articleService.countByStatus(null);
+        // 来源口径与列表标签一致：source_agent 非空即 Agent，original = total - agent
+        long agentCount = articleService.countAgentSourced();
         Map<String, Object> stats = new HashMap<>();
-        stats.put("total", articleService.countByStatus(null));
+        stats.put("total", total);
         stats.put("draftCount", articleService.countByStatus(ContentStatus.DRAFT));
         stats.put("pendingCount", articleService.countByStatus(ContentStatus.PENDING_REVIEW));
         stats.put("publishedCount", articleService.countByStatus(ContentStatus.PUBLISHED));
         stats.put("rejectedCount", articleService.countByStatus(ContentStatus.REJECTED));
         stats.put("hiddenCount", articleService.countByStatus(ContentStatus.HIDDEN));
-        stats.put("originalCount", articleService.countBySource(ArticleSource.ORIGINAL));
-        stats.put("agentCount", articleService.countBySource(ArticleSource.AI_GENERATED));
+        stats.put("originalCount", total - agentCount);
+        stats.put("agentCount", agentCount);
         stats.put("totalViewCount", articleService.getTotalViewCount());
         return Result.ok(stats);
     }
